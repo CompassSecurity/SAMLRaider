@@ -2,10 +2,10 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<name>SAML Raider</name>
     <url>http://github.com/SAMLRaider/SAMLRaider</url>
-	<description>Burp Suite Plugin for testing SAML2</description>
+	<description>SAML2 Burp Suite Extension</description>
 	<groupId>ch.hsr</groupId>
 	<artifactId>saml-raider</artifactId>
-	<version>1.0-SNAPSHOT</version>
+	<version>1.0.0-SNAPSHOT</version>
 	<modelVersion>4.0.0</modelVersion>
 	  <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
