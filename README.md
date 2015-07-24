@@ -76,6 +76,10 @@ Clone the repository and build the JAR file using Maven:
 Use the JAR file in `target/saml-raider-1.0-SNAPSHOT-jar-with-dependencies.jar`
 as a Burp extension.
 
+## Feedback, Bugs and Feature Requests
+
+Feedback is welcome! Please contact us or create a new issue on GitHub.
+
 ## Bachelor Thesis
 
 As soon as our thesis is online, we will publish the link here.
