@@ -27,7 +27,7 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/burpsuite_free_v1.6.01.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/java-7-openjdk"/>
+	<classpathentry kind="lib" path="lib/burpsuite_free_v1.6.01.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

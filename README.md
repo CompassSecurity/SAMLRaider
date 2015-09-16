@@ -52,6 +52,7 @@ Features of the SAML Raider Certificate Management:
 
 ## Download
 
+Download: [saml-raider-1.0.0.jar](https://github.com/SAMLRaider/SAMLRaider/releases/download/v1.0.0/saml-raider-1.0.0.jar)
 
 ## Installation
 
@@ -66,7 +67,9 @@ the proxy settings. Add a new rule which checks if a Parameter Name
 `SAMLResponse` is in the request. We hope the usage of our extension is mostly
 self explaining :smile:.
 
-## Build
+## Development
+
+### Build
 
 Clone the repository and build the JAR file using Maven:
 
@@ -74,6 +77,35 @@ Clone the repository and build the JAR file using Maven:
 
 Use the JAR file in `target/saml-raider-1.0-SNAPSHOT-jar-with-dependencies.jar`
 as a Burp extension.
+
+### Run SAML Raider inside Eclipse
+
+To start the Extension directly from Eclipse, import the Repository into
+Eclipse. Note that the Eclipse Maven Plugin `m2e` is required.
+
+Place the Burp Suite JAR file into the `lib` folder and add the Burp JAR as
+a Library in the Eclipse Project (`Properties` → `Build Path` → `Libraries`).
+
+Open the Burp JAR under `Referenced Libraries` in the Package Explorer and
+right click in the Package `burp` on `StartBurp.class` and select `Run As...`
+→ `Java Application` to start Burp and load the Extension automatically.
+
+### Debug Mode
+
+To enable the Debug Mode, set the `DEBUG` Flag in the Class `Flags` from the
+Package `helpers` to `true`. This will write all output to the
+`SAMLRaiderDebug.log` logfile and load example certificates for testing.
+
+### Test with fake SAML Response
+
+To send a SAML Response to Burp, you can use the script `samltest` in the
+`scripts/samltest` directory. It sends the SAML Response from `saml_response`
+to Burp (`localhost:8080`) and prints out the modified response from our
+plugin.
+
+## Feedback, Bugs and Feature Requests
+
+Feedback is welcome! Please contact us or create a new issue on GitHub.
 
 ## Bachelor Thesis
 
