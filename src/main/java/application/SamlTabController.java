@@ -34,7 +34,6 @@ import java.util.zip.DataFormatException;
 import javax.xml.crypto.MarshalException;
 import javax.xml.crypto.dsig.XMLSignatureException;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
 
 import model.BurpCertificate;
 
@@ -153,8 +152,8 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 
 				try {
 					textMessage = xmlHelpers.getStringOfDocument(
-							xmlHelpers.getXMLDocumentOfSAMLMessage(textArea.getText()), 0, false);
-				} catch (TransformerException e) {
+							xmlHelpers.getXMLDocumentOfSAMLMessage(textArea.getText()), 0, true);
+				} catch (IOException e) {
 					setInfoMessageText(XML_COULD_NOT_SERIALIZE);
 				} catch (SAXException e) {
 					setInfoMessageText(XML_NOT_WELL_FORMED);
@@ -245,13 +244,11 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 				}
 				Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(SAMLMessage);
 				SAMLMessage = xmlHelpers.getStringOfDocument(document, 2, true);
-			} catch (TransformerException e) {
+			} catch (IOException e) {
 				setInfoMessageText(XML_COULD_NOT_SERIALIZE);
 			} catch (SAXException e) {
 				setInfoMessageText(XML_NOT_WELL_FORMED);
 				SAMLMessage = "<error>" + XML_NOT_WELL_FORMED + "</error>";
-			} catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
 			} catch (ParserConfigurationException e) {
 				e.printStackTrace();
 			}
@@ -366,7 +363,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 			}
 		} catch (SAXException e1) {
 			setInfoMessageText(XML_NOT_WELL_FORMED);
-		} catch (TransformerException e) {
+		} catch (IOException e) {
 			setInfoMessageText(XML_COULD_NOT_SERIALIZE);
 		}
 	}
@@ -402,8 +399,6 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 			} else {
 				setInfoMessageText("no certificate chosen to sign");
 			}
-		} catch (TransformerException e) {
-			setInfoMessageText(XML_COULD_NOT_SERIALIZE);
 		} catch (SAXException e) {
 			setInfoMessageText(XML_NOT_WELL_FORMED);
 		} catch (IOException e) {
@@ -449,8 +444,6 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 			setInfoMessageText(XML_COULD_NOT_SERIALIZE);
 		} catch (XMLSignatureException e) {
 			setInfoMessageText(XML_COULD_NOT_SIGN);
-		} catch (TransformerException e) {
-			setInfoMessageText(XML_COULD_NOT_SERIALIZE);
 		}
 	}
 
@@ -513,8 +506,6 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 
 		} catch (SAXException e) {
 			setInfoMessageText(XML_NOT_WELL_FORMED);
-		} catch (TransformerException e) {
-			setInfoMessageText(XML_COULD_NOT_SERIALIZE);
 		} catch (DOMException e) {
 			setInfoMessageText(XML_NOT_SUITABLE_FOR_XSW);
 		} catch (MalformedURLException e) {
@@ -535,7 +526,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 			setInfoMessageText(XSW_ATTACK_APPLIED);
 		} catch (SAXException e) {
 			setInfoMessageText(XML_NOT_WELL_FORMED);
-		} catch (TransformerException e) {
+		} catch (IOException e) {
 			setInfoMessageText(XML_COULD_NOT_SERIALIZE);
 		} catch (DOMException e) {
 			setInfoMessageText(XML_NOT_SUITABLE_FOR_XSW);

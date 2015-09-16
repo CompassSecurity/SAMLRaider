@@ -4,7 +4,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
@@ -34,14 +33,6 @@ import javax.xml.crypto.dsig.spec.C14NMethodParameterSpec;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Result;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
@@ -86,12 +77,17 @@ public class XMLHelpers {
 	 * @return string of document
 	 */
 	public String getString(Document document) throws IOException {
+		return getString(document, false, 0);
+	}
+	
+	
+	public String getString(Document document, boolean indenting, int indent) throws IOException{
 		OutputFormat format = new OutputFormat(document);
-		format.setLineWidth(0);
-		format.setIndenting(false);
+		format.setLineWidth(200);
+		format.setIndenting(indenting);
+		format.setIndent(indent);
 		format.setPreserveEmptyAttributes(true);
 		format.setEncoding("UTF-8");
-		format.setPreserveSpace(true);
 
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		XMLSerializer serializer = new XMLSerializer(baos, format);
@@ -100,7 +96,7 @@ public class XMLHelpers {
 
 		return baos.toString("UTF-8");
 	}
-
+	
 	/**
 	 * Returns a string serialization of a string, use indent and linebreaks =
 	 * true to pretty print a document
@@ -111,32 +107,13 @@ public class XMLHelpers {
 	 *            amount of indent
 	 * @param linebreaks
 	 *            if line breaks should be inserted
-	 * @throws TransformerException
-	 *             if an unrecoverable error occurred at transformation
 	 * @return string of document, pretty or linearized
+	 * @throws IOException if an Serializer error occures
 	 */
-	public String getStringOfDocument(Document document, int indent, boolean linebreaks) throws TransformerException {
+	public String getStringOfDocument(Document document, int indent, boolean linebreaks) throws IOException{
 		document.normalize();
 		removeEmptyTags(document);
-
-		StringWriter out = new StringWriter();
-		TransformerFactory transformerFactory = TransformerFactory.newInstance();
-		Transformer transformer = null;
-		transformer = transformerFactory.newTransformer();
-		transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-		if (indent > 0) {
-			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", Integer.toString(indent));
-		}
-
-		Result streamResult = new StreamResult(out);
-		Source source = new DOMSource(document);
-		transformer.transform(source, streamResult);
-
-		if (linebreaks) {
-			return out.toString();
-		}
-		return out.toString().replaceAll("\n|\r", "");
+		return getString(document, linebreaks, indent);
 	}
 
 	/**
