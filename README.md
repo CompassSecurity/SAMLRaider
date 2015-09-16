@@ -54,11 +54,18 @@ Features of the SAML Raider Certificate Management:
 
 Download: [saml-raider-1.0.0.jar](https://github.com/SAMLRaider/SAMLRaider/releases/download/v1.0.0/saml-raider-1.0.0.jar)
 
-## Installation
+## Manual Installation
 
 Start the Burp Suite and click at the `Extender` tab on `Add`. Choose the SAML
 Raider JAR file to install the extension.
 
+## Installation from BApp Store
+
+The easy way to install SAML Raider is using the BApp Store. Open Burp and
+click in the `Extender` tab on the `BApp Store` tab. Select `SAML Raider` and
+hit the `Install` button to install our extension.
+
+Don't forget to rate our extension with as many stars you like :).
 
 ## Usage
 
