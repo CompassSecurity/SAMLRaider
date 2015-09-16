@@ -67,7 +67,7 @@ The easy way to install SAML Raider is using the BApp Store. Open Burp and
 click in the `Extender` tab on the `BApp Store` tab. Select `SAML Raider` and
 hit the `Install` button to install our extension.
 
-Don't forget to rate our extension with as many stars you like :).
+Don't forget to rate our extension with as many stars you like :smile:.
 
 ## Usage
 
