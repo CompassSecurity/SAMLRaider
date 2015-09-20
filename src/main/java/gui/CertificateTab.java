@@ -834,7 +834,6 @@ public class CertificateTab extends JPanel {
 		JButton tbnAddSubjectAlternativeName = new JButton("Add");
 		tbnAddSubjectAlternativeName.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("hier bin ich");
 				System.out.println(txtSubjectAlternativeNameName.getText());
 				addSubjectAlternativeNames(txtSubjectAlternativeNameName.getText() + " (" + cbbSubjectAlternativeNameType.getSelectedItem().toString() + ")");
 			}

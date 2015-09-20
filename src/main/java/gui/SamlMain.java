@@ -59,7 +59,7 @@ public class SamlMain extends javax.swing.JPanel{
 		panelText.setLayout(new BorderLayout(0, 0));
 		
 		textArea = new RSyntaxTextArea();
-		textArea.setText("<failure in initialization></failure in initialization>");
+		textArea.setText("<failureInInitialization></failureInInitialization>");
         scrollPane = new RTextScrollPane(textArea);
         scrollPane.add(textArea);
         panelText.add(scrollPane, BorderLayout.CENTER);

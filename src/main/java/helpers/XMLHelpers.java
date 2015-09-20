@@ -88,7 +88,7 @@ public class XMLHelpers {
 		format.setIndent(indent);
 		format.setPreserveEmptyAttributes(true);
 		format.setEncoding("UTF-8");
-
+		
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		XMLSerializer serializer = new XMLSerializer(baos, format);
 		serializer.asDOMSerializer();
@@ -158,17 +158,21 @@ public class XMLHelpers {
 	 *            document in which the empty tags should be removed
 	 */
 	public void removeEmptyTags(Document document) {
-		XPath xPath = XPathFactory.newInstance().newXPath();
 		NodeList nl = null;
 		try {
+			if(Thread.currentThread().getContextClassLoader() == null){
+				Thread.currentThread().setContextClassLoader(getClass().getClassLoader()); 
+			}
+			XPath xPath = XPathFactory.newInstance().newXPath();
 			nl = (NodeList) xPath.evaluate("//text()[normalize-space(.)='']", document, XPathConstants.NODESET);
+			
+			for (int i = 0; i < nl.getLength(); ++i) {
+				Node node = nl.item(i);
+				node.getParentNode().removeChild(node);
+			}
+			
 		} catch (XPathExpressionException e) {
 			e.printStackTrace();
-		}
-
-		for (int i = 0; i < nl.getLength(); ++i) {
-			Node node = nl.item(i);
-			node.getParentNode().removeChild(node);
 		}
 	}
 
@@ -201,6 +205,9 @@ public class XMLHelpers {
 	 */
 	public int removeOnlyMessageSignature(Document document) {
 		try {
+			if(Thread.currentThread().getContextClassLoader() == null){
+				Thread.currentThread().setContextClassLoader(getClass().getClassLoader()); 
+			}
 			setIDAttribute(document);
 			XPath xpath = XPathFactory.newInstance().newXPath();
 			XPathExpression expr = xpath.compile("//*[local-name()='Response']/*[local-name()='Signature']");
@@ -253,6 +260,9 @@ public class XMLHelpers {
 	 */
 	public Element getSOAPBody(Document document) {
 		try {
+			if(Thread.currentThread().getContextClassLoader() == null){
+				Thread.currentThread().setContextClassLoader(getClass().getClassLoader()); 
+			}
 			XPath xpath = XPathFactory.newInstance().newXPath();
 			XPathExpression expr = xpath.compile("//*[local-name()='Envelope']/*[local-name()='Body']");
 			NodeList elements = (NodeList) expr.evaluate(document, XPathConstants.NODESET);
@@ -466,6 +476,9 @@ public class XMLHelpers {
 	 */
 	public void setIDAttribute(Document document) {
 		try {
+			if(Thread.currentThread().getContextClassLoader() == null){
+				Thread.currentThread().setContextClassLoader(getClass().getClassLoader()); 
+			}
 			XPath xpath = XPathFactory.newInstance().newXPath();
 			XPathExpression expr = xpath.compile("//*[@ID]");
 			NodeList nodeList = (NodeList) expr.evaluate(document, XPathConstants.NODESET);
@@ -496,9 +509,12 @@ public class XMLHelpers {
 			throws CertificateException, FileNotFoundException, NoSuchAlgorithmException, InvalidKeySpecException,
 			MarshalException, XMLSignatureException, IOException {
 		try {
+			if(Thread.currentThread().getContextClassLoader() == null){
+				Thread.currentThread().setContextClassLoader(getClass().getClassLoader()); 
+			}
 			setIDAttribute(document);
 			XPath xpath = XPathFactory.newInstance().newXPath();
-			XPathExpression expr = xpath.compile("//*[local-name()='Response']/*[local-name()='Assertion']/@ID");
+			XPathExpression expr = xpath.compile("//*[local-name()='Assertion']/@ID");
 			NodeList nlURIs = (NodeList) expr.evaluate(document, XPathConstants.NODESET);
 
 			String[] sigIDs = new String[nlURIs.getLength()];
@@ -533,6 +549,9 @@ public class XMLHelpers {
 			throws CertificateException, FileNotFoundException, NoSuchAlgorithmException, InvalidKeySpecException,
 			MarshalException, XMLSignatureException, IOException {
 		try {
+			if(Thread.currentThread().getContextClassLoader() == null){
+				Thread.currentThread().setContextClassLoader(getClass().getClassLoader()); 
+			}
 			setIDAttribute(document);
 			XPath xpath = XPathFactory.newInstance().newXPath();
 			XPathExpression expr = xpath.compile("//*[local-name()='Response']/@ID");

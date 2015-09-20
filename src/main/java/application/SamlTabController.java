@@ -23,6 +23,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
@@ -73,11 +74,13 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 	private String SAMLMessage;
 	private boolean isInflated = true;
 	private boolean isGZip = false;
+	private boolean isWSSUrlEncoded = false;
 	private RSyntaxTextArea textArea;
 	private SamlMain samlGUI;
 	private boolean editable;
 	private boolean edited;
 	private boolean isSOAPMessage;
+	private boolean isWSSMessage;
 	private CertificateTabController certificateTabController;
 	private XSWHelpers xswHelpers;
 	private HTTPHelpers httpHelpers;
@@ -147,7 +150,8 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 					e.printStackTrace();
 				}
 
-			} else {
+			} 
+			else {
 				String textMessage = null;
 
 				try {
@@ -158,8 +162,12 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 				} catch (SAXException e) {
 					setInfoMessageText(XML_NOT_WELL_FORMED);
 				}
-
-				IParameter newParameter = helpers.buildParameter("SAMLResponse", getEncodedSAMLMessage(textMessage),
+				
+				String parameterToUpdate = "SAMLResponse";
+				if(isWSSMessage){
+					parameterToUpdate = "wresult";
+				}
+				IParameter newParameter = helpers.buildParameter(parameterToUpdate, getEncodedSAMLMessage(textMessage),
 						IParameter.PARAM_BODY);
 				byteMessage = helpers.updateParameter(byteMessage, newParameter);
 			}
@@ -207,7 +215,26 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 				e.printStackTrace();
 				return false;
 			}
-		} else {
+		} 
+		//WSS Security
+		else if( null != helpers.getRequestParameter(content, "wresult")){
+			try {
+				IRequestInfo requestInfo = helpers.analyzeRequest(content);
+				isWSSUrlEncoded = requestInfo.getContentType() == IRequestInfo.CONTENT_TYPE_URL_ENCODED;
+				isWSSMessage = true;
+				IParameter parameter = helpers.getRequestParameter(content, "wresult");
+				String wssMessage = getDecodedSAMLMessage(parameter.getValue());
+				Document document;
+				document = xmlHelpers.getXMLDocumentOfSAMLMessage(wssMessage);
+				return xmlHelpers.getAssertions(document).getLength() != 0
+						|| xmlHelpers.getEncryptedAssertions(document).getLength() != 0;
+			} catch (SAXException e) {
+				e.printStackTrace();
+				return false;
+			}
+		}
+		else {
+			isWSSMessage = false;
 			isSOAPMessage = false;
 			return (null != helpers.getRequestParameter(content, "SAMLResponse"));
 		}
@@ -238,21 +265,28 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 					Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(soapMessage);
 					Document documentSAML = xmlHelpers.getSAMLResponseOfSOAP(document);
 					SAMLMessage = xmlHelpers.getStringOfDocument(documentSAML, 0, false);
-				} else {
+				} 
+				else if(isWSSMessage){
+					IParameter parameter = helpers.getRequestParameter(content, "wresult");
+					SAMLMessage = getDecodedSAMLMessage(parameter.getValue());
+				}
+				else {
 					IParameter parameter = helpers.getRequestParameter(content, "SAMLResponse");
 					SAMLMessage = getDecodedSAMLMessage(parameter.getValue());
 				}
 				Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(SAMLMessage);
 				SAMLMessage = xmlHelpers.getStringOfDocument(document, 2, true);
 			} catch (IOException e) {
+				e.printStackTrace();
 				setInfoMessageText(XML_COULD_NOT_SERIALIZE);
 			} catch (SAXException e) {
+				e.printStackTrace();
 				setInfoMessageText(XML_NOT_WELL_FORMED);
 				SAMLMessage = "<error>" + XML_NOT_WELL_FORMED + "</error>";
 			} catch (ParserConfigurationException e) {
 				e.printStackTrace();
 			}
-
+			
 			setInformationDisplay();
 			updateCertificateList();
 			updateXSWList();
@@ -303,6 +337,14 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 	public String getEncodedSAMLMessage(String message) {
 		byte[] byteMessage;
 		try {
+			if(isWSSMessage){
+				if(isWSSUrlEncoded){
+					return URLEncoder.encode(message, "UTF-8");
+				}
+				else{
+					return message;
+				}
+			}
 			byteMessage = message.getBytes("UTF-8");
 			if (isInflated) {
 				try {
@@ -311,13 +353,23 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 				}
 			}
 			String base64Encoded = helpers.base64Encode(byteMessage);
-			return helpers.urlEncode(base64Encoded);
+			return URLEncoder.encode(base64Encoded, "UTF-8");
 		} catch (UnsupportedEncodingException e1) {
 		}
 		return null;
 	}
 
 	public String getDecodedSAMLMessage(String message) {
+		
+		if(isWSSMessage){
+			if(isWSSUrlEncoded){
+				return helpers.urlDecode(message);
+			}
+			else{
+				return message;
+			}
+		}
+		
 		String urlDecoded = helpers.urlDecode(message);
 		byte[] base64Decoded = helpers.base64Decode(urlDecoded);
 		
@@ -411,25 +463,29 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 	public void resignMessage() {
 		try {
 			resetInfoMessageText();
-			setInfoMessageText("Signing...");
-			BurpCertificate cert = samlGUI.getActionPanel().getSelectedCertificate();
-			if (cert != null) {
-				Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(textArea.getText());
-				NodeList responses = xmlHelpers.getResponse(document);
-				String signAlgorithm = xmlHelpers.getSignatureAlgorithm(responses.item(0));
-				String digestAlgorithm = xmlHelpers.getDigestAlgorithm(responses.item(0));
-
-				xmlHelpers.removeOnlyMessageSignature(document);
-				xmlHelpers.signMessage(document, signAlgorithm, digestAlgorithm, cert.getCertificate(),
-						cert.getPrivateKey());
-				SAMLMessage = xmlHelpers.getStringOfDocument(document, 2, true);
-				textArea.setText(SAMLMessage);
-				edited = true;
-				setInfoMessageText("Message successfully signed");
-			} else {
-				setInfoMessageText("no certificate chosen to sign");
+			if(isWSSMessage){
+				setInfoMessageText("Message signing is not possible with WS-Security messages");
 			}
-
+			else{
+				setInfoMessageText("Signing...");
+				BurpCertificate cert = samlGUI.getActionPanel().getSelectedCertificate();
+				if (cert != null) {
+					Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(textArea.getText());
+					NodeList responses = xmlHelpers.getResponse(document);
+					String signAlgorithm = xmlHelpers.getSignatureAlgorithm(responses.item(0));
+					String digestAlgorithm = xmlHelpers.getDigestAlgorithm(responses.item(0));
+	
+					xmlHelpers.removeOnlyMessageSignature(document);
+					xmlHelpers.signMessage(document, signAlgorithm, digestAlgorithm, cert.getCertificate(),
+							cert.getPrivateKey());
+					SAMLMessage = xmlHelpers.getStringOfDocument(document, 2, true);
+					textArea.setText(SAMLMessage);
+					edited = true;
+					setInfoMessageText("Message successfully signed");
+				} else {
+					setInfoMessageText("no certificate chosen to sign");
+				}
+			}
 		} catch (IOException e) {
 			setInfoMessageText(XML_COULD_NOT_SERIALIZE);
 		} catch (SAXException e) {
@@ -528,7 +584,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 			setInfoMessageText(XML_NOT_WELL_FORMED);
 		} catch (IOException e) {
 			setInfoMessageText(XML_COULD_NOT_SERIALIZE);
-		} catch (DOMException e) {
+		} catch (DOMException | NullPointerException e) {
 			setInfoMessageText(XML_NOT_SUITABLE_FOR_XSW);
 		}
 	}
