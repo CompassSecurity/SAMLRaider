@@ -62,9 +62,18 @@ public class XMLHelpers {
 	 * @return DocumentBuilderFactory NamespaceAware
 	 */
 	public DocumentBuilderFactory getDBF() {
-		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-		documentBuilderFactory.setNamespaceAware(true);
-		return documentBuilderFactory;
+		try {
+			DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+			documentBuilderFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+			documentBuilderFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+			documentBuilderFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+			documentBuilderFactory.setFeature(javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING , true);
+			documentBuilderFactory.setNamespaceAware(true);
+			return documentBuilderFactory;
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	/**
