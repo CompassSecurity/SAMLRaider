@@ -29,6 +29,9 @@ Features of the SAML Raider message editor:
 * Execute eight common XSW Attacks
 * Send certificate to SAMl Raider Certificate Management
 * Undo all changes of a SAML Message
+* Supported Profiles: SAML Webbrowser Single Sign-on Profile, Web Services
+  Security SAML Token Profile
+* Supported Bindings: POST Binding, Redirect Binding, SOAP Binding
 
 ![Message Editor](doc/message_editor.png)
 
@@ -52,7 +55,7 @@ Features of the SAML Raider Certificate Management:
 
 ## Download
 
-Download: [saml-raider-1.0.1.jar](https://github.com/SAMLRaider/SAMLRaider/releases/download/v1.0.1/saml-raider-1.0.1.jar)
+Download: [saml-raider-1.1.1.jar](https://github.com/SAMLRaider/SAMLRaider/releases/download/v1.1.1/saml-raider-1.1.1.jar)
 
 ## Installation
 
