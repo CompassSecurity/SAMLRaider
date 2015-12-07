@@ -55,7 +55,7 @@ Features of the SAML Raider Certificate Management:
 
 ## Download
 
-Download: [saml-raider-1.1.1.jar](https://github.com/SAMLRaider/SAMLRaider/releases/download/v1.1.1/saml-raider-1.1.1.jar)
+Download: [saml-raider-1.1.1.jar](https://github.com/SAMLRaider/SAMLRaider/releases/download/1.1.1/saml-raider-1.1.1.jar)
 
 ## Installation
 
