@@ -121,7 +121,8 @@ Feedback is welcome! Please contact us or create a new issue on GitHub.
 
 ## Bachelor Thesis
 
-As soon as our thesis is online, we will publish the link here.
+Our Bachelor thesis is available online and can  be found here:
+[eprints_BA_SAML2_Burp_Plugin_SAML_Raider_eduss_rbischof.pdf](http://eprints.hsr.ch/464/1/eprints_BA_SAML2_Burp_Plugin_SAML_Raider_eduss_rbischof.pdf).
 
 ## License
 
