@@ -3,7 +3,7 @@
 PROXY="127.0.0.1:8080"
 
 PORT="23523"
-RESPONSE="./saml_response"
+RESPONSE="${1:-./saml_response}"
 
 echo "[*] Listening for SAML Response on port $PORT..."
 nc -w 1 -l -p "$PORT" \
