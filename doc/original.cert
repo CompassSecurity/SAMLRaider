@@ -1,0 +1,115 @@
+$ openssl x509 -in original.cer -inform der -text
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            11:bd:4c:f1:77:bd:f9:32:11:31:aa:eb:1b:f2:19:bf
+    Signature Algorithm: sha256WithRSAEncryption
+        Issuer: C=US, O=thawte, Inc., CN=thawte SSL CA - G2
+        Validity
+            Not Before: May 13 00:00:00 2016 GMT
+            Not After : May 13 23:59:59 2018 GMT
+        Subject: C=CH, ST=St. Gallen, L=Jona, O=Compass Security Network Computing AG, CN=blog.compass-security.com
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+                Public-Key: (2048 bit)
+                Modulus:
+                    00:ba:4b:2d:ef:0c:35:c1:08:06:6f:1f:15:21:39:
+                    e1:d1:e4:73:f8:ff:39:9a:2c:f8:27:46:76:82:1b:
+                    32:da:46:cc:a6:6e:40:c9:8f:d2:f1:d0:e5:64:db:
+                    48:fe:44:54:db:c2:84:50:3c:1f:c2:a4:0c:e2:7c:
+                    3b:92:41:13:8a:b3:0e:85:ec:9b:3d:2f:9a:f9:57:
+                    4e:47:0f:1c:65:3c:2d:2a:e9:72:7a:18:71:d9:60:
+                    13:9f:6f:93:5e:89:b9:4b:86:4d:38:9f:52:22:62:
+                    19:0f:1f:fe:e9:fe:eb:d8:d4:8c:04:c8:19:17:6d:
+                    a5:7f:4f:52:9e:cb:bf:3d:f1:b2:53:00:3f:59:f2:
+                    9e:b8:5e:df:f4:81:d0:f9:ab:c3:41:ad:37:47:fb:
+                    1b:6f:46:00:fa:14:1b:21:66:c9:65:45:91:6f:1e:
+                    4d:dd:21:9d:07:e2:55:38:b6:08:49:09:ab:8a:8d:
+                    5d:56:59:7b:f1:ad:82:0a:61:1d:8b:d0:1d:56:10:
+                    9a:2d:73:42:19:16:ca:25:32:b8:f7:c5:e9:be:bf:
+                    6d:9b:dc:a7:fb:2d:bf:0a:ca:94:b1:ef:58:d8:a9:
+                    e6:75:58:49:99:eb:04:f7:d1:dd:69:79:e0:03:f4:
+                    80:de:f8:c8:e1:25:f7:8c:bf:2b:0c:18:25:84:9f:
+                    2e:f1
+                Exponent: 65537 (0x10001)
+        X509v3 extensions:
+            X509v3 Subject Alternative Name:
+                DNS:blog.compass-security.com
+            X509v3 Basic Constraints:
+                CA:FALSE
+            X509v3 Certificate Policies:
+                Policy: 2.23.140.1.2.2
+                  CPS: https://www.thawte.com/cps
+                  User Notice:
+                    Explicit Text: https://www.thawte.com/repository
+
+            X509v3 Key Usage: critical
+                Digital Signature, Key Encipherment
+            X509v3 Authority Key Identifier:
+                keyid:C2:4F:48:57:FC:D1:4F:9A:C0:5D:38:7D:0E:05:DB:D9:2E:B5:52:60
+
+            X509v3 CRL Distribution Points:
+
+                Full Name:
+                  URI:http://tj.symcb.com/tj.crl
+
+            X509v3 Extended Key Usage:
+                TLS Web Server Authentication, TLS Web Client Authentication
+            Authority Information Access:
+                OCSP - URI:http://tj.symcd.com
+                CA Issuers - URI:http://tj.symcb.com/tj.crt
+
+            CT Precertificate SCTs:
+                Signed Certificate Timestamp:
+                    Version   : v1(0)
+                    Log ID    : DD:EB:1D:2B:7A:0D:4F:A6:20:8B:81:AD:81:68:70:7E:
+                                2E:8E:9D:01:D5:5C:88:8D:3D:11:C4:CD:B6:EC:BE:CC
+                    Timestamp : May 13 10:50:01.505 2016 GMT
+                    Extensions: none
+                    Signature : ecdsa-with-SHA256
+                                30:46:02:21:00:8A:EB:F7:42:C2:6A:ED:B4:ED:93:33:
+                                27:69:47:EF:FE:92:DC:09:A1:BD:31:7E:41:51:B6:B1:
+                                E3:13:7F:47:F2:02:21:00:DD:8F:DC:FB:93:66:D5:94:
+                                C1:CB:E6:E2:94:F7:52:BB:57:4F:B0:FC:17:63:4D:3C:
+                                1E:AA:0A:2E:4E:67:06:11
+                Signed Certificate Timestamp:
+                    Version   : v1(0)
+                    Log ID    : A4:B9:09:90:B4:18:58:14:87:BB:13:A2:CC:67:70:0A:
+                                3C:35:98:04:F9:1B:DF:B8:E3:77:CD:0E:C8:0D:DC:10
+                    Timestamp : May 13 10:50:01.567 2016 GMT
+                    Extensions: none
+                    Signature : ecdsa-with-SHA256
+                                30:45:02:20:07:95:9B:65:7A:9F:86:FC:67:F1:A9:E9:
+                                FA:D4:BE:A9:7E:99:32:7F:62:96:E4:4D:54:A9:4A:E9:
+                                E9:25:CD:4E:02:21:00:90:D5:CC:57:D4:3D:9E:9B:08:
+                                41:C4:8D:0D:22:5F:33:89:B1:30:BF:64:77:E7:51:5F:
+                                D5:A1:3C:45:23:51:0E
+                Signed Certificate Timestamp:
+                    Version   : v1(0)
+                    Log ID    : 68:F6:98:F8:1F:64:82:BE:3A:8C:EE:B9:28:1D:4C:FC:
+                                71:51:5D:67:93:D4:44:D1:0A:67:AC:BB:4F:4F:FB:C4
+                    Timestamp : May 13 10:50:01.807 2016 GMT
+                    Extensions: none
+                    Signature : ecdsa-with-SHA256
+                                30:45:02:20:46:63:76:19:C9:92:B5:84:A7:CA:D7:9F:
+                                13:D8:C3:CF:FF:96:34:9D:B3:0E:C7:66:2F:76:10:E6:
+                                BC:38:FC:07:02:21:00:C6:FD:FF:50:38:74:4E:7D:84:
+                                07:93:D6:5E:DA:4F:00:8C:28:01:80:1A:8B:FA:5B:9D:
+                                9E:06:33:D0:2E:F7:7E
+    Signature Algorithm: sha256WithRSAEncryption
+         4e:e7:b9:7f:c9:dd:9e:81:f1:e3:11:50:15:a6:6b:7c:00:2d:
+         b5:eb:bd:23:dd:02:55:70:cd:8b:bd:c0:b8:53:59:bc:49:2c:
+         6c:82:ec:d1:13:22:9d:70:72:02:cd:2a:48:7e:61:da:2a:63:
+         dd:1f:90:91:79:4a:07:27:23:61:64:65:6e:31:05:d2:a9:34:
+         60:db:44:4e:a4:7c:6b:fb:ef:0b:11:a0:4b:e6:b4:8c:05:90:
+         0a:2a:26:ff:c0:a4:bc:3d:3a:0b:4e:be:7a:f2:40:1b:f5:fd:
+         2a:b4:87:e8:48:42:b4:db:a2:3b:56:ea:5e:3b:8e:e1:36:e8:
+         8c:be:c0:67:c1:05:31:9c:38:5f:6e:ba:bc:88:a8:09:5f:8f:
+         54:2d:b5:bc:13:b5:54:56:dc:1c:62:bb:3e:22:43:1c:dd:e1:
+         fc:63:75:1d:e3:28:5f:56:63:70:10:90:53:70:7e:9c:74:af:
+         a2:ff:d8:a1:29:80:5b:ed:b8:ee:69:d0:17:9a:c4:ce:5d:d1:
+         41:78:76:0b:42:2d:ec:29:cf:29:a2:7e:98:c7:ee:04:84:d8:
+         7a:61:10:52:18:f1:5e:cd:4e:d9:59:36:c8:73:6d:af:ea:c2:
+         ec:39:44:c1:88:c9:9f:a1:07:62:2b:2b:95:b8:86:31:77:73:
+         91:5c:4e:78
