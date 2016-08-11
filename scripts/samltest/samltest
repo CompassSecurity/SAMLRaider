@@ -12,8 +12,10 @@ PORT="23523"
 RESPONSE="${1:-./saml_response}"
 
 echo "[*] Listening for SAML Response on port $PORT..."
+
+# The openbsd-netcat variant of nc is used
 nc -w 1 -l -p "$PORT" \
-  | grep -o -E 'SAMLResponse=[^&]*' \
+  | grep -o -E 'SAML(Response|Request)=[^&]*' \
   | cut -d = -f 2  \
   | awk -niord '{printf RT?$0chr("0x"substr(RT,2)):$0}' RS=%.. \
   | base64 -d \
