@@ -81,6 +81,8 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 	private boolean edited;
 	private boolean isSOAPMessage;
 	private boolean isWSSMessage;
+	private boolean isSAMLRequest; // otherwise it's a SAMLResponse
+	private String httpMethod; // So URI and POST Binding is supported
 	private CertificateTabController certificateTabController;
 	private XSWHelpers xswHelpers;
 	private HTTPHelpers httpHelpers;
@@ -158,13 +160,27 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 				} catch (SAXException e) {
 					setInfoMessageText(XML_NOT_WELL_FORMED);
 				}
-				
-				String parameterToUpdate = "SAMLResponse";
-				if(isWSSMessage){
+
+				String parameterToUpdate;
+				if (isSAMLRequest) {
+					parameterToUpdate = "SAMLRequest";
+				} else {
+					parameterToUpdate = "SAMLResponse";
+				}
+
+				if (isWSSMessage) {
 					parameterToUpdate = "wresult";
 				}
+
+				byte parameterType;
+				if (httpMethod.equals("GET")) {
+					parameterType = IParameter.PARAM_URL;
+				} else {
+					parameterType = IParameter.PARAM_BODY;
+				}
 				IParameter newParameter = helpers.buildParameter(parameterToUpdate, getEncodedSAMLMessage(textMessage),
-						IParameter.PARAM_BODY);
+						parameterType);
+
 				byteMessage = helpers.updateParameter(byteMessage, newParameter);
 			}
 		}
@@ -197,6 +213,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 
 	private boolean isSAMLMessage(byte[] content) {
 		IRequestInfo info = helpers.analyzeRequest(content);
+		httpMethod = helpers.analyzeRequest(content).getMethod();
 		if (info.getContentType() == IRequestInfo.CONTENT_TYPE_XML) {
 			isSOAPMessage = true;
 			try {
@@ -231,7 +248,20 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 		} else {
 			isWSSMessage = false;
 			isSOAPMessage = false;
-			return (null != helpers.getRequestParameter(content, "SAMLResponse"));
+
+			IParameter requestParameter;
+
+			requestParameter = helpers.getRequestParameter(content, "SAMLResponse");
+			if (requestParameter != null) {
+				isSAMLRequest = false;
+				return true;
+			}
+
+			requestParameter = helpers.getRequestParameter(content, "SAMLRequest");
+			if (requestParameter != null) {
+				isSAMLRequest = true;
+				return true;
+			}
 		}
 		return false;
 	}
@@ -263,10 +293,18 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 				} else if (isWSSMessage) {
 					IParameter parameter = helpers.getRequestParameter(content, "wresult");
 					SAMLMessage = getDecodedSAMLMessage(parameter.getValue());
-				}
-				else {
-					IParameter parameter = helpers.getRequestParameter(content, "SAMLResponse");
-					SAMLMessage = getDecodedSAMLMessage(parameter.getValue());
+				} else {
+					IParameter parameter;
+
+					if (isSAMLRequest) {
+						parameter = helpers.getRequestParameter(content, "SAMLRequest");
+					} else {
+						parameter = helpers.getRequestParameter(content, "SAMLResponse");
+					}
+
+					if (null != parameter) {
+						SAMLMessage = getDecodedSAMLMessage(parameter.getValue());
+					}
 				}
 				Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(SAMLMessage);
 				SAMLMessage = xmlHelpers.getStringOfDocument(document, 2, true);
