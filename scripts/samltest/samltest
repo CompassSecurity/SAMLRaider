@@ -1,7 +1,9 @@
 #!/bin/bash
 #
 # Test SAMLRaider manually
-# Info: The openbsd-netcat variant of nc is used
+#
+# The assertion is sent via HTTP POST. So the assertion must be first base64
+# encoded and then url encoded. No deflate compression is needed.
 #
 
 PROXY="127.0.0.1:8080"
