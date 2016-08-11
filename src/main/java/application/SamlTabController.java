@@ -143,20 +143,16 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 					soapBody.replaceChild(samlResponse, soapFirstChildOfBody);
 					String wholeMessage = HTTPHeader + xmlHelpers.getString(soapDocument);
 					byteMessage = wholeMessage.getBytes("UTF-8");
-				} catch (UnsupportedEncodingException e) {
+				} catch (IOException e) {
 				} catch (SAXException e) {
 					setInfoMessageText(XML_NOT_WELL_FORMED);
-				} catch (IOException e) {
-					e.printStackTrace();
 				}
-
-			} 
-			else {
+			} else {
 				String textMessage = null;
 
 				try {
-					textMessage = xmlHelpers.getStringOfDocument(
-							xmlHelpers.getXMLDocumentOfSAMLMessage(textArea.getText()), 0, true);
+					textMessage = xmlHelpers
+							.getStringOfDocument(xmlHelpers.getXMLDocumentOfSAMLMessage(textArea.getText()), 0, true);
 				} catch (IOException e) {
 					setInfoMessageText(XML_COULD_NOT_SERIALIZE);
 				} catch (SAXException e) {
@@ -215,9 +211,9 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 				e.printStackTrace();
 				return false;
 			}
-		} 
-		//WSS Security
-		else if( null != helpers.getRequestParameter(content, "wresult")){
+		}
+		// WSS Security
+		else if (null != helpers.getRequestParameter(content, "wresult")) {
 			try {
 				IRequestInfo requestInfo = helpers.analyzeRequest(content);
 				isWSSUrlEncoded = requestInfo.getContentType() == IRequestInfo.CONTENT_TYPE_URL_ENCODED;
@@ -232,8 +228,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 				e.printStackTrace();
 				return false;
 			}
-		}
-		else {
+		} else {
 			isWSSMessage = false;
 			isSOAPMessage = false;
 			return (null != helpers.getRequestParameter(content, "SAMLResponse"));
@@ -265,8 +260,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 					Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(soapMessage);
 					Document documentSAML = xmlHelpers.getSAMLResponseOfSOAP(document);
 					SAMLMessage = xmlHelpers.getStringOfDocument(documentSAML, 0, false);
-				} 
-				else if(isWSSMessage){
+				} else if (isWSSMessage) {
 					IParameter parameter = helpers.getRequestParameter(content, "wresult");
 					SAMLMessage = getDecodedSAMLMessage(parameter.getValue());
 				}
@@ -286,7 +280,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 			} catch (ParserConfigurationException e) {
 				e.printStackTrace();
 			}
-			
+
 			setInformationDisplay();
 			updateCertificateList();
 			updateXSWList();
@@ -337,11 +331,10 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 	public String getEncodedSAMLMessage(String message) {
 		byte[] byteMessage;
 		try {
-			if(isWSSMessage){
-				if(isWSSUrlEncoded){
+			if (isWSSMessage) {
+				if (isWSSUrlEncoded) {
 					return URLEncoder.encode(message, "UTF-8");
-				}
-				else{
+				} else {
 					return message;
 				}
 			}
@@ -360,22 +353,21 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 	}
 
 	public String getDecodedSAMLMessage(String message) {
-		
-		if(isWSSMessage){
-			if(isWSSUrlEncoded){
+
+		if (isWSSMessage) {
+			if (isWSSUrlEncoded) {
 				return helpers.urlDecode(message);
-			}
-			else{
+			} else {
 				return message;
 			}
 		}
-		
+
 		String urlDecoded = helpers.urlDecode(message);
 		byte[] base64Decoded = helpers.base64Decode(urlDecoded);
-		
+
 		isInflated = true;
 		isGZip = true;
-		
+
 		// try normal Zip Inflate
 		try {
 			byte[] inflated = httpHelpers.decompress(base64Decoded, true);
@@ -384,8 +376,8 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 		} catch (DataFormatException e) {
 			isGZip = false;
 		}
-		
-		//try Gzip Inflate
+
+		// try Gzip Inflate
 		try {
 			byte[] inflated = httpHelpers.decompress(base64Decoded, false);
 			return new String(inflated, "UTF-8");
@@ -419,7 +411,6 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 			setInfoMessageText(XML_COULD_NOT_SERIALIZE);
 		}
 	}
-
 
 	public void resetMessage() {
 		SAMLMessage = orgSAMLMessage;
@@ -463,10 +454,9 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 	public void resignMessage() {
 		try {
 			resetInfoMessageText();
-			if(isWSSMessage){
+			if (isWSSMessage) {
 				setInfoMessageText("Message signing is not possible with WS-Security messages");
-			}
-			else{
+			} else {
 				setInfoMessageText("Signing...");
 				BurpCertificate cert = samlGUI.getActionPanel().getSelectedCertificate();
 				if (cert != null) {
@@ -474,7 +464,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 					NodeList responses = xmlHelpers.getResponse(document);
 					String signAlgorithm = xmlHelpers.getSignatureAlgorithm(responses.item(0));
 					String digestAlgorithm = xmlHelpers.getDigestAlgorithm(responses.item(0));
-	
+
 					xmlHelpers.removeOnlyMessageSignature(document);
 					xmlHelpers.signMessage(document, signAlgorithm, digestAlgorithm, cert.getCertificate(),
 							cert.getPrivateKey());
@@ -596,8 +586,8 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 			samlGUI.getActionPanel().disableControls();
 		}
 	}
-	
-	public void searchInTextarea(){
+
+	public void searchInTextarea() {
 		String text = samlGUI.getActionPanel().getSearchText();
 		SearchContext context = new SearchContext();
 		context.setMatchCase(false);
@@ -610,7 +600,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 			SearchEngine.find(textArea, context);
 		}
 	}
-	
+
 	public void showSignatureHelp() {
 		SignatureHelpWindow window = new SignatureHelpWindow();
 		window.setVisible(true);
