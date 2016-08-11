@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<saml2p:AuthnRequest
+  AssertionConsumerServiceURL="https://saml-federation.appspot.com:443/saml/SSO"
+  Destination="https://idp.ssocircle.com:443/sso/SSORedirect/metaAlias/ssocircle"
+  ForceAuthn="false" ID="a2a3bahd325cbcd14he97ai9798ii38"
+  IsPassive="false" IssueInstant="2016-08-11T17:05:38.128Z"
+  ProtocolBinding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact"
+  Version="2.0" xmlns:saml2p="urn:oasis:names:tc:SAML:2.0:protocol">
+  <saml2:Issuer xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion">saml-federation.appspot.com</saml2:Issuer>
+</saml2p:AuthnRequest>
