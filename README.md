@@ -93,7 +93,9 @@ as a Burp extension.
 ### Run SAML Raider inside Eclipse
 
 To start the Extension directly from Eclipse, import the Repository into
-Eclipse. Note that the Eclipse Maven Plugin `m2e` is required.
+Eclipse. You can directly import a existing Maven Project. Note that the
+Eclipse Maven Plugin `m2e` is required. This is included in the latest "Eclipse
+IDE for Java Developers ".
 
 Place the Burp Suite JAR file into the `lib` folder and add the Burp JAR as
 a Library in the Eclipse Project (`Properties` → `Build Path` → `Libraries`).
