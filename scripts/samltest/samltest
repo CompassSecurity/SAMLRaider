@@ -1,4 +1,8 @@
 #!/bin/bash
+#
+# Test SAMLRaider manually
+# Info: The openbsd-netcat variant of nc is used
+#
 
 PROXY="127.0.0.1:8080"
 
