@@ -24,14 +24,14 @@ Features of the SAML Raider message editor:
 * Sign SAML Messages
 * Sign SAML Assertions
 * Remove Signatures
-* Edit SAML Message
+* Edit SAML Message (Supported Messages: SAMLRequest and SAMLResponse)
 * Preview eight common XSW Attacks
 * Execute eight common XSW Attacks
 * Send certificate to SAMl Raider Certificate Management
 * Undo all changes of a SAML Message
 * Supported Profiles: SAML Webbrowser Single Sign-on Profile, Web Services
   Security SAML Token Profile
-* Supported Bindings: POST Binding, Redirect Binding, SOAP Binding
+* Supported Bindings: POST Binding, Redirect Binding, SOAP Binding, URI Binding
 
 ![Message Editor](doc/message_editor.png)
 
