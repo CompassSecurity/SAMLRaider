@@ -81,6 +81,11 @@ self explaining :smile:.
 
 ## Development
 
+### Burp Extender API
+
+The Burp Extender API can be found here:
+https://portswigger.net/burp/extender/api/index.html.
+
 ### Build
 
 Clone the repository and build the JAR file using Maven:
