@@ -5,7 +5,7 @@
 	<description>SAML2 Burp Suite Extension</description>
 	<groupId>ch.hsr</groupId>
 	<artifactId>saml-raider</artifactId>
-	<version>1.1.1-SNAPSHOT</version>
+	<version>1.2.0-SNAPSHOT</version>
 	<modelVersion>4.0.0</modelVersion>
 	  <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
