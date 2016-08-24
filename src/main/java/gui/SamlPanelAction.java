@@ -98,7 +98,7 @@ public class SamlPanelAction extends JPanel {
 		gbc_btnXSWPreview.gridy = 1;
 		btnXSWPreview.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				controller.showXSWPreview();
+				controller.showXSWPreview(txtEvilSubject.getText());
 			}
 		});
 		add(btnXSWPreview, gbc_btnXSWPreview);
@@ -141,7 +141,7 @@ public class SamlPanelAction extends JPanel {
 		gbc_btnXSWApply.gridy = 2;
 		btnXSWApply.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				controller.applyXSW();
+				controller.applyXSW(txtEvilSubject.getText());
 			}
 		});
 		add(btnXSWApply, gbc_btnXSWApply);

@@ -562,10 +562,10 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 		}
 	}
 
-	public void showXSWPreview() {
+	public void showXSWPreview(String evilSubject) {
 		try {
 			Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(orgSAMLMessage);
-			xswHelpers.applyXSW(samlGUI.getActionPanel().getSelectedXSW(), document);
+			xswHelpers.applyXSW(samlGUI.getActionPanel().getSelectedXSW(), document, evilSubject);
 			String after = xmlHelpers.getStringOfDocument(document, 2, true);
 			String diff = xswHelpers.diffLineMode(orgSAMLMessage, after);
 
@@ -599,11 +599,11 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 		}
 	}
 
-	public void applyXSW() {
+	public void applyXSW(String evilSubject) {
 		Document document;
 		try {
 			document = xmlHelpers.getXMLDocumentOfSAMLMessage(orgSAMLMessage);
-			xswHelpers.applyXSW(samlGUI.getActionPanel().getSelectedXSW(), document);
+			xswHelpers.applyXSW(samlGUI.getActionPanel().getSelectedXSW(), document, evilSubject);
 			SAMLMessage = xmlHelpers.getStringOfDocument(document, 2, true);
 			textArea.setText(SAMLMessage);
 			edited = true;

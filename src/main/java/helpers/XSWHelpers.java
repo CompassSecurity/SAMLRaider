@@ -19,7 +19,7 @@ public class XSWHelpers {
 	 * 
 	 * */
 	
-	public void applyXSW(String xswType, Document document){
+	public void applyXSW(String xswType, Document document, String evilSubject){
 		switch (xswType){
 			case "XSW1":
 				applyXSW1(document);
