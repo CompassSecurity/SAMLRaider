@@ -41,6 +41,8 @@ public class SamlPanelAction extends JPanel {
 	private JButton btnSignatureAdd;
 	private JTextField txtSearch;
 	private JLabel lblSearch;
+	private JTextField txtEvilSubject;
+	private JLabel lblEvilSubject;
 
 	public SamlPanelAction() {
 		initialize();
@@ -96,7 +98,7 @@ public class SamlPanelAction extends JPanel {
 		gbc_btnXSWPreview.gridy = 1;
 		btnXSWPreview.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				controller.showXSWPreview();
+				controller.showXSWPreview(txtEvilSubject.getText());
 			}
 		});
 		add(btnXSWPreview, gbc_btnXSWPreview);
@@ -114,6 +116,23 @@ public class SamlPanelAction extends JPanel {
 			}
 		});
 
+		lblEvilSubject = new JLabel("Evil Subject");
+		lblEvilSubject.setFont(new Font("Tahoma", Font.BOLD, 11));
+		GridBagConstraints gbc_lblEvilSubject = new GridBagConstraints();
+		gbc_lblEvilSubject.insets = new Insets(0, 0, 5, 5);
+		gbc_lblEvilSubject.gridx = 0;
+		gbc_lblEvilSubject.gridy = 2;
+		add(lblEvilSubject, gbc_lblEvilSubject);
+
+		txtEvilSubject = new JTextField();
+		GridBagConstraints gbc_txtEvilSubject = new GridBagConstraints();
+		gbc_txtEvilSubject.insets = new Insets(0, 0, 5, 0);
+		gbc_txtEvilSubject.fill = GridBagConstraints.HORIZONTAL;
+		gbc_txtEvilSubject.gridx = 1;
+		gbc_txtEvilSubject.gridy = 2;
+		add(txtEvilSubject, gbc_txtEvilSubject);
+		txtEvilSubject.setColumns(15);
+
 		btnXSWApply = new JButton("Apply XSW");
 		GridBagConstraints gbc_btnXSWApply = new GridBagConstraints();
 		gbc_btnXSWApply.insets = new Insets(0, 0, 5, 5);
@@ -122,7 +141,7 @@ public class SamlPanelAction extends JPanel {
 		gbc_btnXSWApply.gridy = 2;
 		btnXSWApply.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				controller.applyXSW();
+				controller.applyXSW(txtEvilSubject.getText());
 			}
 		});
 		add(btnXSWApply, gbc_btnXSWApply);
