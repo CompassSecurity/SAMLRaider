@@ -120,7 +120,8 @@ Package `helpers` to `true`. This will write all output to the
 To send a SAML Response to Burp, you can use the script `samltest` in the
 `scripts/samltest` directory. It sends the SAML Response from `saml_response`
 to Burp (`localhost:8080`) and prints out the modified response from our
-plugin.
+plugin. You have to install `gawk` (GNU awk) as `awk` and `libxml2-utils` for
+the `xmllint` command.
 
 ## Feedback, Bugs and Feature Requests
 
