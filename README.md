@@ -9,7 +9,7 @@ certificates.
 This software was created by Roland Bischofberger and Emanuel Duss during
 a bachelor thesis at the [Hochschule für Technik
 Rapperswil](https://www.hsr.ch) (HSR). Our project partner and advisor was
-[Compass Security Schweiz AG](https://www.csnc.ch). We thank Compass for the
+[Compass Security Schweiz AG](https://www.compass-security.com). We thank Compass for the
 nice collaboration and support during our bachelor thesis.
 
 ## Features
@@ -77,7 +77,7 @@ Don't forget to rate our extension with as many stars you like :smile:.
 To test SAML environments more comfortable, you could add a intercept rule in
 the proxy settings. Add a new rule which checks if a Parameter Name
 `SAMLResponse` is in the request. We hope the usage of our extension is mostly
-self explaining :smile:.
+self explaining :smile:. If you have questions, don't hesitate to ask us!
 
 ## Development
 
@@ -88,26 +88,47 @@ https://portswigger.net/burp/extender/api/index.html.
 
 ### Build
 
-Clone the repository and build the JAR file using Maven:
+Clone the project into your workspace:
+
+    git clone https://github.com/SAMLRaider/SAMLRaider.git
+
+Import existing project into your Eclipse workspace: `File` → `Import...` →
+`Existing Projects into Workspace`. Select the cloned folder and press `Finish`.
+
+[Download](https://portswigger.net/burp/download.html) the latest version of
+Burp Suite as a JAR file and place it in the `lib` folder.
+
+Add the Burp Suite JAR file to the libraries: Rightclick on Project →
+`Properties` → `Java Build Path` → `Libraries` and add the JAR file.
+
+Install `maven` so you can build SAMLRaider using the build automation tool
+Maven:
 
     $ mvn install
 
-Use the JAR file in `target/saml-raider-1.0-SNAPSHOT-jar-with-dependencies.jar`
-as a Burp extension.
+Load the Burp Extension into Burp: `Extender` → `Add` → select the JAR file
+(with dependencies) in the `./target` directory of the project, like
+`./target/saml-raider-$VERSION-SNAPSHOT-jar-with-dependencies.jar`.
+
+Then you can test the extension and rebuild it again after a change.
+
+Tipp: To reload the extension in Burp, without restarting Burp, hit the `Ctrl`
+key and click on the checkbox next to the extension in the `Extender` tab.
 
 ### Run SAML Raider inside Eclipse
 
 To start the Extension directly from Eclipse, import the Repository into
 Eclipse. You can directly import a existing Maven Project. Note that the
 Eclipse Maven Plugin `m2e` is required. This is included in the latest "Eclipse
-IDE for Java Developers ".
+IDE for Java Developers".
 
 Place the Burp Suite JAR file into the `lib` folder and add the Burp JAR as
 a Library in the Eclipse Project (`Properties` → `Build Path` → `Libraries`).
 
 Open the Burp JAR under `Referenced Libraries` in the Package Explorer and
-right click in the Package `burp` on `StartBurp.class` and select `Run As...`
-→ `Java Application` to start Burp and load the Extension automatically.
+right click in the Package `burp` on `StartBurp.class` and select `Run As...` →
+`Java Application` to start Burp and load the Extension automatically.  (Or in
+Eclipse: `Run` → `Debug As` → `Java Application` → `StartBurp - burp` → `OK`.)
 
 ### Debug Mode
 
