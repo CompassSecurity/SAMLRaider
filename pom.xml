@@ -31,11 +31,12 @@
 			<artifactId>rsyntaxtextarea</artifactId>
 			<version>2.5.6</version>
 		</dependency>
-		<dependency>
-			<groupId>com.h3xstream.retirejs</groupId>
-			<artifactId>burp-api</artifactId>
-			<version>1.0.0</version>
-		</dependency>
+        <dependency>
+            <groupId>net.portswigger.burp.extender</groupId>
+            <artifactId>burp-extender-api</artifactId>
+            <version>1.7.22</version>
+            <scope>provided</scope>
+        </dependency>
 		<dependency>
 			<groupId>com.sun.xml.security</groupId>
 			<artifactId>xml-security-impl</artifactId>
