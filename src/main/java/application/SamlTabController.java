@@ -331,6 +331,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 
 	private void setInformationDisplay() {
 		SamlPanelInfo infoPanel = samlGUI.getInfoPanel();
+		infoPanel.clearAll();
 
 		try {
 			Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(SAMLMessage);
