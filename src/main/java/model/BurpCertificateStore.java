@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
 
 public class BurpCertificateStore {
 
@@ -57,9 +58,9 @@ public class BurpCertificateStore {
 	 */
 	public void removeCertificate(BurpCertificate burpCertificate) {
 		@SuppressWarnings("unchecked")
-		Enumeration<DefaultMutableTreeNode> en = rootNode.depthFirstEnumeration();
+		Enumeration<TreeNode> en = rootNode.depthFirstEnumeration();
 		while (en.hasMoreElements()) {
-			DefaultMutableTreeNode foundNode = en.nextElement();
+			DefaultMutableTreeNode foundNode = (DefaultMutableTreeNode) en.nextElement();
 			if (foundNode.getUserObject() instanceof BurpCertificate) {
 				if (foundNode.getUserObject() == burpCertificate) {
 					foundNode.removeFromParent();
@@ -95,9 +96,9 @@ public class BurpCertificateStore {
 	public List<BurpCertificate> getBurpCertificatesWithPrivateKey() {
 		List<BurpCertificate> certificatesWithPrivateKey = new LinkedList<>();
 		@SuppressWarnings("unchecked")
-		Enumeration<DefaultMutableTreeNode> en = rootNode.depthFirstEnumeration();
+		Enumeration<TreeNode> en = rootNode.depthFirstEnumeration();
 		while (en.hasMoreElements()) {
-			DefaultMutableTreeNode foundNode = en.nextElement();
+			DefaultMutableTreeNode foundNode = (DefaultMutableTreeNode) en.nextElement();
 			if (foundNode.getUserObject() instanceof BurpCertificate) {
 				BurpCertificate b = (BurpCertificate) foundNode.getUserObject();
 				if (b.hasPrivateKey()) {

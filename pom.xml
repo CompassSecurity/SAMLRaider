@@ -5,7 +5,7 @@
 	<description>SAML2 Burp Suite Extension</description>
 	<groupId>ch.hsr</groupId>
 	<artifactId>saml-raider</artifactId>
-	<version>1.2.1-SNAPSHOT</version>
+	<version>1.2.2</version>
 	<modelVersion>4.0.0</modelVersion>
 	  <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -41,6 +41,16 @@
 			<artifactId>xml-security-impl</artifactId>
 			<version>1.0</version>
 		</dependency>
+		<dependency>
+			<groupId>xerces</groupId>
+			<artifactId>xercesImpl</artifactId>
+			<version>2.12.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.santuario</groupId>
+			<artifactId>xmlsec</artifactId>
+			<version>2.1.2</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
@@ -48,8 +58,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.1</version>
 				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
+					<source>1.8</source>
+					<target>1.8</target>
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>
 					</descriptorRefs>
