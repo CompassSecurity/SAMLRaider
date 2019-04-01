@@ -49,8 +49,6 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.x509.X509V3CertificateGenerator;
 import org.bouncycastle.x509.extension.X509ExtensionUtil;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 @SuppressWarnings("deprecation")
 public class BurpCertificateBuilder {
 	X509V3CertificateGenerator certificateGenerator;
@@ -183,7 +181,7 @@ public class BurpCertificateBuilder {
 		// X.509v3 General
 
 		if (version != 3) {
-			throw new NotImplementedException();
+			throw new UnsupportedOperationException("Not implemented yet.");
 		}
 		certificateGenerator = new X509V3CertificateGenerator();
 		certificateGenerator.setSerialNumber(serial);
