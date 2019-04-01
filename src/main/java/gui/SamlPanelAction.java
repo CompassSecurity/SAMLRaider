@@ -7,8 +7,6 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.util.List;
 
 import javax.swing.DefaultComboBoxModel;
@@ -17,8 +15,6 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 
 import model.BurpCertificate;
 import application.SamlTabController;
@@ -217,30 +213,7 @@ public class SamlPanelAction extends JPanel {
 		gbc_lblSearch.gridy = 8;
 		add(lblSearch, gbc_lblSearch);
 
-		txtSearch = new JTextField();
-		txtSearch.addKeyListener(new KeyAdapter() {
-			public void keyPressed(KeyEvent e) {
-				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-					controller.searchInTextarea();
-				}
-			}	
-		});
-		
-		txtSearch.getDocument().addDocumentListener(new DocumentListener() {
-			  	public void removeUpdate(DocumentEvent e) {
-			  		controller.searchInTextarea();
-			    }
-				public void insertUpdate(DocumentEvent e) {}
-				public void changedUpdate(DocumentEvent e) {} 
-		});
 
-		GridBagConstraints gbc_txtSearch = new GridBagConstraints();
-		gbc_txtSearch.insets = new Insets(0, 0, 5, 0);
-		gbc_txtSearch.fill = GridBagConstraints.HORIZONTAL;
-		gbc_txtSearch.gridx = 4;
-		gbc_txtSearch.gridy = 8;
-		add(txtSearch, gbc_txtSearch);
-		txtSearch.setColumns(10);
 
 		lblMessage = new JLabel("");
 		lblMessage.setBackground(new Color(255, 250, 205));
