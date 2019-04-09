@@ -32,16 +32,13 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.zip.DataFormatException;
 
+import javax.swing.JTextArea;
 import javax.xml.crypto.MarshalException;
 import javax.xml.crypto.dsig.XMLSignatureException;
 import javax.xml.parsers.ParserConfigurationException;
 
 import model.BurpCertificate;
 
-import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
-import org.fife.ui.rtextarea.SearchContext;
-import org.fife.ui.rtextarea.SearchEngine;
-import org.fife.ui.rtextarea.SearchResult;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -75,7 +72,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 	private boolean isInflated = true;
 	private boolean isGZip = false;
 	private boolean isWSSUrlEncoded = false;
-	private RSyntaxTextArea textArea;
+	private JTextArea textArea;
 	private SamlMain samlGUI;
 	private boolean editable;
 	private boolean edited;
@@ -331,6 +328,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 
 	private void setInformationDisplay() {
 		SamlPanelInfo infoPanel = samlGUI.getInfoPanel();
+		infoPanel.clearAll();
 
 		try {
 			Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(SAMLMessage);
@@ -622,20 +620,6 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 			samlGUI.getActionPanel().enableControls();
 		} else {
 			samlGUI.getActionPanel().disableControls();
-		}
-	}
-
-	public void searchInTextarea() {
-		String text = samlGUI.getActionPanel().getSearchText();
-		SearchContext context = new SearchContext();
-		context.setMatchCase(false);
-		context.setMarkAll(true);
-		context.setSearchFor(text);
-		context.setWholeWord(false);
-		SearchResult result = SearchEngine.find(textArea, context);
-		if (!result.wasFound()) {
-			textArea.setCaretPosition(0);
-			SearchEngine.find(textArea, context);
 		}
 	}
 

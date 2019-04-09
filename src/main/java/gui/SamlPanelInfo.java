@@ -214,11 +214,7 @@ public class SamlPanelInfo extends JPanel {
 		gbc_lblEncryption.gridy = 11;
 		add(lblEncryption, gbc_lblEncryption);
 	}
-	
-	public void setAssertionTitle(String string){
-		lblAssertionTitle.setText(string);
-	}
-	
+
 	public void setIssuer(String string){
 		lblIssuer.setText(string);
 	}
@@ -254,5 +250,16 @@ public class SamlPanelInfo extends JPanel {
 	public void setEncryptionAlgorithm(String string){
 		lblEncryption.setText(string);
 	}
-	
+
+	public void clearAll(){
+		setIssuer("");
+		setSubject("");
+		setConditionNotBefore("");
+		setConditionNotAfter("");
+		setSubjectConfNotBefore("");
+		setSubjectConfNotAfter("");
+		setSignatureAlgorithm("");
+		setDigestAlgorithm("");
+		setEncryptionAlgorithm("");
+	}
 }

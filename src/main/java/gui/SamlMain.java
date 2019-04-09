@@ -3,11 +3,9 @@ package gui;
 import java.awt.BorderLayout;
 
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-
-import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
-import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
-import org.fife.ui.rtextarea.RTextScrollPane;
+import javax.swing.JTextArea;
 
 import application.SamlTabController;
 import burp.IBurpExtenderCallbacks;
@@ -16,8 +14,8 @@ public class SamlMain extends javax.swing.JPanel{
 	
 	private static final long serialVersionUID = 1L;
 	IBurpExtenderCallbacks callbacks;
-	private RSyntaxTextArea textArea;
-	private RTextScrollPane scrollPane;
+	private JTextArea textArea;
+	private JScrollPane scrollPane;
 	private SamlTabController controller;
 	private SamlPanelAction panelAction;
 	private SamlPanelInfo panelInformation;
@@ -58,26 +56,18 @@ public class SamlMain extends javax.swing.JPanel{
 		splitPaneMain.setRightComponent(panelText);
 		panelText.setLayout(new BorderLayout(0, 0));
 		
-		textArea = new RSyntaxTextArea();
-		textArea.setText("<failureInInitialization></failureInInitialization>");
-        scrollPane = new RTextScrollPane(textArea);
+		textArea = new JTextArea();
+		textArea.setText("<SAMLRaiderFailureInInitialization></SAMLRaiderFailureInInitialization>");
+        scrollPane = new JScrollPane(textArea);
         scrollPane.add(textArea);
         panelText.add(scrollPane, BorderLayout.CENTER);
         scrollPane.setViewportView(textArea);
 		
         this.invalidate();
         this.updateUI();
-        
-        textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_XML);
-        textArea.setEditable(true);
-        textArea.setLineWrap(true);
-        textArea.setWrapStyleWord(false);
-        textArea.setAnimateBracketMatching(false);
-        textArea.setAutoIndentEnabled(false);
-        textArea.setBracketMatchingEnabled(false);
 	}
 	
-	public RSyntaxTextArea getTextArea(){
+	public JTextArea getTextArea(){
 		return textArea;
 	}
 	
