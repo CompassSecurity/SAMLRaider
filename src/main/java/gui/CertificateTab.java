@@ -931,7 +931,7 @@ public class CertificateTab extends JPanel {
 		hbSubjectKeyIdentifier.add(txtSubjectkeyidentifier);
 		txtSubjectkeyidentifier.setColumns(40);
 
-		chckbxAutosubjectkeyidentifier = new JCheckBox("Auto generate form Public Key");
+		chckbxAutosubjectkeyidentifier = new JCheckBox("Auto generate from Public Key");
 		chckbxAutosubjectkeyidentifier.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				txtSubjectkeyidentifier.setEnabled(!chckbxAutosubjectkeyidentifier.isSelected());
