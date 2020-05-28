@@ -654,7 +654,13 @@ public class XMLHelpers {
 				elementBeforeSignature = elementToSign;
 			}
 
-			Element nextElementAfterIssuer = (Element) elementBeforeSignature.getNextSibling();
+			// find next sibling node of Element type
+			Node nextNodeAfterIssuer = elementBeforeSignature.getNextSibling();
+			while (nextNodeAfterIssuer != null && nextNodeAfterIssuer.getNodeType() != Node.ELEMENT_NODE)
+			{
+				nextNodeAfterIssuer = nextNodeAfterIssuer.getNextSibling();
+			}
+			Element nextElementAfterIssuer = (Element) nextNodeAfterIssuer;
 
 			DOMSignContext domSignContext = new DOMSignContext(key, elementToSign);
 			domSignContext.setDefaultNamespacePrefix("ds");
