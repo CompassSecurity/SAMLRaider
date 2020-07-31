@@ -158,6 +158,34 @@ Our Bachelor thesis is available online and can  be found here:
 See the [LICENSE](LICENSE) file (MIT License) for license rights and
 limitations.
 
+## References
+
+SAML Raider is on the Internet :).
+
+### General
+
+- PortSwigger Burp BApp Store: https://portswigger.net/bappstore/c61cfa893bb14db4b01775554f7b802e
+- SAML Raider in our Company Blog @CompassSecurity: https://blog.compass-security.com/tag/saml-raider/
+- Schwachstellen in SAML 2.0 Implementationen: https://www.syssec.at/en/veranstaltungen/archiv/dachsecurity2016/papers/DACH_Security_2016_Paper_12A1.pdf
+
+### SAML Hacking Tutorials
+
+- Awesome SAML Security Testing Blog Posts by @epi052:
+  - SAML Testing Methodology Basics: https://epi052.gitlab.io/notes-to-self/blog/2019-03-07-how-to-test-saml-a-methodology/
+  - SAML Testing Methodology using SAML Raider: https://epi052.gitlab.io/notes-to-self/blog/2019-03-13-how-to-test-saml-a-methodology-part-two/
+- Hack SAML Single Sign-on with Burp Suite: https://null-byte.wonderhowto.com/how-to/hack-saml-single-sign-with-burp-suite-0184405/
+- Attacking SSO: Common SAML Vulnerabilities and Ways to Find Them: https://blog.netspi.com/attacking-sso-common-saml-vulnerabilities-ways-find/
+- How to use Burp Suite to verify SAML Signature Wrapping attack: https://blog.ritvn.com/testing/2018/02/16/burp-suite-saml-signature-wrapping-attack.html
+- Vulnerabilities Related to SAML: https://varutra.com/blog/?p=1945b
+- Owning SAML: https://www.anitian.com/owning-saml/
+
+### Discovered Vulnerabilities using SAML Raider
+
+- CVE-2015-5372
+  - Blog Post: https://blog.compass-security.com/2015/09/saml-sp-authentication-bypass-vulnerability-in-nevisauth/
+  - Advisory: https://www.compass-security.com/fileadmin/Datein/Research/Advisories/CVE-2015-5372_AdNovum_nevisAuth_Authentication_Bypass.txt
+- Slack SAML authentication bypass: https://blog.intothesymmetry.com/2017/10/slack-saml-authentication-bypass.html
+
 ## Authors
 
 * Roland Bischofberger (GitHub: [RouLee](https://github.com/RouLee))
