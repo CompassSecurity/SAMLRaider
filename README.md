@@ -185,6 +185,8 @@ SAML Raider is on the Internet :).
   - Blog Post: https://blog.compass-security.com/2015/09/saml-sp-authentication-bypass-vulnerability-in-nevisauth/
   - Advisory: https://www.compass-security.com/fileadmin/Datein/Research/Advisories/CVE-2015-5372_AdNovum_nevisAuth_Authentication_Bypass.txt
 - Slack SAML authentication bypass: https://blog.intothesymmetry.com/2017/10/slack-saml-authentication-bypass.html
+- CVE-2020-12676
+  - Advisory: https://compass-security.com/fileadmin/Research/Advisories/2020-06_CSNC-2020-002_FusionAuth_Signature_Exclusion_Attack.txt
 
 ## Authors
 
