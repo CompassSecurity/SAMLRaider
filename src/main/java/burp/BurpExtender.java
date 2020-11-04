@@ -4,6 +4,7 @@ import gui.CertificateTab;
 
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
+import java.io.PrintWriter;
 
 import application.CertificateTabController;
 import application.SAMLHighlighter;
@@ -20,6 +21,15 @@ public class BurpExtender implements IBurpExtender, IMessageEditorTabFactory {
 	public void registerExtenderCallbacks(IBurpExtenderCallbacks callbacks) {
 
 		this.callbacks = callbacks;
+		PrintWriter stdout = new PrintWriter(callbacks.getStdout(), true);
+		stdout.println("SAML Raider v 1.2.5");
+		stdout.println("Modified by Protect7 GmbH");
+		stdout.println("- Apply XSW - Match and replace added");
+		stdout.println("- Bug Fix XSW1 and XSW2");
+		stdout.println("- XSW9 Attack added");
+		stdout.println("- XXE and XLST Attack added");
+		stdout.println("- Text Editor replaced with ITextEditor (search possibility)");
+		stdout.println("- SAMLRequest and SAMLResponse Param Name can be specified in Cert Tab");
 
 		if (helpers.Flags.DEBUG) {
 			PrintStream errStream;
