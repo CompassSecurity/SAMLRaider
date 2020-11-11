@@ -12,6 +12,8 @@ import java.awt.Desktop;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -79,6 +81,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 	private CertificateTabController certificateTabController;
 	private XSWHelpers xswHelpers;
 	private HTTPHelpers httpHelpers;
+	private boolean edited = false;
 
 	public SamlTabController(IBurpExtenderCallbacks callbacks, boolean editable,
 			CertificateTabController certificateTabController) {
@@ -87,6 +90,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 		this.helpers = callbacks.getHelpers();
 		samlGUI = new SamlMain(this);
 		textArea = samlGUI.getTextArea();
+		addTextAreaKeyListener();
 		textArea.setEditable(editable);
 		textArea.setEditable(false);
 		xmlHelpers = new XMLHelpers();
@@ -95,11 +99,27 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 		this.certificateTabController = certificateTabController;
 		this.certificateTabController.addObserver(this);
 	}
+	
+	private void addTextAreaKeyListener() {
+		textArea.getComponent().addKeyListener(new KeyListener() {
+			
+			@Override
+			public void keyTyped(KeyEvent e) {}
+			
+			@Override
+			public void keyReleased(KeyEvent e) {}
+			
+			@Override
+			public void keyPressed(KeyEvent e) {
+				edited = true;
+			}
+		});
+	}
 
 	@Override
 	public byte[] getMessage() {
 		byte[] byteMessage = message;
-		if (textArea.isTextModified()) {
+		if (edited) {
 			if (isSOAPMessage) {
 				try {
 					// TODO Only working with getString for both documents,
@@ -237,12 +257,13 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 
 	@Override
 	public boolean isModified() {
-		return textArea.isTextModified();
+		return edited;
 	}
 
 	@Override
 	public void setMessage(byte[] content, boolean isRequest) {
 		resetInfoMessageText();
+		edited = false;
 		if (content == null) {
 			textArea.setText(null);
 			textArea.setEditable(false);
@@ -407,6 +428,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 			if (xmlHelpers.removeAllSignatures(document) > 0) {
 				SAMLMessage = xmlHelpers.getStringOfDocument(document, 2, true);
 				textArea.setText(SAMLMessage.getBytes());
+				edited = true;
 				setInfoMessageText("Message signature successful removed");
 			} else {
 				setInfoMessageText("No Signatures available to remove");
@@ -421,6 +443,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 	public void resetMessage() {
 		SAMLMessage = orgSAMLMessage;
 		textArea.setText(SAMLMessage.getBytes());
+		edited = false;
 	}
 
 	public void resignAssertion() {
@@ -442,6 +465,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 						cert.getPrivateKey());
 				SAMLMessage = xmlHelpers.getStringOfDocument(doc, 2, true);
 				textArea.setText(SAMLMessage.getBytes());
+				edited = true;
 				setInfoMessageText("Assertions successfully signed");
 			} else {
 				setInfoMessageText("no certificate chosen to sign");
@@ -474,6 +498,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 							cert.getPrivateKey());
 					SAMLMessage = xmlHelpers.getStringOfDocument(document, 2, true);
 					textArea.setText(SAMLMessage.getBytes());
+					edited = true;
 					setInfoMessageText("Message successfully signed");
 				} else {
 					setInfoMessageText("no certificate chosen to sign");
@@ -572,6 +597,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 			SAMLMessage = xmlHelpers.getStringOfDocument(document, 2, true);
 			textArea.setText(SAMLMessage.getBytes());
 			setInfoMessageText(XSW_ATTACK_APPLIED);
+			edited = true;
 		} catch (SAXException e) {
 			setInfoMessageText(XML_NOT_WELL_FORMED);
 		} catch (IOException e) {
