@@ -54,7 +54,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 	private static final String XML_CERTIFICATE_NOT_FOUND = "X509 Certificate not found";
 	private static final String XSW_ATTACK_APPLIED = "XSW Attack applied";
 	private static final String XXE_CONTENT_APPLIED = "XXE content applied";
-	private static final String XML_NOT_SUITABLE_FOR_XXE = "This XML Message is not suitable for this particular XLST attack";
+	private static final String XML_NOT_SUITABLE_FOR_XXE = "This XML Message is not suitable for this particular XXE attack";
 	private static final String XSLT_CONTENT_APPLIED = "XSLT content applied";
 	private static final String XML_NOT_SUITABLE_FOR_XLST = "This XML Message is not suitable for this particular XLST attack";
 	private static final String XML_COULD_NOT_SIGN = "Could not sign XML";
