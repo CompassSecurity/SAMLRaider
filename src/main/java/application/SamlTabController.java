@@ -140,9 +140,9 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 
 				String parameterToUpdate;
 				if (isSAMLRequest) {
-					parameterToUpdate = "SAMLRequest";
+					parameterToUpdate = certificateTabController.getSamlRequestParameterName();
 				} else {
-					parameterToUpdate = "SAMLResponse";
+					parameterToUpdate = certificateTabController.getSamlResponseParameterName();
 				}
 
 				if (isWSSMessage) {
@@ -268,9 +268,9 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 					IParameter parameter;
 
 					if (isSAMLRequest) {
-						parameter = helpers.getRequestParameter(content, "SAMLRequest");
+						parameter = helpers.getRequestParameter(content, certificateTabController.getSamlRequestParameterName());
 					} else {
-						parameter = helpers.getRequestParameter(content, "SAMLResponse");
+						parameter = helpers.getRequestParameter(content, certificateTabController.getSamlResponseParameterName());
 					}
 
 					if (null != parameter) {
