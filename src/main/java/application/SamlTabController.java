@@ -81,6 +81,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 	private CertificateTabController certificateTabController;
 	private XSWHelpers xswHelpers;
 	private HTTPHelpers httpHelpers;
+	private boolean isEdited = false;
 
 	public SamlTabController(IBurpExtenderCallbacks callbacks, boolean editable,
 			CertificateTabController certificateTabController) {
@@ -238,12 +239,13 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 
 	@Override
 	public boolean isModified() {
-		return textArea.isTextModified();
+		return textArea.isTextModified() || isEdited;
 	}
 
 	@Override
 	public void setMessage(byte[] content, boolean isRequest) {
 		resetInfoMessageText();
+		isEdited = false;
 		if (content == null) {
 			textArea.setText(null);
 			textArea.setEditable(false);
@@ -408,6 +410,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 			if (xmlHelpers.removeAllSignatures(document) > 0) {
 				SAMLMessage = xmlHelpers.getStringOfDocument(document, 2, true);
 				textArea.setText(SAMLMessage.getBytes());
+				isEdited = true;
 				setInfoMessageText("Message signature successful removed");
 			} else {
 				setInfoMessageText("No Signatures available to remove");
@@ -422,6 +425,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 	public void resetMessage() {
 		SAMLMessage = orgSAMLMessage;
 		textArea.setText(SAMLMessage.getBytes());
+		isEdited = false;
 	}
 
 	public void resignAssertion() {
@@ -443,6 +447,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 						cert.getPrivateKey());
 				SAMLMessage = xmlHelpers.getStringOfDocument(doc, 2, true);
 				textArea.setText(SAMLMessage.getBytes());
+				isEdited = true;
 				setInfoMessageText("Assertions successfully signed");
 			} else {
 				setInfoMessageText("no certificate chosen to sign");
@@ -475,6 +480,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 							cert.getPrivateKey());
 					SAMLMessage = xmlHelpers.getStringOfDocument(document, 2, true);
 					textArea.setText(SAMLMessage.getBytes());
+					isEdited = true;
 					setInfoMessageText("Message successfully signed");
 				} else {
 					setInfoMessageText("no certificate chosen to sign");
@@ -572,6 +578,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 			xswHelpers.applyXSW(samlGUI.getActionPanel().getSelectedXSW(), document);
 			SAMLMessage = xmlHelpers.getStringOfDocument(document, 2, true);
 			textArea.setText(SAMLMessage.getBytes());
+			isEdited = true;
 			setInfoMessageText(XSW_ATTACK_APPLIED);
 		} catch (SAXException e) {
 			setInfoMessageText(XML_NOT_WELL_FORMED);
@@ -592,7 +599,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 			SAMLMessage = splitMsg[0]+"?>"+dtd+splitMsg[1];
 			textArea.setText(SAMLMessage.getBytes());
 			isEdited = true;
-			setInfoMessageText(XML_PARSER_ATTACK_RAW_MODE);
+			setInfoMessageText(XML_NOT_SUITABLE_FOR_XXE);
 		}
 	}
 
@@ -621,6 +628,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 			String secondPart = orgSAMLMessage.substring(substringIndex);
 			SAMLMessage = firstPart + xslt + secondPart;
 			textArea.setText(SAMLMessage.getBytes());
+			isEdited = true;
 			setInfoMessageText(XSLT_CONTENT_APPLIED);
 		}		
 	}
