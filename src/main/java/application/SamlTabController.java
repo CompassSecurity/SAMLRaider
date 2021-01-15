@@ -599,7 +599,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 			SAMLMessage = splitMsg[0]+"?>"+dtd+splitMsg[1];
 			textArea.setText(SAMLMessage.getBytes());
 			isEdited = true;
-			setInfoMessageText(XML_NOT_SUITABLE_FOR_XXE);
+			setInfoMessageText(XXE_CONTENT_APPLIED);
 		}
 	}
 
