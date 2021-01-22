@@ -25,6 +25,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.JTree;
@@ -69,6 +70,10 @@ public class CertificateTab extends JPanel {
 	private JTextField txtKeySize;
 	private JTextField txtStatus;
 	private JTextField txtSignature;
+	
+	//Parameter Names
+	private JTextField txtSamlRequestParamName;
+	private JTextField txtSamlResponseParamName; 
 
 	// Extensions
 	private JCheckBox chckbxIgnoreBasicConstraints;
@@ -276,6 +281,22 @@ public class CertificateTab extends JPanel {
 		gbc_txtStatus.gridy = 2;
 		panelTop.add(txtStatus, gbc_txtStatus);
 		txtStatus.setColumns(100);
+		
+		JPanel paramNamePanel = new JPanel();
+		paramNamePanel.add(new JLabel("SAML Request Param Name:", JLabel.LEFT));
+		txtSamlRequestParamName = new JTextField("SAMLRequest", 20);
+		paramNamePanel.add(txtSamlRequestParamName);
+		paramNamePanel.add(new JSeparator(JSeparator.VERTICAL));
+		paramNamePanel.add(new JLabel("SAML Response Param Name:"), JLabel.LEFT);
+		txtSamlResponseParamName = new JTextField("SAMLResponse", 20);
+		paramNamePanel.add(txtSamlResponseParamName);
+		GridBagConstraints gbc_paramNamePanel = new GridBagConstraints();
+		gbc_paramNamePanel.anchor = GridBagConstraints.NORTH;
+		gbc_paramNamePanel.fill = GridBagConstraints.HORIZONTAL;
+		gbc_paramNamePanel.gridwidth = 2;
+		gbc_paramNamePanel.gridx = 0;
+		gbc_paramNamePanel.gridy = 3;
+		panelTop.add(paramNamePanel, gbc_paramNamePanel);
 
 		certificateTreeModel = new DefaultTreeModel(new DefaultMutableTreeNode("root"));
 
@@ -1325,5 +1346,13 @@ public class CertificateTab extends JPanel {
 			lstAllExtensionsModel.addElement(e);
 		}
 		lstUnsupportedExtensions.setModel(lstAllExtensionsModel);
+	}
+	
+	public String getSamlRequestParameterName() {
+		return txtSamlRequestParamName.getText();
+	}
+	
+	public String getSamlResponseParameterName() {
+		return txtSamlResponseParamName.getText();
 	}
 }

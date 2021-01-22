@@ -3,19 +3,16 @@ package gui;
 import java.awt.BorderLayout;
 
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JTextArea;
-
 import application.SamlTabController;
-import burp.IBurpExtenderCallbacks;
+import burp.ITextEditor;
 
 public class SamlMain extends javax.swing.JPanel{
 	
 	private static final long serialVersionUID = 1L;
-	IBurpExtenderCallbacks callbacks;
-	private JTextArea textArea;
-	private JScrollPane scrollPane;
+	private ITextEditor textArea;
 	private SamlTabController controller;
 	private SamlPanelAction panelAction;
 	private SamlPanelInfo panelInformation;
@@ -36,6 +33,8 @@ public class SamlMain extends javax.swing.JPanel{
 		
 		JSplitPane splitPaneMain = new JSplitPane();
 		splitPaneMain.setOrientation(JSplitPane.VERTICAL_SPLIT);
+		splitPaneMain.setResizeWeight(0.5);
+		splitPaneMain.setDividerSize(5);
 		add(splitPaneMain, BorderLayout.CENTER);
 		
 		JPanel panelTop = new JPanel();
@@ -43,31 +42,32 @@ public class SamlMain extends javax.swing.JPanel{
 		panelTop.setLayout(new BorderLayout(0, 0));
 		
 		JSplitPane splitPaneTop = new JSplitPane();
-		splitPaneTop.setResizeWeight(0.3);
+		splitPaneTop.setResizeWeight(0.5);
+		splitPaneTop.setDividerSize(5);
 		panelTop.add(splitPaneTop);
 		
 		panelAction = new SamlPanelAction(controller);
-		splitPaneTop.setLeftComponent(panelAction);
+		splitPaneTop.setLeftComponent(new JScrollPane(panelAction));
 		
 		panelInformation = new SamlPanelInfo();
-		splitPaneTop.setRightComponent(panelInformation);
+		splitPaneTop.setRightComponent(new JScrollPane(panelInformation));
 		
 		JPanel panelText = new JPanel();
 		splitPaneMain.setRightComponent(panelText);
 		panelText.setLayout(new BorderLayout(0, 0));
 		
-		textArea = new JTextArea();
-		textArea.setText("<SAMLRaiderFailureInInitialization></SAMLRaiderFailureInInitialization>");
-        scrollPane = new JScrollPane(textArea);
-        scrollPane.add(textArea);
-        panelText.add(scrollPane, BorderLayout.CENTER);
-        scrollPane.setViewportView(textArea);
+		textArea = controller.getCallbacks().createTextEditor();
+		textArea.setText("<SAMLRaiderFailureInInitialization></SAMLRaiderFailureInInitialization>".getBytes());
+        panelText.add(textArea.getComponent(), BorderLayout.CENTER);
 		
+        splitPaneMain.setDividerLocation(0.5);
+        splitPaneTop.setDividerLocation(0.5);
+        
         this.invalidate();
         this.updateUI();
 	}
 	
-	public JTextArea getTextArea(){
+	public ITextEditor getTextArea(){
 		return textArea;
 	}
 	
