@@ -751,4 +751,12 @@ public class CertificateTabController extends Observable implements ITab {
 	public Component getUiComponent() {
 		return certificateTab;
 	}
+	
+	public String getSamlRequestParameterName() {
+		return certificateTab.getSamlRequestParameterName();
+	}
+	
+	public String getSamlResponseParameterName() {
+		return certificateTab.getSamlResponseParameterName();
+	}
 }
