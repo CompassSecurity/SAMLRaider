@@ -31,7 +31,6 @@ public class SamlMain extends javax.swing.JPanel{
 		
 		JSplitPane splitPaneMain = new JSplitPane();
 		splitPaneMain.setOrientation(JSplitPane.VERTICAL_SPLIT);
-		splitPaneMain.setResizeWeight(0.5);
 		splitPaneMain.setDividerSize(5);
 		add(splitPaneMain, BorderLayout.CENTER);
 		

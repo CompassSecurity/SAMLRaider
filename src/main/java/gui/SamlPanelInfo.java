@@ -44,17 +44,16 @@ public class SamlPanelInfo extends JPanel {
 	private void initialize() {
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[]{30, 145, 0, 0};
-		gridBagLayout.rowHeights = new int[]{21, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+		gridBagLayout.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 		gridBagLayout.columnWeights = new double[]{0.0, 0.0, 1.0, Double.MIN_VALUE};
-		gridBagLayout.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
+		gridBagLayout.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		setLayout(gridBagLayout);
 		
-		lblAssertionTitle = new JLabel("Assertion");
-		lblAssertionTitle.setFont(new Font("Tahoma", Font.BOLD, 13));
+		lblAssertionTitle = new JLabel("Assertion Information");
 		GridBagConstraints gbc_lblAssertionTitle = new GridBagConstraints();
 		gbc_lblAssertionTitle.gridwidth = 2;
 		gbc_lblAssertionTitle.anchor = GridBagConstraints.WEST;
-		gbc_lblAssertionTitle.insets = new Insets(0, 0, 5, 5);
+		gbc_lblAssertionTitle.insets = new Insets(5, 5, 5, 5);
 		gbc_lblAssertionTitle.gridx = 0;
 		gbc_lblAssertionTitle.gridy = 1;
 		add(lblAssertionTitle, gbc_lblAssertionTitle);
@@ -108,10 +107,9 @@ public class SamlPanelInfo extends JPanel {
 		add(lblIssuer, gbc_lblIssuer);
 		
 		lblSignatureCaption = new JLabel("Signature");
-		lblSignatureCaption.setFont(new Font("Tahoma", Font.BOLD, 11));
 		GridBagConstraints gbc_lblSignatureCaption = new GridBagConstraints();
 		gbc_lblSignatureCaption.anchor = GridBagConstraints.WEST;
-		gbc_lblSignatureCaption.insets = new Insets(0, 0, 5, 5);
+		gbc_lblSignatureCaption.insets = new Insets(10, 0, 5, 5);
 		gbc_lblSignatureCaption.gridx = 1;
 		gbc_lblSignatureCaption.gridy = 5;
 		add(lblSignatureCaption, gbc_lblSignatureCaption);
@@ -149,10 +147,9 @@ public class SamlPanelInfo extends JPanel {
 		add(lblDigestAlgorithm, gbc_lblDigestAlgorithm);
 		
 		JLabel lblSubjectCaption = new JLabel("Subject");
-		lblSubjectCaption.setFont(new Font("Tahoma", Font.BOLD, 11));
 		GridBagConstraints gbc_lblSubjectCaption = new GridBagConstraints();
 		gbc_lblSubjectCaption.anchor = GridBagConstraints.WEST;
-		gbc_lblSubjectCaption.insets = new Insets(0, 0, 5, 5);
+		gbc_lblSubjectCaption.insets = new Insets(10, 0, 5, 5);
 		gbc_lblSubjectCaption.gridx = 1;
 		gbc_lblSubjectCaption.gridy = 8;
 		add(lblSubjectCaption, gbc_lblSubjectCaption);
@@ -198,10 +195,9 @@ public class SamlPanelInfo extends JPanel {
 		add(lblSubjectConfNotAfter, gbc_lblSubjectConfNotAfter);
 		
 		lblEncryptionCaption = new JLabel("Encrypted with");
-		lblEncryptionCaption.setFont(new Font("Tahoma", Font.BOLD, 11));
 		GridBagConstraints gbc_lblEncryptionCaption = new GridBagConstraints();
 		gbc_lblEncryptionCaption.anchor = GridBagConstraints.WEST;
-		gbc_lblEncryptionCaption.insets = new Insets(0, 0, 5, 5);
+		gbc_lblEncryptionCaption.insets = new Insets(10, 0, 5, 5);
 		gbc_lblEncryptionCaption.gridx = 1;
 		gbc_lblEncryptionCaption.gridy = 11;
 		add(lblEncryptionCaption, gbc_lblEncryptionCaption);
