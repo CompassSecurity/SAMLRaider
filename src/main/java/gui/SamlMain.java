@@ -2,10 +2,8 @@ package gui;
 
 import java.awt.BorderLayout;
 
-import javax.swing.JPanel;
-import javax.swing.JScrollBar;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
+import javax.swing.*;
+
 import application.SamlTabController;
 import burp.ITextEditor;
 
@@ -40,18 +38,12 @@ public class SamlMain extends javax.swing.JPanel{
 		JPanel panelTop = new JPanel();
 		splitPaneMain.setLeftComponent(panelTop);
 		panelTop.setLayout(new BorderLayout(0, 0));
-		
-		JSplitPane splitPaneTop = new JSplitPane();
-		splitPaneTop.setResizeWeight(0.5);
-		splitPaneTop.setDividerSize(5);
-		panelTop.add(splitPaneTop);
-		
+
 		panelAction = new SamlPanelAction(controller);
-		splitPaneTop.setLeftComponent(new JScrollPane(panelAction));
+		panelTop.add(panelAction);
 		
 		panelInformation = new SamlPanelInfo();
-		splitPaneTop.setRightComponent(new JScrollPane(panelInformation));
-		
+
 		JPanel panelText = new JPanel();
 		splitPaneMain.setRightComponent(panelText);
 		panelText.setLayout(new BorderLayout(0, 0));
@@ -61,7 +53,11 @@ public class SamlMain extends javax.swing.JPanel{
         panelText.add(textArea.getComponent(), BorderLayout.CENTER);
 		
         splitPaneMain.setDividerLocation(0.5);
-        splitPaneTop.setDividerLocation(0.5);
+
+		JTabbedPane tabbedPane = new JTabbedPane();
+		add(tabbedPane);
+		tabbedPane.addTab("Attack", null, splitPaneMain, "Attack");
+		tabbedPane.addTab("Info", null, panelInformation, "Info");
         
         this.invalidate();
         this.updateUI();
