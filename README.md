@@ -106,6 +106,10 @@ Maven:
 
     $ mvn install
 
+You can also build it without executing the tests:
+
+    $ mvn install -Dmaven.test.skip=true
+
 Load the Burp Extension into Burp: `Extender` → `Add` → select the JAR file
 (with dependencies) in the `./target` directory of the project, like
 `./target/saml-raider-$VERSION-SNAPSHOT-jar-with-dependencies.jar`.
