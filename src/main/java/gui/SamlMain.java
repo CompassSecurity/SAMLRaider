@@ -55,8 +55,8 @@ public class SamlMain extends javax.swing.JPanel{
 
 		JTabbedPane tabbedPane = new JTabbedPane();
 		add(tabbedPane);
-		tabbedPane.addTab("Attack", null, splitPaneMain, "Attack");
-		tabbedPane.addTab("Info", null, panelInformation, "Info");
+		tabbedPane.addTab("SAML Attacks", null, splitPaneMain, "SAML Attacks");
+		tabbedPane.addTab("SAML Message Info", null, panelInformation, "SAML Message Info");
         
         this.invalidate();
         this.updateUI();
