@@ -82,6 +82,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 	private XSWHelpers xswHelpers;
 	private HTTPHelpers httpHelpers;
 	private boolean isEdited = false;
+	private boolean isRawMode = false;
 
 	public SamlTabController(IBurpExtenderCallbacks callbacks, boolean editable,
 			CertificateTabController certificateTabController) {
@@ -129,13 +130,18 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 			} else {
 				String textMessage = null;
 
-				try {
-					textMessage = xmlHelpers
-							.getStringOfDocument(xmlHelpers.getXMLDocumentOfSAMLMessage(new String(textArea.getText())), 0, true);
-				} catch (IOException e) {
-					setInfoMessageText(XML_COULD_NOT_SERIALIZE);
-				} catch (SAXException e) {
-					setInfoMessageText(XML_NOT_WELL_FORMED);
+				if (isRawMode){
+					textMessage = new String(textArea.getText());
+				}
+				else {
+					try {
+						textMessage = xmlHelpers
+								.getStringOfDocument(xmlHelpers.getXMLDocumentOfSAMLMessage(new String(textArea.getText())), 0, true);
+					} catch (IOException e) {
+						setInfoMessageText(XML_COULD_NOT_SERIALIZE);
+					} catch (SAXException e) {
+						setInfoMessageText(XML_NOT_WELL_FORMED);
+					}
 				}
 
 				String parameterToUpdate;
@@ -273,12 +279,9 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 						parameter = helpers.getRequestParameter(content, certificateTabController.getSamlResponseParameterName());
 					}
 
-					if (null != parameter) {
-						SAMLMessage = getDecodedSAMLMessage(parameter.getValue());
-					}
+					SAMLMessage = getDecodedSAMLMessage(parameter.getValue());
 				}
-				Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(SAMLMessage);
-				SAMLMessage = xmlHelpers.getStringOfDocument(document, 2, true);
+
 			} catch (IOException e) {
 				e.printStackTrace();
 				setInfoMessageText(XML_COULD_NOT_SERIALIZE);
@@ -423,9 +426,24 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 	}
 
 	public void resetMessage() {
-		SAMLMessage = orgSAMLMessage;
+		System.out.println("Resetting message...");
+		System.out.println("RAW Mode: " + isRawMode);
+
+		if(isRawMode){
+			SAMLMessage = unmodifiedSAMLMessage;
+
+			SAMLMessage = orgSAMLMessage;
+		}
+
+		System.out.println("SAMl Message: " + new String(orgSAMLMessage.getBytes()));
+
 		textArea.setText(SAMLMessage.getBytes());
 		isEdited = false;
+	}
+
+	public void setRawMode(boolean rawModeEnabled){
+		isRawMode = rawModeEnabled;
+		isEdited = true;
 	}
 
 	public void resignAssertion() {
