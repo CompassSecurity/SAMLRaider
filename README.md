@@ -189,6 +189,10 @@ SAML Raider is on the Internet :).
 - CVE-2020-12676: FusionAuth Signature Exclusion Attack
   - Advisory: https://compass-security.com/fileadmin/Research/Advisories/2020-06_CSNC-2020-002_FusionAuth_Signature_Exclusion_Attack.txt
 
+### Other
+
+- SANS Burp Suite Cheat Sheet recommends SAML Raider: https://www.sans.org/security-resources/posters/pen-testing/burp-suite-cheat-sheet-280?msc=Cheat+Sheet+Blog
+
 ## Authors
 
 * Roland Bischofberger (GitHub: [RouLee](https://github.com/RouLee))
