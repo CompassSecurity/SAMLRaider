@@ -10,7 +10,8 @@ import burp.ITextEditor;
 public class SamlMain extends javax.swing.JPanel{
 	
 	private static final long serialVersionUID = 1L;
-	private ITextEditor textArea;
+	private ITextEditor textEditorAction;
+	private ITextEditor textEditorInformation;
 	private SamlTabController controller;
 	private SamlPanelAction panelAction;
 	private SamlPanelInfo panelInformation;
@@ -29,42 +30,57 @@ public class SamlMain extends javax.swing.JPanel{
 	private void initializeUI(){
 		setLayout(new BorderLayout(0, 0));
 		
-		JSplitPane splitPaneMain = new JSplitPane();
-		splitPaneMain.setOrientation(JSplitPane.VERTICAL_SPLIT);
-		splitPaneMain.setDividerSize(5);
-		add(splitPaneMain, BorderLayout.CENTER);
-		
-		JPanel panelTop = new JPanel();
-		splitPaneMain.setLeftComponent(panelTop);
-		panelTop.setLayout(new BorderLayout(0, 0));
+		JSplitPane splitPaneAction = new JSplitPane();
+		splitPaneAction.setOrientation(JSplitPane.VERTICAL_SPLIT);
+		splitPaneAction.setDividerSize(5);
+		add(splitPaneAction, BorderLayout.CENTER);
 
+		JPanel panelActionTop = new JPanel();
+		splitPaneAction.setLeftComponent(panelActionTop);
+		panelActionTop.setLayout(new BorderLayout(0, 0));
 		panelAction = new SamlPanelAction(controller);
-		panelTop.add(panelAction);
-		
-		panelInformation = new SamlPanelInfo();
+		panelActionTop.add(panelAction);
 
-		JPanel panelText = new JPanel();
-		splitPaneMain.setRightComponent(panelText);
-		panelText.setLayout(new BorderLayout(0, 0));
+		JPanel panelActionBottom = new JPanel();
+		splitPaneAction.setRightComponent(panelActionBottom);
+		panelActionBottom.setLayout(new BorderLayout(0, 0));
+		textEditorAction = controller.getCallbacks().createTextEditor();
+		textEditorAction.setText("<SAMLRaiderFailureInInitialization></SAMLRaiderFailureInInitialization>".getBytes());
+        panelActionBottom.add(textEditorAction.getComponent(), BorderLayout.CENTER);
 		
-		textArea = controller.getCallbacks().createTextEditor();
-		textArea.setText("<SAMLRaiderFailureInInitialization></SAMLRaiderFailureInInitialization>".getBytes());
-        panelText.add(textArea.getComponent(), BorderLayout.CENTER);
-		
-        splitPaneMain.setDividerLocation(0.5);
+		JSplitPane splitPaneInformation = new JSplitPane();
+		splitPaneInformation.setOrientation(JSplitPane.VERTICAL_SPLIT);
+		splitPaneAction.setDividerSize(5);
+		add(splitPaneInformation, BorderLayout.CENTER);
+
+		JPanel panelInformationTop = new JPanel();
+		splitPaneInformation.setLeftComponent((panelInformationTop));
+		panelInformationTop.setLayout(new BorderLayout(0,0));
+		panelInformation = new SamlPanelInfo();
+		panelInformationTop.add(panelInformation);
+
+		JPanel panelInformationBottom = new JPanel();
+		splitPaneInformation.setRightComponent(panelInformationBottom);
+		panelInformationBottom.setLayout(new BorderLayout(0,0));
+		textEditorInformation = controller.getCallbacks().createTextEditor();
+		textEditorInformation.setText("<SAMLRaiderFailureInInitialization></SAMLRaiderFailureInInitialization>".getBytes());
+		textEditorAction.setEditable(false);
+		panelInformationBottom.add(textEditorInformation.getComponent(), BorderLayout.CENTER);
 
 		JTabbedPane tabbedPane = new JTabbedPane();
 		add(tabbedPane);
-		tabbedPane.addTab("SAML Attacks", null, splitPaneMain, "SAML Attacks");
-		tabbedPane.addTab("SAML Message Info", null, panelInformation, "SAML Message Info");
-        
+		tabbedPane.addTab("SAML Attacks", null, splitPaneAction, "SAML Attacks");
+		tabbedPane.addTab("SAML Message Info", null, splitPaneInformation, "SAML Message Info");
+
         this.invalidate();
         this.updateUI();
 	}
 	
-	public ITextEditor getTextArea(){
-		return textArea;
+	public ITextEditor getTextEditorAction(){
+		return textEditorAction;
 	}
+
+	public ITextEditor getTextEditorInformation() { return textEditorInformation; }
 	
 	public SamlPanelAction getActionPanel(){
 		return panelAction;

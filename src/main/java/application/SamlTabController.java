@@ -90,7 +90,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 		this.callbacks = callbacks;
 		this.helpers = callbacks.getHelpers();
 		samlGUI = new SamlMain(this);
-		textArea = samlGUI.getTextArea();
+		textArea = samlGUI.getTextEditorAction();
 		textArea.setEditable(editable);
 		xmlHelpers = new XMLHelpers();
 		xswHelpers = new XSWHelpers();
