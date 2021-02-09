@@ -22,6 +22,7 @@ public class SamlPanelInfo extends JPanel {
 	private JLabel lblDigestAlgorithm;
 	private JLabel lblEncryptionCaption;
 	private JLabel lblEncryption;
+	private JLabel lblPrettifiedCaption;
 
 	public SamlPanelInfo() {
 		super();
@@ -30,10 +31,10 @@ public class SamlPanelInfo extends JPanel {
 
 	private void initialize() {
 		GridBagLayout gridBagLayout = new GridBagLayout();
-		gridBagLayout.columnWidths = new int[]{0, 0, 0};
-		gridBagLayout.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-		gridBagLayout.columnWeights = new double[]{1.0, 0.0, Double.MIN_VALUE};
-		gridBagLayout.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		gridBagLayout.columnWidths = new int[]{0, 0};
+		gridBagLayout.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+		gridBagLayout.columnWeights = new double[]{0.0,  Double.MIN_VALUE};
+		gridBagLayout.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		setLayout(gridBagLayout);
 		
 		lblAssertionTitle = new JLabel("Assertion Information");
@@ -180,7 +181,7 @@ public class SamlPanelInfo extends JPanel {
 		gbc_lblSubjectConfNotAfter.gridx = 1;
 		gbc_lblSubjectConfNotAfter.gridy = 10;
 		add(lblSubjectConfNotAfter, gbc_lblSubjectConfNotAfter);
-		
+
 		lblEncryptionCaption = new JLabel("Encrypted with");
 		GridBagConstraints gbc_lblEncryptionCaption = new GridBagConstraints();
 		gbc_lblEncryptionCaption.anchor = GridBagConstraints.WEST;
@@ -196,6 +197,14 @@ public class SamlPanelInfo extends JPanel {
 		gbc_lblEncryption.gridx = 1;
 		gbc_lblEncryption.gridy = 11;
 		add(lblEncryption, gbc_lblEncryption);
+
+		lblPrettifiedCaption = new JLabel("Parsed & Prettified:");
+		GridBagConstraints gbc_lblPrettifiedCaption = new GridBagConstraints();
+		gbc_lblPrettifiedCaption.anchor = GridBagConstraints.WEST;
+		gbc_lblPrettifiedCaption.insets = new Insets(10, 5, 5, 5);
+		gbc_lblPrettifiedCaption.gridx = 0;
+		gbc_lblPrettifiedCaption.gridy = 12;
+		add(lblPrettifiedCaption, gbc_lblPrettifiedCaption);
 	}
 
 	public void setIssuer(String string){
