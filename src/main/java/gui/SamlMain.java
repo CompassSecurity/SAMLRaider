@@ -63,7 +63,7 @@ public class SamlMain extends javax.swing.JPanel{
 		splitPaneInformation.setRightComponent(panelInformationBottom);
 		panelInformationBottom.setLayout(new BorderLayout(0,0));
 		textEditorInformation = controller.getCallbacks().createTextEditor();
-		textEditorInformation.setText("<SAMLRaiderFailureInInitialization></SAMLRaiderFailureInInitialization>".getBytes());
+		textEditorInformation.setText("".getBytes());
 		textEditorAction.setEditable(false);
 		panelInformationBottom.add(textEditorInformation.getComponent(), BorderLayout.CENTER);
 

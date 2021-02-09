@@ -72,6 +72,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 	private boolean isGZip = false;
 	private boolean isWSSUrlEncoded = false;
 	private ITextEditor textArea;
+	private ITextEditor textEditorInformation;
 	private SamlMain samlGUI;
 	private boolean editable;
 	private boolean isSOAPMessage;
@@ -92,6 +93,8 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 		samlGUI = new SamlMain(this);
 		textArea = samlGUI.getTextEditorAction();
 		textArea.setEditable(editable);
+		textEditorInformation = samlGUI.getTextEditorInformation();
+		textEditorInformation.setEditable(false);
 		xmlHelpers = new XMLHelpers();
 		xswHelpers = new XSWHelpers();
 		httpHelpers = new HTTPHelpers();
@@ -299,6 +302,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 			orgSAMLMessage = SAMLMessage;
 			textArea.setText(SAMLMessage.getBytes());
 			textArea.setEditable(editable);
+
 			setGUIEditable(editable);
 		}
 	}
@@ -319,12 +323,13 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 				infoPanel.setSubjectConfNotAfter(xmlHelpers.getSubjectConfNotAfter(assertion));
 				infoPanel.setSignatureAlgorithm(xmlHelpers.getSignatureAlgorithm(assertion));
 				infoPanel.setDigestAlgorithm(xmlHelpers.getDigestAlgorithm(assertion));
+				textEditorInformation.setText(xmlHelpers.getStringOfDocument(xmlHelpers.getXMLDocumentOfSAMLMessage(SAMLMessage), 2, true).getBytes());
 			} else {
 				assertions = xmlHelpers.getEncryptedAssertions(document);
 				Node assertion = assertions.item(0);
 				infoPanel.setEncryptionAlgorithm(xmlHelpers.getEncryptionMethod(assertion));
 			}
-		} catch (SAXException e) {
+		} catch (SAXException|IOException e) {
 			setInfoMessageText(XML_NOT_WELL_FORMED);
 		}
 	}
@@ -339,6 +344,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 		infoPanel.setSignatureAlgorithm("");
 		infoPanel.setDigestAlgorithm("");
 		infoPanel.setEncryptionAlgorithm("");
+		textEditorInformation.setText("".getBytes());
 	}
 
 	public String getEncodedSAMLMessage(String message) {
@@ -426,17 +432,9 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 	}
 
 	public void resetMessage() {
-		System.out.println("Resetting message...");
-		System.out.println("RAW Mode: " + isRawMode);
-
 		if(isRawMode){
-			SAMLMessage = unmodifiedSAMLMessage;
-
 			SAMLMessage = orgSAMLMessage;
 		}
-
-		System.out.println("SAMl Message: " + new String(orgSAMLMessage.getBytes()));
-
 		textArea.setText(SAMLMessage.getBytes());
 		isEdited = false;
 	}
