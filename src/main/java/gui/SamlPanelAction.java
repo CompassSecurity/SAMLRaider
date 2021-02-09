@@ -25,7 +25,6 @@ public class SamlPanelAction extends JPanel {
 	private JButton btnMatchAndReplace;
 	private JButton btnTestXXE;
 	private JButton btnTestXSLT;
-	private JButton btnRawMode;
 	private JButton btnSignatureHelp;
 	private JButton btnSignatureRemove;
 	private JButton btnSignatureReplace;

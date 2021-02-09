@@ -1,7 +1,5 @@
 package gui;
 
-import burp.ITextEditor;
-
 import java.awt.*;
 
 import javax.swing.JLabel;
@@ -10,19 +8,12 @@ import javax.swing.JPanel;
 public class SamlPanelInfo extends JPanel {
 
 	private static final long serialVersionUID = 1L;
-
 	private JLabel lblIssuer;
-
 	private JLabel lblSubject;
-
 	private JLabel lblConditionNotAfter;
-
 	private JLabel lblConditionNotBefore;
-
 	private JLabel lblAssertionTitle;
-
 	private JLabel lblSubjectConfNotBefore;
-
 	private JLabel lblSubjectConfNotAfter;
 	private JLabel lblSignatureCaption;
 	private JLabel lblSignatureAlgorithmCaption;
@@ -31,7 +22,7 @@ public class SamlPanelInfo extends JPanel {
 	private JLabel lblDigestAlgorithm;
 	private JLabel lblEncryptionCaption;
 	private JLabel lblEncryption;
-	
+
 	public SamlPanelInfo() {
 		super();
 		initialize();
