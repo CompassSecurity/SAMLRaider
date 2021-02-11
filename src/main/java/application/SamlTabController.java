@@ -420,6 +420,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 				SAMLMessage = xmlHelpers.getStringOfDocument(document, 2, true);
 				textArea.setText(SAMLMessage.getBytes());
 				isEdited = true;
+				setRawMode(false);
 				setInfoMessageText("Message signature successful removed");
 			} else {
 				setInfoMessageText("No Signatures available to remove");
@@ -464,6 +465,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 				SAMLMessage = xmlHelpers.getStringOfDocument(doc, 2, true);
 				textArea.setText(SAMLMessage.getBytes());
 				isEdited = true;
+				setRawMode(false);
 				setInfoMessageText("Assertions successfully signed");
 			} else {
 				setInfoMessageText("no certificate chosen to sign");
@@ -497,6 +499,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 					SAMLMessage = xmlHelpers.getStringOfDocument(document, 2, true);
 					textArea.setText(SAMLMessage.getBytes());
 					isEdited = true;
+					setRawMode(false);
 					setInfoMessageText("Message successfully signed");
 				} else {
 					setInfoMessageText("no certificate chosen to sign");
@@ -595,6 +598,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 			SAMLMessage = xmlHelpers.getStringOfDocument(document, 2, true);
 			textArea.setText(SAMLMessage.getBytes());
 			isEdited = true;
+			setRawMode(false);
 			setInfoMessageText(XSW_ATTACK_APPLIED);
 		} catch (SAXException e) {
 			setInfoMessageText(XML_NOT_WELL_FORMED);
