@@ -2,17 +2,16 @@ package gui;
 
 import java.awt.BorderLayout;
 
-import javax.swing.JPanel;
-import javax.swing.JScrollBar;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
+import javax.swing.*;
+
 import application.SamlTabController;
 import burp.ITextEditor;
 
 public class SamlMain extends javax.swing.JPanel{
 	
 	private static final long serialVersionUID = 1L;
-	private ITextEditor textArea;
+	private ITextEditor textEditorAction;
+	private ITextEditor textEditorInformation;
 	private SamlTabController controller;
 	private SamlPanelAction panelAction;
 	private SamlPanelInfo panelInformation;
@@ -31,45 +30,57 @@ public class SamlMain extends javax.swing.JPanel{
 	private void initializeUI(){
 		setLayout(new BorderLayout(0, 0));
 		
-		JSplitPane splitPaneMain = new JSplitPane();
-		splitPaneMain.setOrientation(JSplitPane.VERTICAL_SPLIT);
-		splitPaneMain.setResizeWeight(0.5);
-		splitPaneMain.setDividerSize(5);
-		add(splitPaneMain, BorderLayout.CENTER);
-		
-		JPanel panelTop = new JPanel();
-		splitPaneMain.setLeftComponent(panelTop);
-		panelTop.setLayout(new BorderLayout(0, 0));
-		
-		JSplitPane splitPaneTop = new JSplitPane();
-		splitPaneTop.setResizeWeight(0.5);
-		splitPaneTop.setDividerSize(5);
-		panelTop.add(splitPaneTop);
-		
+		JSplitPane splitPaneAction = new JSplitPane();
+		splitPaneAction.setOrientation(JSplitPane.VERTICAL_SPLIT);
+		splitPaneAction.setDividerSize(5);
+		add(splitPaneAction, BorderLayout.CENTER);
+
+		JPanel panelActionTop = new JPanel();
+		splitPaneAction.setLeftComponent(panelActionTop);
+		panelActionTop.setLayout(new BorderLayout(0, 0));
 		panelAction = new SamlPanelAction(controller);
-		splitPaneTop.setLeftComponent(new JScrollPane(panelAction));
+		panelActionTop.add(panelAction);
+
+		JPanel panelActionBottom = new JPanel();
+		splitPaneAction.setRightComponent(panelActionBottom);
+		panelActionBottom.setLayout(new BorderLayout(0, 0));
+		textEditorAction = controller.getCallbacks().createTextEditor();
+		textEditorAction.setText("<SAMLRaiderFailureInInitialization></SAMLRaiderFailureInInitialization>".getBytes());
+        panelActionBottom.add(textEditorAction.getComponent(), BorderLayout.CENTER);
 		
+		JSplitPane splitPaneInformation = new JSplitPane();
+		splitPaneInformation.setOrientation(JSplitPane.VERTICAL_SPLIT);
+		splitPaneAction.setDividerSize(5);
+		add(splitPaneInformation, BorderLayout.CENTER);
+
+		JPanel panelInformationTop = new JPanel();
+		splitPaneInformation.setLeftComponent((panelInformationTop));
+		panelInformationTop.setLayout(new BorderLayout(0,0));
 		panelInformation = new SamlPanelInfo();
-		splitPaneTop.setRightComponent(new JScrollPane(panelInformation));
-		
-		JPanel panelText = new JPanel();
-		splitPaneMain.setRightComponent(panelText);
-		panelText.setLayout(new BorderLayout(0, 0));
-		
-		textArea = controller.getCallbacks().createTextEditor();
-		textArea.setText("<SAMLRaiderFailureInInitialization></SAMLRaiderFailureInInitialization>".getBytes());
-        panelText.add(textArea.getComponent(), BorderLayout.CENTER);
-		
-        splitPaneMain.setDividerLocation(0.5);
-        splitPaneTop.setDividerLocation(0.5);
-        
+		panelInformationTop.add(panelInformation);
+
+		JPanel panelInformationBottom = new JPanel();
+		splitPaneInformation.setRightComponent(panelInformationBottom);
+		panelInformationBottom.setLayout(new BorderLayout(0,0));
+		textEditorInformation = controller.getCallbacks().createTextEditor();
+		textEditorInformation.setText("".getBytes());
+		textEditorAction.setEditable(false);
+		panelInformationBottom.add(textEditorInformation.getComponent(), BorderLayout.CENTER);
+
+		JTabbedPane tabbedPane = new JTabbedPane();
+		add(tabbedPane);
+		tabbedPane.addTab("SAML Attacks", null, splitPaneAction, "SAML Attacks");
+		tabbedPane.addTab("SAML Message Info", null, splitPaneInformation, "SAML Message Info");
+
         this.invalidate();
         this.updateUI();
 	}
 	
-	public ITextEditor getTextArea(){
-		return textArea;
+	public ITextEditor getTextEditorAction(){
+		return textEditorAction;
 	}
+
+	public ITextEditor getTextEditorInformation() { return textEditorInformation; }
 	
 	public SamlPanelAction getActionPanel(){
 		return panelAction;
