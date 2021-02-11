@@ -21,19 +21,22 @@ management tool.
 
 Features of the SAML Raider message editor:
 
-* Sign SAML Messages
-* Sign SAML Assertions
-* Remove Signatures
-* Edit SAML Message (Supported Messages: SAMLRequest and SAMLResponse)
-* Preview eight common XSW Attacks
-* Execute eight common XSW Attacks
-* Send certificate to SAMl Raider Certificate Management
-* Undo all changes of a SAML Message
+* Sign SAML messages & assertions (signature spoofing attack)
+* Remove signatures (signature exclusion attack)
+* Edit SAML messages (SAMLRequest, SAMLResponse & custom parameter names)
+* Perform eight common XSW attacks
+* Insert XXE and XSLT attack payloads
 * Supported Profiles: SAML Webbrowser Single Sign-on Profile, Web Services
   Security SAML Token Profile
 * Supported Bindings: POST Binding, Redirect Binding, SOAP Binding, URI Binding
 
-![Message Editor](doc/message_editor.png)
+SAML Attacks:
+
+![SAML Attacks](doc/saml_attacks.png)
+
+SAML Message Info:
+
+![SAML Message Info](doc/saml_info.png)
 
 ### Certificate Management
 
@@ -51,7 +54,9 @@ Features of the SAML Raider Certificate Management:
 * Create new X.509 certificates
 * Editing and self-sign existing X.509 certificates
 
-![Certificate Management](doc/certificate_management.png)
+Certificate Management:
+
+![Certificate Management](doc/certificates.png)
 
 ## Download
 
@@ -72,12 +77,18 @@ hit the `Install` button to install our extension.
 
 Don't forget to rate our extension with as many stars you like :smile:.
 
-## Usage
+## Usage Hints
 
 To test SAML environments more comfortable, you could add a intercept rule in
 the proxy settings. Add a new rule which checks if a Parameter Name
 `SAMLResponse` is in the request. We hope the usage of our extension is mostly
 self explaining :smile:. If you have questions, don't hesitate to ask us!
+
+If you have a custom parameter name for a SAML message, this can be configured
+in the SAML Raider Certificates tab.
+
+If you don't want to let SAML Raider parse your SAML message before sending to
+the server (e.g. when performing XXE attacks), use the raw mode.
 
 ## Development
 
