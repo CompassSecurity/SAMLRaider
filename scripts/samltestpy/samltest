@@ -1,0 +1,87 @@
+#!/usr/bin/env python3
+
+from http.server import BaseHTTPRequestHandler, HTTPServer
+import logging
+from urllib.parse import unquote
+import base64
+import requests
+import time
+import threading
+
+class S(BaseHTTPRequestHandler):
+    def _set_response(self):
+        self.send_response(200)
+        self.send_header('Content-type', 'text/html')
+        self.end_headers()
+
+    def do_GET(self):
+        logging.info("GET request,\nPath: %s\nHeaders:\n%s\n", str(self.path), str(self.headers))
+        self._set_response()
+        self.wfile.write("GET request for {}".format(self.path).encode('utf-8'))
+
+    def do_POST(self):
+        content_length = int(self.headers['Content-Length'])
+        post_data = self.rfile.read(content_length)
+        #logging.info("POST request,\nPath: %s\nHeaders:\n%s\n\nBody:\n%s\n",
+        #        str(self.path), str(self.headers), post_data.decode('utf-8'))
+        logging.info("Received via HTTP SAML Response Decoded:")
+        decode_response(post_data.decode('utf-8').split("=")[1])
+
+        self._set_response()
+        self.wfile.write("POST request for {}".format(self.path).encode('utf-8'))
+
+def run(server_class=HTTPServer, handler_class=S, port=2305):
+    logging.basicConfig(level=logging.INFO)
+    server_address = ('', port)
+    httpd = server_class(server_address, handler_class)
+    logging.info('Starting httpd...\n')
+    try:
+        httpd.serve_forever()
+    except KeyboardInterrupt:
+        pass
+    httpd.server_close()
+    logging.info('Stopping httpd...\n')
+
+def send_request():
+    print("Sending request...")
+
+def decode_response(response):
+    #logging.info("Decoding request...")
+
+    #logging.info("Response Encoded:")
+    #print(response)
+
+    response_url_decoded = unquote(response)
+    #logging.info("Response URL Decoded:")
+    #print(response_url_decoded)
+
+    response_url_base64_decoded = base64.b64decode(response_url_decoded)
+    logging.info("Response URL + Base64 Decoded:")
+    print(response_url_base64_decoded)
+
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
+
+    # Run Webserver
+    t = threading.Thread(target=run)
+    t.daemon=True
+    t.start()
+
+    # Reas Assertion
+    f = open("saml_response_base64_url.txt", "r")
+    saml_original_response = f.read()
+
+    decode_response(saml_original_response)
+
+    # Send Assertion
+    proxies = {
+            'http': 'http://localhost:8080',
+            'https': 'http://10.10.1.localhost:8080',
+            }
+
+
+    time.sleep(1)
+    url = "http://localhost:2305/auth"
+    body = {'SAMLResponse': unquote(saml_original_response)}
+
+    requests.post(url, data = body, proxies = proxies)
