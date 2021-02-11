@@ -443,6 +443,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 	public void setRawMode(boolean rawModeEnabled){
 		isRawMode = rawModeEnabled;
 		isEdited = true;
+		samlGUI.getActionPanel().setRawModeEnabled(rawModeEnabled);
 	}
 
 	public void resignAssertion() {
@@ -622,7 +623,6 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 		textArea.setText(SAMLMessage.getBytes());
 		isEdited = true;
 		setRawMode(true);
-		samlGUI.getActionPanel().setRawModeEnabled(true);
 		setInfoMessageText(XXE_CONTENT_APPLIED);
 	}
 
@@ -652,6 +652,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 			SAMLMessage = firstPart + xslt + secondPart;
 			textArea.setText(SAMLMessage.getBytes());
 			isEdited = true;
+			setRawMode(true);
 			setInfoMessageText(XSLT_CONTENT_APPLIED);
 		}		
 	}
