@@ -26,7 +26,8 @@ import javax.xml.crypto.dsig.dom.DOMSignContext;
 
 public class XSWHelpers {
 
-	public final static String[] xswTypes = { "XSW1", "XSW2", "XSW3", "XSW4", "XSW5", "XSW6", "XSW7", "XSW8", "XSW9"};
+	// XSW9 was removed b/c it does not work. Code is still there if you want to have a look :)
+	public final static String[] xswTypes = { "XSW1", "XSW2", "XSW3", "XSW4", "XSW5", "XSW6", "XSW7", "XSW8"};
 
 	public static final HashMap<String, String> MATCH_AND_REPLACE_MAP = new HashMap<>();
 
