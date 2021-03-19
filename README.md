@@ -103,11 +103,6 @@ See [hacking](docs/hacking.md).
 
 Feedback is welcome! Please contact us or create a new issue on GitHub.
 
-## Bachelor Thesis
-
-Our Bachelor thesis is available online and can  be found here:
-[eprints_BA_SAML2_Burp_Plugin_SAML_Raider_eduss_rbischof.pdf](http://eprints.hsr.ch/464/1/eprints_BA_SAML2_Burp_Plugin_SAML_Raider_eduss_rbischof.pdf).
-
 ## License
 
 See the [LICENSE](LICENSE) file (MIT License) for license rights and
@@ -116,6 +111,11 @@ limitations.
 ## References
 
 SAML Raider is on the Internet :).
+
+### Bachelor Thesis
+
+- Our bachelor thesis where SAML Raider was born:
+[eprints_BA_SAML2_Burp_Plugin_SAML_Raider_eduss_rbischof.pdf](https://eprints.hsr.ch/464/1/eprints_BA_SAML2_Burp_Plugin_SAML_Raider_eduss_rbischof.pdf).
 
 ### General
 
