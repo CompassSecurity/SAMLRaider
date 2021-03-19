@@ -59,13 +59,11 @@ Certificate Management:
 
 ![Certificate Management](doc/certificates.png)
 
-## Download
+## Demo
 
-Download: [saml-raider-1.4.0.jar](https://github.com/SAMLRaider/SAMLRaider/releases/download/v1.4.0/saml-raider-1.4.0.jar)
+SAML Signature Spoofing Demo:
 
-## Installation
-
-### Manual Installation
+![SAML Signature Spoofing Demo](doc/saml_signature_spoofing_demo.png)
 
 Start the Burp Suite and click at the `Extender` tab on `Add`. Choose the SAML
 Raider JAR file to install the extension.
