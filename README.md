@@ -63,7 +63,7 @@ Certificate Management:
 
 SAML Signature Spoofing Demo:
 
-![SAML Signature Spoofing Demo](doc/saml_signature_spoofing_demo.png)
+![SAML Signature Spoofing Demo](doc/saml_signature_spoofing_demo.gif)
 
 ## Installation
 
