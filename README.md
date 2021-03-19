@@ -97,7 +97,7 @@ the server (e.g. when performing XXE attacks), use the raw mode.
 
 ## Development
 
-See [hacking](docs/hacking.md).
+See [hacking](doc/hacking.md).
 
 ## Feedback, Bugs and Feature Requests
 
