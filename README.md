@@ -65,16 +65,22 @@ SAML Signature Spoofing Demo:
 
 ![SAML Signature Spoofing Demo](doc/saml_signature_spoofing_demo.png)
 
-Start the Burp Suite and click at the `Extender` tab on `Add`. Choose the SAML
-Raider JAR file to install the extension.
+## Installation
 
 ### Installation from BApp Store
 
-The easy way to install SAML Raider is using the BApp Store. Open Burp and
-click in the `Extender` tab on the `BApp Store` tab. Select `SAML Raider` and
-hit the `Install` button to install our extension.
+The recommended and easiest way to install SAML Raider is using the BApp Store.
+Open Burp and click in the `Extender` tab on the `BApp Store` tab. Select `SAML
+Raider` and hit the `Install` button to install our extension.
 
 Don't forget to rate our extension with as many stars you like :smile:.
+
+### Manual Installation
+
+First, download the latest SAML Raider version:
+[saml-raider-1.4.0.jar](https://github.com/SAMLRaider/SAMLRaider/releases/download/v1.4.0/saml-raider-1.4.0.jar).
+Then, start Burp Suite and click in the `Extender` tab on `Add`. Choose the
+SAML Raider JAR file to install it and you are ready to go.
 
 ## Usage Hints
 
