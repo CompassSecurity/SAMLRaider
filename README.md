@@ -65,6 +65,10 @@ SAML Signature Spoofing Demo:
 
 ![SAML Signature Spoofing Demo](doc/saml_signature_spoofing_demo.gif)
 
+FusionAuth XXE Demo (CVE-2021-27736):
+
+![FusionAuth XXE Demo](doc/saml_fusionauth_xxe.gif)
+
 ## Installation
 
 ### Installation from BApp Store
@@ -143,6 +147,8 @@ SAML Raider is on the Internet :).
   - Blog Post: https://blog.intothesymmetry.com/2017/10/slack-saml-authentication-bypass.html
 - CVE-2020-12676: FusionAuth Signature Exclusion Attack
   - Advisory: https://compass-security.com/fileadmin/Research/Advisories/2020-06_CSNC-2020-002_FusionAuth_Signature_Exclusion_Attack.txt
+- CVE-2021-27736: FusionAuth SAML Library
+  - Advisory: https://www.compass-security.com/fileadmin/Research/Advisories/2021-03_CSNC-2021-004_FusionAuth_SAML_Library_XML_External_Entity.txt
 
 ### Other
 
