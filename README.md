@@ -7,7 +7,7 @@ contains two core functionalities: Manipulating SAML Messages and manage X.509
 certificates.
 
 This software was created by Roland Bischofberger and [Emanuel
-Duss](https://github.com/mindfuckup) (@mindfuckup) during a bachelor thesis at
+Duss](https://github.com/emanuelduss) (@emanuelduss) during a bachelor thesis at
 the [Hochschule für Technik Rapperswil](https://www.hsr.ch) (HSR). Our project
 partner and advisor was [Compass Security Schweiz
 AG](https://www.compass-security.com). We thank Compass for the nice
@@ -157,4 +157,4 @@ SAML Raider is on the Internet :).
 ## Authors
 
 * Roland Bischofberger (GitHub: [RouLee](https://github.com/RouLee))
-* Emanuel Duss (GitHub: [mindfuckup](https://github.com/mindfuckup))
+* Emanuel Duss (GitHub: [emanuelduss](https://github.com/emanuelduss))
