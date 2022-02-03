@@ -32,6 +32,7 @@ public class XSWHelpWindow extends JFrame {
 				+ "<br/>Mind that the first two XSWs can be used for signed responses only whereas the other ones can be used for signed assertions only."
 				+ "<br/> These XSW are taken from this paper: <br/> Somorovsky, Juraj, et al. \"On Breaking SAML: Be Whoever You Want to Be.\" USENIX Security Symposium. 2012."
 				+ "<br/> Please check out this paper for further information." + "</html>");
+		lblDescription.putClientProperty("html.disable", null);
 		contentPane.add(lblDescription, BorderLayout.NORTH);
 
 		JScrollPane scrollPane = new JScrollPane();
