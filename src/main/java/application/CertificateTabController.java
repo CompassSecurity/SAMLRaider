@@ -558,7 +558,7 @@ public class CertificateTabController extends Observable implements ITab {
 
 		// b/c of RFC 5246 I generate them in reverse order
 		Collections.reverse(certificateChain);
-		BurpCertificate currentCertificate = null;
+		BurpCertificate currentCertificate;
 		BurpCertificate previousCertificate = null;
 		for (BurpCertificate c : certificateChain) {
 			if (previousCertificate == null) { // self-sign
