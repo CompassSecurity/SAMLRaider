@@ -382,6 +382,7 @@ public class SamlTabController implements IMessageEditorTab, Observer {
 		}
 
 		String urlDecoded = helpers.urlDecode(message);
+		urlDecoded = urlDecoded.replaceAll("\\R", "");
 		byte[] base64Decoded = helpers.base64Decode(urlDecoded);
 
 		isInflated = true;
