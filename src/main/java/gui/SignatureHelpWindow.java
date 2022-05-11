@@ -52,6 +52,7 @@ public class SignatureHelpWindow extends JFrame {
 		JLabel lblChooseACertificate = new JLabel(
 				"<html>Choose  a certificate of this list to sign the message or the assertion. You can "
 				+ "manage the SAML Certificates in the SAML Certificates Tab.</html>");
+		lblChooseACertificate.putClientProperty("html.disable", null);
 		GridBagConstraints gbc_lblChooseACertificate = new GridBagConstraints();
 		gbc_lblChooseACertificate.anchor = GridBagConstraints.NORTH;
 		gbc_lblChooseACertificate.fill = GridBagConstraints.HORIZONTAL;
@@ -72,6 +73,7 @@ public class SignatureHelpWindow extends JFrame {
 				"<html> With the chosen certificate the message or "
 						+ "the assertion is signed. If the message or assertion was signed, the signature is replaced. <br/> "
 						+ "If you choose to sign the assertion, the message signature is removed, because the signature gets invalid.</html>");
+		lblWithTheChosen.putClientProperty("html.disable", null);
 		GridBagConstraints gbc_lblWithTheChosen = new GridBagConstraints();
 		gbc_lblWithTheChosen.fill = GridBagConstraints.HORIZONTAL;
 		gbc_lblWithTheChosen.insets = new Insets(0, 0, 5, 0);
