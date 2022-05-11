@@ -607,8 +607,7 @@ public class XMLHelpers {
 			String digestAlgorithm) throws MarshalException, XMLSignatureException {
 
 		try {
-			XMLSignatureFactory xmlSignatureFactory = XMLSignatureFactory.getInstance("DOM",
-					new org.jcp.xml.dsig.internal.dom.XMLDSigRI());
+			XMLSignatureFactory xmlSignatureFactory = XMLSignatureFactory.getInstance("DOM");
 			List<Transform> transforms = new ArrayList<Transform>();
 			Transform enveloped = xmlSignatureFactory.newTransform(Transforms.TRANSFORM_ENVELOPED_SIGNATURE,
 					(XMLStructure) null);
