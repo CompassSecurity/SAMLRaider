@@ -5,7 +5,7 @@
 	<description>SAML2 Burp Suite Extension</description>
 	<groupId>ch.hsr</groupId>
 	<artifactId>saml-raider</artifactId>
-	<version>1.4.0</version>
+	<version>1.4.1</version>
 	<modelVersion>4.0.0</modelVersion>
 	  <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -20,7 +20,7 @@
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcprov-jdk15on</artifactId>
-			<version>1.52</version>
+			<version>1.67</version>
 		</dependency>
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
@@ -41,12 +41,12 @@
 		<dependency>
 			<groupId>xerces</groupId>
 			<artifactId>xercesImpl</artifactId>
-			<version>2.12.0</version>
+			<version>2.12.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.santuario</groupId>
 			<artifactId>xmlsec</artifactId>
-			<version>2.1.4</version>
+			<version>2.1.7</version>
 		</dependency>
 	</dependencies>
 	<build>

@@ -27,10 +27,7 @@ import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.text.ParseException;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Observable;
+import java.util.*;
 
 import model.BurpCertificate;
 import model.BurpCertificateExtension;
@@ -42,9 +39,6 @@ import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 
 import burp.ITab;
-
-import com.sun.org.apache.xml.internal.security.exceptions.Base64DecodingException;
-import com.sun.org.apache.xml.internal.security.utils.Base64;
 
 public class CertificateTabController extends Observable implements ITab {
 
@@ -257,7 +251,7 @@ public class CertificateTabController extends Observable implements ITab {
 		CertificateFactory certFactory;
 		try {
 			certFactory = CertificateFactory.getInstance("X.509");
-			ByteArrayInputStream bais = new ByteArrayInputStream(Base64.decode(inputString));
+			ByteArrayInputStream bais = new ByteArrayInputStream(Base64.getDecoder().decode(inputString));
 			X509Certificate x509certificate = (X509Certificate) certFactory.generateCertificate(bais);
 			BurpCertificate certificate = new BurpCertificate(x509certificate);
 			certificate.setPublicKey(x509certificate.getPublicKey());
@@ -266,7 +260,7 @@ public class CertificateTabController extends Observable implements ITab {
 			setCertificateTree();
 			setStatus("Certificate imported");
 			return certificate;
-		} catch (CertificateException | Base64DecodingException e) {
+		} catch (CertificateException | IllegalArgumentException e) {
 			setStatus("Error reading input certificate. (" + e.getMessage() + ")");
 			e.printStackTrace();
 		} catch (Exception e) {
@@ -564,7 +558,7 @@ public class CertificateTabController extends Observable implements ITab {
 
 		// b/c of RFC 5246 I generate them in reverse order
 		Collections.reverse(certificateChain);
-		BurpCertificate currentCertificate = null;
+		BurpCertificate currentCertificate;
 		BurpCertificate previousCertificate = null;
 		for (BurpCertificate c : certificateChain) {
 			if (previousCertificate == null) { // self-sign

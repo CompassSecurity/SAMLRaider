@@ -138,8 +138,7 @@ public class XMLHelpers {
 		try {
 			DocumentBuilderFactory documentBuilderFactory = getDBF();
 			DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-			Document document = documentBuilder.parse(new InputSource(new StringReader(message)));
-			return document;
+			return documentBuilder.parse(new InputSource(new StringReader(message)));
 		} catch (ParserConfigurationException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -156,8 +155,7 @@ public class XMLHelpers {
 	 * @return NodeList with signatures
 	 */
 	public NodeList getSignatures(Document document) {
-		NodeList nl = document.getElementsByTagNameNS("*", "Signature");
-		return nl;
+		return document.getElementsByTagNameNS("*", "Signature");
 	}
 
 	/**
@@ -167,7 +165,7 @@ public class XMLHelpers {
 	 *            document in which the empty tags should be removed
 	 */
 	public void removeEmptyTags(Document document) {
-		NodeList nl = null;
+		NodeList nl;
 		try {
 			if(Thread.currentThread().getContextClassLoader() == null){
 				Thread.currentThread().setContextClassLoader(getClass().getClassLoader()); 
@@ -607,8 +605,7 @@ public class XMLHelpers {
 			String digestAlgorithm) throws MarshalException, XMLSignatureException {
 
 		try {
-			XMLSignatureFactory xmlSignatureFactory = XMLSignatureFactory.getInstance("DOM",
-					new org.jcp.xml.dsig.internal.dom.XMLDSigRI());
+			XMLSignatureFactory xmlSignatureFactory = XMLSignatureFactory.getInstance("DOM");
 			List<Transform> transforms = new ArrayList<Transform>();
 			Transform enveloped = xmlSignatureFactory.newTransform(Transforms.TRANSFORM_ENVELOPED_SIGNATURE,
 					(XMLStructure) null);
@@ -711,9 +708,9 @@ public class XMLHelpers {
 		boolean coreValidity = signature.validate(valContext);
 
 		// Check core validation status.
-		if (coreValidity == false) {
+		if (!coreValidity) {
 			boolean sv = signature.getSignatureValue().validate(valContext);
-			if (sv == false) {
+			if (!sv) {
 				if(Flags.DEBUG){
 					// Check the validation status of each Reference.
 					@SuppressWarnings("rawtypes")
