@@ -74,7 +74,7 @@ FusionAuth XXE Demo (CVE-2021-27736):
 ### Installation from BApp Store
 
 The recommended and easiest way to install SAML Raider is using the BApp Store.
-Open Burp and click in the `Extender` tab on the `BApp Store` tab. Select `SAML
+Open Burp and click in the `Extensions` tab on the `BApp Store` tab. Select `SAML
 Raider` and hit the `Install` button to install our extension.
 
 Don't forget to rate our extension with as many stars you like :smile:.
@@ -83,7 +83,7 @@ Don't forget to rate our extension with as many stars you like :smile:.
 
 First, download the latest SAML Raider version:
 [saml-raider-1.4.1.jar](https://github.com/SAMLRaider/SAMLRaider/releases/download/v1.4.1/saml-raider-1.4.1.jar).
-Then, start Burp Suite and click in the `Extender` tab on `Add`. Choose the
+Then, start Burp Suite and click in the `Extensions` tab on `Add`. Choose the
 SAML Raider JAR file to install it and you are ready to go.
 
 ## Usage Hints

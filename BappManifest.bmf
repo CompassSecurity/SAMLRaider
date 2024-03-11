@@ -8,6 +8,6 @@ MinPlatformVersion: 0
 ProOnly: False
 Author: Roland Bischofberger / Emanuel Duss
 ShortDescription: Provides a SAML message editor and a certificate management tool to help with testing SAML infrastructures.
-EntryPoint: target/saml-raider-1.4.1-jar-with-dependencies.jar
-BuildCommand: mvn package -DskipTests=true -Dmaven.javadoc.skip=true -B
+EntryPoint: build/libs/saml-raider-1.4.1.jar
+BuildCommand: ./gradlew fatJar
 SupportedProducts: Pro, Community
