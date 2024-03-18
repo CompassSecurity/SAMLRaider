@@ -1,9 +1,2 @@
-*.swp
-.settings
-*.class
-bin/
-lib/burpsuite_*.jar
-target/
-SAMLRaiderDebug.log
-.idea/
-*.iml
+.gradle
+build
