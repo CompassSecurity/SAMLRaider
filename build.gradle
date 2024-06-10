@@ -9,8 +9,8 @@ repositories {
 }
 
 compileJava {
-	targetCompatibility '17'
-	sourceCompatibility '17'
+	targetCompatibility '21'
+	sourceCompatibility '21'
 }
 
 dependencies {
