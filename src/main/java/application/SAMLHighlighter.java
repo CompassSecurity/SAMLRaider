@@ -1,10 +1,15 @@
 package application;
 
-import burp.IBurpExtenderCallbacks;
-import burp.IHttpListener;
-import burp.IHttpRequestResponse;
+import burp.api.montoya.core.HighlightColor;
+import burp.api.montoya.core.ToolType;
+import burp.api.montoya.http.handler.HttpHandler;
+import burp.api.montoya.http.handler.HttpRequestToBeSent;
+import burp.api.montoya.http.handler.HttpResponseReceived;
+import burp.api.montoya.http.handler.RequestToBeSentAction;
+import burp.api.montoya.http.handler.ResponseReceivedAction;
+import burp.api.montoya.http.message.HttpRequestResponse;
 
-public class SAMLHighlighter implements IHttpListener{
+public class SAMLHighlighter implements HttpHandler {
 	
 	private SamlTabController samlTabController;
 	
@@ -13,19 +18,17 @@ public class SAMLHighlighter implements IHttpListener{
 	}
 	
 	@Override
-	public void processHttpMessage(int toolFlag , boolean isRequest, IHttpRequestResponse requestResponse) {
-		if (toolFlag  == IBurpExtenderCallbacks.TOOL_PROXY) {
-			if (isRequest) {
-				final byte[] requestBytes = requestResponse.getRequest();
-				if(samlTabController.isEnabled(requestBytes, isRequest)){
-					highlightRequestResponse(requestResponse);
-				}
+	public RequestToBeSentAction handleHttpRequestToBeSent(HttpRequestToBeSent requestToBeSent) {
+		if (requestToBeSent.toolSource().isFromTool(ToolType.PROXY)) {
+			if(samlTabController.isEnabledFor(HttpRequestResponse.httpRequestResponse(requestToBeSent, null))){
+				requestToBeSent.annotations().setHighlightColor(HighlightColor.BLUE);
 			}
 		}
-	}
-	
-	private void highlightRequestResponse(IHttpRequestResponse requestResponse) {
-		requestResponse.setHighlight("blue");
+		return RequestToBeSentAction.continueWith(requestToBeSent);
 	}
 
+	@Override
+	public ResponseReceivedAction handleHttpResponseReceived(HttpResponseReceived responseReceived) {
+		return ResponseReceivedAction.continueWith(responseReceived);
+	}
 }

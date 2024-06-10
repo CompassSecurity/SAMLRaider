@@ -38,9 +38,7 @@ import org.bouncycastle.openssl.PEMKeyPair;
 import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 
-import burp.ITab;
-
-public class CertificateTabController extends Observable implements ITab {
+public class CertificateTabController extends Observable {
 
 	private CertificateTab certificateTab;
 	private BurpCertificateStore burpCertificateStore;
@@ -350,8 +348,6 @@ public class CertificateTabController extends Observable implements ITab {
 	 *            <code>openssl pkcs8 -topk8 -inform PEM -outform DER -in privatekey.pem -out private_key_pkcs8.pem -nocrypt</code>
 	 * @param filename
 	 *            of the PKCS8 key
-	 * @param password
-	 *            for opening the file. Empty if no password is required.
 	 */
 	public void importPKCS8(BurpCertificate certificate, String filename) {
 		setStatus("Importing private key...");
@@ -732,16 +728,10 @@ public class CertificateTabController extends Observable implements ITab {
 		setCertificateTree();
 	}
 
-	/*
-	 * Implement ITab for BurpExtender
-	 */
-
-	@Override
 	public String getTabCaption() {
 		return "SAML Raider Certificates";
 	}
 
-	@Override
 	public Component getUiComponent() {
 		return certificateTab;
 	}

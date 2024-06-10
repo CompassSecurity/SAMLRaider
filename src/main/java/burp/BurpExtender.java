@@ -1,55 +1,56 @@
 package burp;
 
-import gui.CertificateTab;
-
-import java.io.FileNotFoundException;
-import java.io.PrintStream;
-
 import application.CertificateTabController;
 import application.SAMLHighlighter;
 import application.SamlTabController;
+import burp.api.montoya.BurpExtension;
+import burp.api.montoya.MontoyaApi;
+import burp.api.montoya.ui.editor.extension.EditorCreationContext;
+import burp.api.montoya.ui.editor.extension.EditorMode;
+import burp.api.montoya.ui.editor.extension.ExtensionProvidedHttpRequestEditor;
+import burp.api.montoya.ui.editor.extension.HttpRequestEditorProvider;
+import gui.CertificateTab;
+import java.io.FileNotFoundException;
+import java.io.PrintStream;
+import static java.util.Objects.requireNonNull;
 
-public class BurpExtender implements IBurpExtender, IMessageEditorTabFactory {
-	private IBurpExtenderCallbacks callbacks;
-	private CertificateTab certificateTab;
-	private CertificateTabController certificateTabController;
-	private SAMLHighlighter samlHighlighter = new SAMLHighlighter();
+public class BurpExtender implements BurpExtension, HttpRequestEditorProvider {
 
+    private MontoyaApi api;
+    private CertificateTab certificateTab;
+    private CertificateTabController certificateTabController;
+    private SAMLHighlighter samlHighlighter = new SAMLHighlighter();
 
-	@Override
-	public void registerExtenderCallbacks(IBurpExtenderCallbacks callbacks) {
+    @Override
+    public void initialize(MontoyaApi api) {
+        this.api = requireNonNull(api, "api");
 
-		this.callbacks = callbacks;
+        if (helpers.Flags.DEBUG) {
+            PrintStream errStream;
+            try {
+                errStream = new PrintStream("SAMLRaiderDebug.log");
+                System.setErr(errStream);
+                System.setOut(errStream);
+            } catch (FileNotFoundException ex) {
+                System.out.println("Log creation failed");
+            }
+        }
 
-		if (helpers.Flags.DEBUG) {
-			PrintStream errStream;
-			try {
-				errStream = new PrintStream("SAMLRaiderDebug.log");
-				System.setErr(errStream);
-				System.setOut(errStream);
-			} catch (FileNotFoundException ex) {
-				System.out.println("Log creation failed");
-			}
-		}
+        api.extension().setName("SAML Raider");
 
-		callbacks.setExtensionName("SAML Raider");
+        certificateTab = new CertificateTab();
+        certificateTabController = new CertificateTabController(certificateTab);
+        certificateTab.setCertificateTabController(certificateTabController);
+        api.userInterface().registerSuiteTab(certificateTabController.getTabCaption(), certificateTabController.getUiComponent());
 
-		certificateTab = new CertificateTab();
-		callbacks.customizeUiComponent(certificateTab);
+        api.userInterface().registerHttpRequestEditorProvider(this);
+        api.http().registerHttpHandler(samlHighlighter);
+    }
 
-		certificateTabController = new CertificateTabController(certificateTab);
-		certificateTab.setCertificateTabController(certificateTabController);
-		callbacks.addSuiteTab(certificateTabController);
-		
-		callbacks.registerMessageEditorTabFactory(this);
-		
-		callbacks.registerHttpListener(samlHighlighter);
-	}
-
-	@Override
-	public IMessageEditorTab createNewInstance(IMessageEditorController controller, boolean editable) {
-		SamlTabController samlTabController = new SamlTabController(callbacks, editable, certificateTabController);
-		samlHighlighter.setSamlTabController(samlTabController);
-		return samlTabController; 
-	}
+    @Override
+    public ExtensionProvidedHttpRequestEditor provideHttpRequestEditor(EditorCreationContext creationContext) {
+        SamlTabController samlTabController = new SamlTabController(api, creationContext.editorMode() == EditorMode.DEFAULT, certificateTabController);
+        samlHighlighter.setSamlTabController(samlTabController);
+        return samlTabController;
+    }
 }
