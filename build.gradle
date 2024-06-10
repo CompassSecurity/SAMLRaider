@@ -26,7 +26,7 @@ dependencies {
 	testImplementation libs.org.bouncycastle.bcpkix.jdk15on
 }
 
-task fatJar(type: Jar) {
+tasks.register('fatJar', Jar) {
 	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 	from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
 	with jar
