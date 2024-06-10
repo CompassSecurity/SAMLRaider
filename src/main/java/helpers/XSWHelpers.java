@@ -1,12 +1,11 @@
 package helpers;
 
 import application.BurpCertificateBuilder;
-import helpers.diff_match_patch.Diff;
-import helpers.diff_match_patch.LinesToCharsResult;
+import helpers.DiffMatchPatch.Diff;
+import helpers.DiffMatchPatch.LinesToCharsResult;
 
 import java.io.IOException;
 import java.security.*;
-import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.HashMap;
@@ -21,8 +20,6 @@ import org.xml.sax.SAXException;
 
 import javax.xml.crypto.MarshalException;
 import javax.xml.crypto.dsig.XMLSignatureException;
-import javax.xml.crypto.dsig.XMLSignatureFactory;
-import javax.xml.crypto.dsig.dom.DOMSignContext;
 
 public class XSWHelpers {
 
@@ -248,13 +245,13 @@ public class XSWHelpers {
 	}
 	
 	public String diffLineMode(String text1, String text2) {
-		diff_match_patch differ = new diff_match_patch();
-		differ.Diff_Timeout = 5;
-		LinesToCharsResult result = differ.diff_linesToChars(text1, text2);
+		DiffMatchPatch differ = new DiffMatchPatch();
+		differ.diffTimeout = 5;
+		LinesToCharsResult result = differ.diffLinesToChars(text1, text2);
 
-		LinkedList<Diff> diffs = differ.diff_main(result.chars1, result.chars2, false);
-		differ.diff_charsToLines(diffs, result.lineArray);
-		return differ.diff_prettyHtml(diffs);
+		LinkedList<Diff> diffs = differ.diffMain(result.chars1, result.chars2, false);
+		differ.diffCharsToLines(diffs, result.lineArray);
+		return differ.diffPrettyHtml(diffs);
 	}
 
 	public void applyMatchAndReplaceValues(Node elem) {
