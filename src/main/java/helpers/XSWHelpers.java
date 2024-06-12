@@ -1,6 +1,7 @@
 package helpers;
 
 import application.BurpCertificateBuilder;
+import burp.BurpExtender;
 import helpers.DiffMatchPatch.Diff;
 import helpers.DiffMatchPatch.LinesToCharsResult;
 
@@ -213,7 +214,7 @@ public class XSWHelpers {
 			System.out.println(xmlHelpers.getStringOfDocument(documentNewDigest, 2, true));
 
 		} catch (IOException | SAXException e) {
-			e.printStackTrace();
+			BurpExtender.api.logging().logToError(e);
 		}
 	}
 
@@ -239,7 +240,7 @@ public class XSWHelpers {
 		} catch (InvalidKeyException | NoSuchAlgorithmException | SignatureException | NoSuchProviderException |
 				InvalidKeySpecException | IOException | CertificateException | XMLSignatureException | SAXException |
 				MarshalException e) {
-			e.printStackTrace();
+			BurpExtender.api.logging().logToError(e);
 		}
 		return null;
 	}

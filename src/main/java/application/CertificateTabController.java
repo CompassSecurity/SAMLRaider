@@ -1,5 +1,6 @@
 package application;
 
+import burp.BurpExtender;
 import gui.CertificateTab;
 import helpers.FileHelper;
 import helpers.Flags;
@@ -229,10 +230,10 @@ public class CertificateTabController extends Observable {
 			return certificate;
 		} catch (IOException | CertificateException e) {
 			setStatus("Error reading file. (" + e.getMessage() + ")");
-			e.printStackTrace();
+			BurpExtender.api.logging().logToError(e);
 		} catch (Exception e) {
 			setStatus("Error (" + e.getMessage() + ")");
-			e.printStackTrace();
+			BurpExtender.api.logging().logToError(e);
 		}
 		return null;
 	}
@@ -260,10 +261,10 @@ public class CertificateTabController extends Observable {
 			return certificate;
 		} catch (CertificateException | IllegalArgumentException e) {
 			setStatus("Error reading input certificate. (" + e.getMessage() + ")");
-			e.printStackTrace();
+			BurpExtender.api.logging().logToError(e);
 		} catch (Exception e) {
 			setStatus("Error. (" + e.getMessage() + ")");
-			e.printStackTrace();
+			BurpExtender.api.logging().logToError(e);
 		}
 		return null;
 	}
@@ -303,7 +304,7 @@ public class CertificateTabController extends Observable {
 			return certificateChain;
 		} catch (IOException | CertificateException e) {
 			setStatus("Error reading certificate chain. (" + e.getMessage() + ")");
-			e.printStackTrace();
+			BurpExtender.api.logging().logToError(e);
 		} catch (Exception e) {
 			setStatus("Error (" + e.getMessage() + ")");
 		}
@@ -333,7 +334,7 @@ public class CertificateTabController extends Observable {
 			certificate.setPrivateKey(kp.getPrivate());
 		} catch (IOException e) {
 			setStatus("Error importing private key. (" + e.getMessage() + ")");
-			e.printStackTrace();
+			BurpExtender.api.logging().logToError(e);
 		} catch (Exception e) {
 			setStatus("Error (" + e.getMessage() + ")");
 		}
@@ -369,7 +370,7 @@ public class CertificateTabController extends Observable {
 			setStatus("Private Key imported.");
 		} catch (IOException | NoSuchAlgorithmException | InvalidKeySpecException e) {
 			setStatus("Error importing private Key. (" + e.getMessage() + ")");
-			e.printStackTrace();
+			BurpExtender.api.logging().logToError(e);
 		} catch (Exception e) {
 			setStatus("Error (" + e.getMessage() + ")");
 		}
@@ -393,7 +394,7 @@ public class CertificateTabController extends Observable {
 			setStatus("Certificate exported.");
 		} catch (IOException e) {
 			setStatus("Error exporting certificate (" + e.getMessage() + ")");
-			e.printStackTrace();
+			BurpExtender.api.logging().logToError(e);
 		} catch (Exception e) {
 			setStatus("Error (" + e.getMessage() + ")");
 		}
@@ -414,7 +415,7 @@ public class CertificateTabController extends Observable {
 			setStatus("Private Key exported.");
 		} catch (IOException e) {
 			setStatus("Error exporting private key. (" + e.getMessage() + ")");
-			e.printStackTrace();
+			BurpExtender.api.logging().logToError(e);
 		} catch (Exception e) {
 			setStatus("Error (" + e.getMessage() + ")");
 		}
@@ -475,25 +476,25 @@ public class CertificateTabController extends Observable {
 			return burpCertificate;
 		} catch (IOException e) {
 			setStatus("I/O error. (" + e.getMessage() + ")");
-			e.printStackTrace();
+			BurpExtender.api.logging().logToError(e);
 		} catch (CertificateEncodingException e) {
 			setStatus("Problem with certificate encoding. (" + e.getMessage() + ")");
-			e.printStackTrace();
+			BurpExtender.api.logging().logToError(e);
 		} catch (InvalidKeyException e) {
 			setStatus("Invalid Key.");
-			e.printStackTrace();
+			BurpExtender.api.logging().logToError(e);
 		} catch (NoSuchAlgorithmException e) {
 			setStatus("Unsupported algorithm specified. (" + e.getMessage() + ")");
-			e.printStackTrace();
+			BurpExtender.api.logging().logToError(e);
 		} catch (SignatureException e) {
 			setStatus("Error creating signature. (" + e.getMessage() + ")");
-			e.printStackTrace();
+			BurpExtender.api.logging().logToError(e);
 		} catch (InvalidKeySpecException e) {
 			setStatus("Unsupported key specifications. (" + e.getMessage() + ")");
-			e.printStackTrace();
+			BurpExtender.api.logging().logToError(e);
 		} catch (NoSuchProviderException | IllegalStateException e) {
 			setStatus("Error cloning certificate. (" + e.getMessage() + ")");
-			e.printStackTrace();
+			BurpExtender.api.logging().logToError(e);
 		} catch (Exception e) {
 			setStatus("Error (" + e.getMessage() + ")");
 		}
@@ -520,7 +521,7 @@ public class CertificateTabController extends Observable {
 			}
 		} catch (Exception e) {
 			setStatus("No private key found");
-			e.printStackTrace();
+			BurpExtender.api.logging().logToError(e);
 		}
 
 		BurpCertificate burpCertificate;
@@ -534,7 +535,7 @@ public class CertificateTabController extends Observable {
 		} catch (CertificateEncodingException | InvalidKeyException | IllegalStateException | NoSuchAlgorithmException | SignatureException | NoSuchProviderException | InvalidKeySpecException
 				| IOException e) {
 			setStatus("Error cloning certificate. (" + e.getMessage() + ")");
-			e.printStackTrace();
+			BurpExtender.api.logging().logToError(e);
 		} catch (Exception e) {
 			setStatus("Error (" + e.getMessage() + ")");
 		}
@@ -668,34 +669,34 @@ public class CertificateTabController extends Observable {
 			setCertificateTree();
 		} catch (CertificateEncodingException e) {
 			setStatus("Problem with certificate encoding. (" + e.getMessage() + ")");
-			e.printStackTrace();
+			BurpExtender.api.logging().logToError(e);
 		} catch (InvalidKeyException e) {
 			setStatus("Invalid Key. (" + e.getMessage() + ")");
-			e.printStackTrace();
+			BurpExtender.api.logging().logToError(e);
 		} catch (NoSuchAlgorithmException e) {
 			setStatus("Unsupported algorithm specified. (" + e.getMessage() + ")");
-			e.printStackTrace();
+			BurpExtender.api.logging().logToError(e);
 		} catch (SignatureException e) {
 			setStatus("Error creating signature. (" + e.getMessage() + ")");
-			e.printStackTrace();
+			BurpExtender.api.logging().logToError(e);
 		} catch (InvalidKeySpecException e) {
 			setStatus("Unsupported key specifications. (" + e.getMessage() + ")");
-			e.printStackTrace();
+			BurpExtender.api.logging().logToError(e);
 		} catch (IOException e) {
 			setStatus("I/O error (" + e.getMessage() + ")");
-			e.printStackTrace();
+			BurpExtender.api.logging().logToError(e);
 		} catch (NoSuchProviderException | IllegalStateException e) {
 			setStatus("Error creating certificate. (" + e.getMessage() + ")");
-			e.printStackTrace();
+			BurpExtender.api.logging().logToError(e);
 		} catch (ParseException e) {
 			setStatus("Could not Parse Date. (" + e.getMessage() + ")");
-			e.printStackTrace();
+			BurpExtender.api.logging().logToError(e);
 		} catch (IllegalArgumentException e) {
 			setStatus("Error reading input form. (" + e.getMessage() + ")");
-			e.printStackTrace();
+			BurpExtender.api.logging().logToError(e);
 		} catch (Exception e) {
 			setStatus("Error (" + e.getMessage() + ")");
-			e.printStackTrace();
+			BurpExtender.api.logging().logToError(e);
 		}
 	}
 

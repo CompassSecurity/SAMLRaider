@@ -1,5 +1,6 @@
 package model;
 
+import burp.BurpExtender;
 import helpers.CertificateHelper;
 
 import java.io.IOException;
@@ -194,7 +195,7 @@ public class BurpCertificate {
 				subjectAlternativeNames.add(i.get(1) + " (" + ObjectIdentifier.getSubjectAlternativeNames((Integer) i.get(0)) + ")");
 			}
 		} catch (CertificateParsingException e) {
-			e.printStackTrace();
+			BurpExtender.api.logging().logToError(e);
 		}
 
 		return subjectAlternativeNames;
@@ -212,7 +213,7 @@ public class BurpCertificate {
 				issuerAlternativeNames.add(i.get(1) + " (" + ObjectIdentifier.getSubjectAlternativeNames((Integer) i.get(0)) + ")");
 			}
 		} catch (CertificateParsingException e) {
-			e.printStackTrace();
+			BurpExtender.api.logging().logToError(e);
 		}
 
 		return issuerAlternativeNames;
@@ -264,7 +265,7 @@ public class BurpCertificate {
 				extendedKeyUsage.add(ObjectIdentifier.getExtendedKeyUsage(i));
 			}
 		} catch (CertificateParsingException e) {
-			e.printStackTrace();
+			BurpExtender.api.logging().logToError(e);
 		}
 
 		return extendedKeyUsage;
@@ -284,7 +285,7 @@ public class BurpCertificate {
 			k = ASN1Sequence.getInstance(ap.getEncoded()).getEncoded();
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			BurpExtender.api.logging().logToError(e1);
 		}
 		// Very ugly hack to extract the SHA1 Hash (59 Hex Chars) from the
 		// Extension :(
@@ -305,7 +306,7 @@ public class BurpCertificate {
 			ap = JcaX509ExtensionUtils.parseExtensionValue(e);
 			k = ASN1OctetString.getInstance(ap.getEncoded()).getOctets();
 		} catch (IOException e1) {
-			e1.printStackTrace();
+			BurpExtender.api.logging().logToError(e1);
 		}
 		return CertificateHelper.addHexColons(CertificateHelper.byteArrayToHex(k));
 	}

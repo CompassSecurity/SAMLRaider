@@ -203,7 +203,7 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
                 Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(soapMessage);
                 return xmlHelpers.getAssertions(document).getLength() != 0 || xmlHelpers.getEncryptedAssertions(document).getLength() != 0;
             } catch (SAXException e) {
-                e.printStackTrace();
+                BurpExtender.api.logging().logToError(e);
                 return false;
             }
         }
@@ -218,7 +218,7 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
                 document = xmlHelpers.getXMLDocumentOfSAMLMessage(wssMessage);
                 return xmlHelpers.getAssertions(document).getLength() != 0 || xmlHelpers.getEncryptedAssertions(document).getLength() != 0;
             } catch (SAXException e) {
-                e.printStackTrace();
+                BurpExtender.api.logging().logToError(e);
                 return false;
             }
         } else {
@@ -278,14 +278,14 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
                 }
 
             } catch (IOException e) {
-                e.printStackTrace();
+                BurpExtender.api.logging().logToError(e);
                 setInfoMessageText(XML_COULD_NOT_SERIALIZE);
             } catch (SAXException e) {
-                e.printStackTrace();
+                BurpExtender.api.logging().logToError(e);
                 setInfoMessageText(XML_NOT_WELL_FORMED);
                 SAMLMessage = "<error>" + XML_NOT_WELL_FORMED + "</error>";
             } catch (ParserConfigurationException e) {
-                e.printStackTrace();
+                BurpExtender.api.logging().logToError(e);
             }
 
             setInformationDisplay();

@@ -1,5 +1,6 @@
 package gui;
 
+import burp.BurpExtender;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -113,7 +114,7 @@ public class CertificateTab extends JPanel {
 				}
 			});
 		} catch (InvocationTargetException | InterruptedException e) {
-			e.printStackTrace();
+			BurpExtender.api.logging().logToError(e);
 		}
 	}
 

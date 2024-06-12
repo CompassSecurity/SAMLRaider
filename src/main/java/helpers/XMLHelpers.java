@@ -1,5 +1,6 @@
 package helpers;
 
+import burp.BurpExtender;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -71,7 +72,7 @@ public class XMLHelpers {
 			documentBuilderFactory.setNamespaceAware(true);
 			return documentBuilderFactory;
 		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
+			BurpExtender.api.logging().logToError(e);
 		}
 		return null;
 	}
@@ -140,9 +141,9 @@ public class XMLHelpers {
 			DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
 			return documentBuilder.parse(new InputSource(new StringReader(message)));
 		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
+			BurpExtender.api.logging().logToError(e);
 		} catch (IOException e) {
-			e.printStackTrace();
+			BurpExtender.api.logging().logToError(e);
 		}
 		return null;
 	}
@@ -179,7 +180,7 @@ public class XMLHelpers {
 			}
 			
 		} catch (XPathExpressionException e) {
-			e.printStackTrace();
+			BurpExtender.api.logging().logToError(e);
 		}
 	}
 
@@ -230,7 +231,7 @@ public class XMLHelpers {
 			document.normalize();
 			return nrSig;
 		} catch (XPathExpressionException e) {
-			e.printStackTrace();
+			BurpExtender.api.logging().logToError(e);
 		}
 		return 0;
 	}
@@ -277,7 +278,7 @@ public class XMLHelpers {
 				return (Element) elements.item(0);
 			}
 		} catch (XPathExpressionException e) {
-			e.printStackTrace();
+			BurpExtender.api.logging().logToError(e);
 		}
 		return null;
 	}
@@ -495,7 +496,7 @@ public class XMLHelpers {
 				elem.setIdAttributeNode(attr, true);
 			}
 		} catch (XPathExpressionException e) {
-			e.printStackTrace();
+			BurpExtender.api.logging().logToError(e);
 		}
 	}
 
@@ -535,7 +536,7 @@ public class XMLHelpers {
 				signElement(document, id, cert, key, signAlgorithm, digestAlgorithm);
 			}
 		} catch (XPathExpressionException e) {
-			e.printStackTrace();
+			BurpExtender.api.logging().logToError(e);
 		}
 	}
 
@@ -575,7 +576,7 @@ public class XMLHelpers {
 				signElement(document, id, cert, key, signAlgorithm, digestAlgorithm);
 			}
 		} catch (XPathExpressionException e) {
-			e.printStackTrace();
+			BurpExtender.api.logging().logToError(e);
 		}
 	}
 
@@ -668,9 +669,9 @@ public class XMLHelpers {
 
 			return doc;
 		} catch (InvalidAlgorithmParameterException e) {
-			e.printStackTrace();
+			BurpExtender.api.logging().logToError(e);
 		} catch (NoSuchAlgorithmException e1) {
-			e1.printStackTrace();
+			BurpExtender.api.logging().logToError(e1);
 		}
 		return null;
 	}

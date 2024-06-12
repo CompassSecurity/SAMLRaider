@@ -29,17 +29,6 @@ public class BurpExtender implements BurpExtension, HttpRequestEditorProvider {
     public void initialize(MontoyaApi api) {
         BurpExtender.api = api;
 
-        if (helpers.Flags.DEBUG) {
-            PrintStream errStream;
-            try {
-                errStream = new PrintStream("SAMLRaiderDebug.log");
-                System.setErr(errStream);
-                System.setOut(errStream);
-            } catch (FileNotFoundException ex) {
-                System.out.println("Log creation failed");
-            }
-        }
-
         api.extension().setName("SAML Raider");
 
         certificateTab = new CertificateTab();
