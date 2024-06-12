@@ -19,14 +19,15 @@ import static java.util.Objects.requireNonNull;
 
 public class BurpExtender implements BurpExtension, HttpRequestEditorProvider {
 
-    private MontoyaApi api;
+    public static MontoyaApi api;
+
     private CertificateTab certificateTab;
     private CertificateTabController certificateTabController;
     private SAMLHighlighter samlHighlighter = new SAMLHighlighter();
 
     @Override
     public void initialize(MontoyaApi api) {
-        this.api = requireNonNull(api, "api");
+        BurpExtender.api = api;
 
         if (helpers.Flags.DEBUG) {
             PrintStream errStream;
@@ -63,7 +64,7 @@ public class BurpExtender implements BurpExtension, HttpRequestEditorProvider {
 
     @Override
     public ExtensionProvidedHttpRequestEditor provideHttpRequestEditor(EditorCreationContext creationContext) {
-        SamlTabController samlTabController = new SamlTabController(api, creationContext.editorMode() == EditorMode.DEFAULT, certificateTabController);
+        SamlTabController samlTabController = new SamlTabController(creationContext.editorMode() == EditorMode.DEFAULT, certificateTabController);
         samlHighlighter.setSamlTabController(samlTabController);
         return samlTabController;
     }

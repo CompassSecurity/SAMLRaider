@@ -1,8 +1,7 @@
 package application;
 
-import burp.api.montoya.MontoyaApi;
+import burp.BurpExtender;
 import burp.api.montoya.core.ByteArray;
-import burp.api.montoya.http.Http;
 import burp.api.montoya.http.message.ContentType;
 import burp.api.montoya.http.message.HttpRequestResponse;
 import burp.api.montoya.http.message.params.HttpParameter;
@@ -11,8 +10,6 @@ import burp.api.montoya.http.message.requests.HttpRequest;
 import burp.api.montoya.ui.Selection;
 import burp.api.montoya.ui.editor.RawEditor;
 import burp.api.montoya.ui.editor.extension.ExtensionProvidedHttpRequestEditor;
-import burp.api.montoya.utilities.Base64DecodingOptions;
-import burp.api.montoya.utilities.Base64EncodingOptions;
 import gui.SamlMain;
 import gui.SamlPanelInfo;
 import gui.SignatureHelpWindow;
@@ -71,7 +68,6 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
     private static final String NO_BROWSER = "Could not open diff in Browser. Path to file was copied to clipboard";
     private static final String NO_DIFF_TEMP_FILE = "Could not create diff temp file.";
 
-    private final MontoyaApi api;
     private final CertificateTabController certificateTabController;
     private XMLHelpers xmlHelpers;
     private HttpRequestResponse requestResponse;
@@ -93,11 +89,10 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
     private boolean isEdited = false;
     private boolean isRawMode = false;
 
-    public SamlTabController(MontoyaApi api, boolean editable, CertificateTabController certificateTabController) {
-        this.api = requireNonNull(api, "api");
+    public SamlTabController(boolean editable, CertificateTabController certificateTabController) {
         this.certificateTabController = requireNonNull(certificateTabController, "certificateTabController");
         this.editable = editable;
-        samlGUI = new SamlMain(this.api, this);
+        samlGUI = new SamlMain(this);
         textArea = samlGUI.getTextEditorAction();
         textArea.setEditable(editable);
         textEditorInformation = samlGUI.getTextEditorInformation();
@@ -371,13 +366,13 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
     public String getDecodedSAMLMessage(String message) {
         if (isWSSMessage) {
             if (isWSSUrlEncoded) {
-                return this.api.utilities().urlUtils().decode(message);
+                return BurpExtender.api.utilities().urlUtils().decode(message);
             } else {
                 return message;
             }
         }
 
-        String urlDecoded = this.api.utilities().urlUtils().decode(message);
+        String urlDecoded = BurpExtender.api.utilities().urlUtils().decode(message);
         urlDecoded = urlDecoded.replaceAll("\\R", "");
         byte[] base64Decoded = Base64.getDecoder().decode(urlDecoded);
 

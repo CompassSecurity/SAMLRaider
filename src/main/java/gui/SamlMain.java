@@ -1,7 +1,7 @@
 package gui;
 
 import application.SamlTabController;
-import burp.api.montoya.MontoyaApi;
+import burp.BurpExtender;
 import burp.api.montoya.core.ByteArray;
 import burp.api.montoya.ui.editor.RawEditor;
 import java.awt.BorderLayout;
@@ -13,7 +13,6 @@ import static java.util.Objects.requireNonNull;
 
 public class SamlMain extends JPanel {
 
-    private final MontoyaApi api;
     private final SamlTabController controller;
 
     private RawEditor textEditorAction;
@@ -21,9 +20,7 @@ public class SamlMain extends JPanel {
     private SamlPanelAction panelAction;
     private SamlPanelInfo panelInformation;
 
-    public SamlMain(MontoyaApi api, SamlTabController controller) {
-        super();
-        this.api = requireNonNull(api, "api");
+    public SamlMain(SamlTabController controller) {
         this.controller = requireNonNull(controller, "controller");
         initializeUI();
     }
@@ -45,7 +42,7 @@ public class SamlMain extends JPanel {
         JPanel panelActionBottom = new JPanel();
         splitPaneAction.setRightComponent(panelActionBottom);
         panelActionBottom.setLayout(new BorderLayout(0, 0));
-        textEditorAction = this.api.userInterface().createRawEditor();
+        textEditorAction = BurpExtender.api.userInterface().createRawEditor();
         textEditorAction.setContents(ByteArray.byteArray("<SAMLRaiderFailureInInitialization></SAMLRaiderFailureInInitialization>"));
         panelActionBottom.add(textEditorAction.uiComponent(), BorderLayout.CENTER);
 
@@ -63,7 +60,7 @@ public class SamlMain extends JPanel {
         JPanel panelInformationBottom = new JPanel();
         splitPaneInformation.setRightComponent(panelInformationBottom);
         panelInformationBottom.setLayout(new BorderLayout(0, 0));
-        textEditorInformation = this.api.userInterface().createRawEditor();
+        textEditorInformation = BurpExtender.api.userInterface().createRawEditor();
         textEditorInformation.setContents(ByteArray.byteArray(""));
         textEditorAction.setEditable(false);
         panelInformationBottom.add(textEditorInformation.uiComponent(), BorderLayout.CENTER);
