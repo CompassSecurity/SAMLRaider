@@ -9,5 +9,5 @@ ProOnly: False
 Author: Roland Bischofberger / Emanuel Duss / Tobias Hort-Giess
 ShortDescription: Provides a SAML message editor and a certificate management tool to help with testing SAML infrastructures.
 EntryPoint: build/libs/saml-raider-2.0.0.jar
-BuildCommand: ./gradlew fatJar
+BuildCommand: ./gradlew jar
 SupportedProducts: Pro, Community

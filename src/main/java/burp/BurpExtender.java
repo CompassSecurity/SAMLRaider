@@ -10,8 +10,11 @@ import burp.api.montoya.ui.editor.extension.EditorMode;
 import burp.api.montoya.ui.editor.extension.ExtensionProvidedHttpRequestEditor;
 import burp.api.montoya.ui.editor.extension.HttpRequestEditorProvider;
 import gui.CertificateTab;
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
+
 import static java.util.Objects.requireNonNull;
 
 public class BurpExtender implements BurpExtension, HttpRequestEditorProvider {
@@ -45,6 +48,17 @@ public class BurpExtender implements BurpExtension, HttpRequestEditorProvider {
 
         api.userInterface().registerHttpRequestEditorProvider(this);
         api.http().registerHttpHandler(samlHighlighter);
+
+        api.logging().logToOutput("SAML Raider loaded.");
+
+        var versionTxt = "/version.txt";
+        try (var stream = getClass().getResourceAsStream(versionTxt)) {
+            var reader = new BufferedReader(new InputStreamReader(requireNonNull(stream, versionTxt)));
+            reader.lines().forEach(api.logging()::logToOutput);
+        } catch (Exception exc) {
+            api.logging().logToError("Could not read %s".formatted(versionTxt));
+            api.logging().logToError(exc);
+        }
     }
 
     @Override
@@ -53,4 +67,5 @@ public class BurpExtender implements BurpExtension, HttpRequestEditorProvider {
         samlHighlighter.setSamlTabController(samlTabController);
         return samlTabController;
     }
+
 }

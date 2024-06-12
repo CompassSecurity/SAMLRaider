@@ -10,13 +10,13 @@ https://portswigger.net/burp/extender/api/index.html.
 Linux:
 
 ```shell
-./gradlew clean build fatJar
+./gradlew jar
 ```
 
 Windows: 
 
 ```shell
-.\gradlew.bat clean build fatJar
+.\gradlew.bat jar
 ```
 
 Get the jar from `build/libs/saml-raider-<version>.jar`

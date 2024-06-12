@@ -26,9 +26,14 @@ dependencies {
 	testImplementation libs.org.bouncycastle.bcpkix.jdk15on
 }
 
-tasks.register('fatJar', Jar) {
+jar {
 	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 	from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
-	with jar
+	new File(projectDir, "src/main/resources/version.txt").text = """
+		Version         : ${version}
+		Build-By        : Gradle ${gradle.gradleVersion}
+		Build-Timestamp : ${java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.now())}
+		Build-Revision  : ${"git rev-parse HEAD".execute().text.trim()}
+		Build-Jdk       : ${System.properties["java.version"]}
+		""".stripIndent().strip()
 }
-
