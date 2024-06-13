@@ -209,13 +209,6 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
     @Override
     public void setRequestResponse(HttpRequestResponse requestResponse) {
         this.requestResponse = requestResponse;
-
-        this.samlMessageAnalysisResult =
-                SamlMessageAnalyzer.analyze(
-                        requestResponse.request(),
-                        this.certificateTabController.getSamlRequestParameterName(),
-                        this.certificateTabController.getSamlResponseParameterName());
-
         resetInfoMessageText();
         isEdited = false;
         if (requestResponse == null) {
@@ -224,6 +217,12 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
             setGUIEditable(false);
             resetInformationDisplay();
         } else {
+            this.samlMessageAnalysisResult =
+                    SamlMessageAnalyzer.analyze(
+                            requestResponse.request(),
+                            this.certificateTabController.getSamlRequestParameterName(),
+                            this.certificateTabController.getSamlResponseParameterName());
+
             try {
                 if (this.samlMessageAnalysisResult.isSOAPMessage()) {
                     String soapMessage = requestResponse.response().bodyToString();
