@@ -1,8 +1,8 @@
 package application;
 
+import application.SamlMessageAnalyzer.SamlMessageAnalysisResult;
 import burp.BurpExtender;
 import burp.api.montoya.core.ByteArray;
-import burp.api.montoya.http.message.ContentType;
 import burp.api.montoya.http.message.HttpRequestResponse;
 import burp.api.montoya.http.message.params.HttpParameter;
 import burp.api.montoya.http.message.params.HttpParameterType;
@@ -14,7 +14,6 @@ import gui.SamlMain;
 import gui.SamlPanelInfo;
 import gui.SignatureHelpWindow;
 import gui.XSWHelpWindow;
-import helpers.HTTPHelpers;
 import helpers.XMLHelpers;
 import helpers.XSWHelpers;
 import java.awt.Component;
@@ -25,21 +24,17 @@ import java.awt.datatransfer.StringSelection;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.zip.DataFormatException;
 import javax.xml.crypto.MarshalException;
 import javax.xml.crypto.dsig.XMLSignatureException;
 import javax.xml.parsers.ParserConfigurationException;
@@ -71,21 +66,14 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
     private final CertificateTabController certificateTabController;
     private XMLHelpers xmlHelpers;
     private HttpRequestResponse requestResponse;
+    private SamlMessageAnalysisResult samlMessageAnalysisResult;
     private String orgSAMLMessage;
-    private String SAMLMessage;
-    private boolean isInflated = true;
-    private boolean isGZip = false;
-    private boolean isWSSUrlEncoded = false;
+    private String samlMessage;
     private RawEditor textArea;
     private RawEditor textEditorInformation;
     private SamlMain samlGUI;
     private boolean editable;
-    private boolean isSOAPMessage;
-    private boolean isWSSMessage;
-    private boolean isSAMLRequest; // otherwise it's a SAMLResponse
-    private String httpMethod; // So URI and POST Binding is supported
     private XSWHelpers xswHelpers;
-    private HTTPHelpers httpHelpers;
     private boolean isEdited = false;
     private boolean isRawMode = false;
 
@@ -99,15 +87,15 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
         textEditorInformation.setEditable(false);
         xmlHelpers = new XMLHelpers();
         xswHelpers = new XSWHelpers();
-        httpHelpers = new HTTPHelpers();
         this.certificateTabController.addObserver(this);
     }
 
     @Override
     public HttpRequest getRequest() {
-        HttpRequest request = requestResponse.request();
+        var request = this.requestResponse.request();
+
         if (isModified()) {
-            if (isSOAPMessage) {
+            if (this.samlMessageAnalysisResult.isSOAPMessage()) {
                 try {
                     // TODO Only working with getString for both documents,
                     // otherwise namespaces and attributes are emptied -.-
@@ -120,7 +108,7 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
                     Document soapDocument = xmlHelpers.getXMLDocumentOfSAMLMessage(soapMessage);
                     Element soapBody = xmlHelpers.getSOAPBody(soapDocument);
                     xmlHelpers.getString(soapDocument);
-                    Document samlDocumentEdited = xmlHelpers.getXMLDocumentOfSAMLMessage(SAMLMessage);
+                    Document samlDocumentEdited = xmlHelpers.getXMLDocumentOfSAMLMessage(samlMessage);
                     xmlHelpers.getString(samlDocumentEdited);
                     Element samlResponse = (Element) samlDocumentEdited.getFirstChild();
                     soapDocument.adoptNode(samlResponse);
@@ -150,24 +138,34 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
                 }
 
                 String parameterToUpdate;
-                if (isSAMLRequest) {
+                if (this.samlMessageAnalysisResult.isSAMLRequest()) {
                     parameterToUpdate = certificateTabController.getSamlRequestParameterName();
                 } else {
                     parameterToUpdate = certificateTabController.getSamlResponseParameterName();
                 }
 
-                if (isWSSMessage) {
+                if (this.samlMessageAnalysisResult.isWSSMessage()) {
                     parameterToUpdate = "wresult";
                 }
 
                 HttpParameterType parameterType;
-                if (httpMethod.equals("GET")) {
+                if (request.method().equals("GET")) {
                     parameterType = HttpParameterType.URL;
                 } else {
                     parameterType = HttpParameterType.BODY;
                 }
 
-                HttpParameter newParameter = HttpParameter.parameter(parameterToUpdate, getEncodedSAMLMessage(textMessage), parameterType);
+                HttpParameter newParameter =
+                        HttpParameter.parameter(
+                                parameterToUpdate,
+                                SamlMessageEncoder.getEncodedSAMLMessage(
+                                        textMessage,
+                                        this.samlMessageAnalysisResult.isWSSMessage(),
+                                        this.samlMessageAnalysisResult.isWSSUrlEncoded(),
+                                        this.samlMessageAnalysisResult.isInflated(),
+                                        this.samlMessageAnalysisResult.isGZip()),
+                                parameterType);
+
                 request = request.withUpdatedParameters(newParameter);
             }
         }
@@ -191,54 +189,15 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
 
     @Override
     public boolean isEnabledFor(HttpRequestResponse requestResponse) {
-        return isSAMLMessage(requestResponse.request());
+        var samlMessageAnalysisResult =
+                SamlMessageAnalyzer.analyze(
+                        requestResponse.request(),
+                        this.certificateTabController.getSamlRequestParameterName(),
+                        this.certificateTabController.getSamlResponseParameterName());
+
+        return samlMessageAnalysisResult.isSAMLMessage();
     }
 
-    private boolean isSAMLMessage(HttpRequest request) {
-        httpMethod = request.method();
-        if (request.contentType() == ContentType.XML) {
-            isSOAPMessage = true;
-            try {
-                String soapMessage = request.bodyToString();
-                Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(soapMessage);
-                return xmlHelpers.getAssertions(document).getLength() != 0 || xmlHelpers.getEncryptedAssertions(document).getLength() != 0;
-            } catch (SAXException e) {
-                BurpExtender.api.logging().logToError(e);
-                return false;
-            }
-        }
-        // WSS Security
-        else if (request.hasParameter("wresult", HttpParameterType.BODY)) {
-            try {
-                isWSSUrlEncoded = request.contentType() == ContentType.URL_ENCODED;
-                isWSSMessage = true;
-                String parameterValue = request.parameterValue("wresult", HttpParameterType.BODY);
-                String wssMessage = getDecodedSAMLMessage(parameterValue);
-                Document document;
-                document = xmlHelpers.getXMLDocumentOfSAMLMessage(wssMessage);
-                return xmlHelpers.getAssertions(document).getLength() != 0 || xmlHelpers.getEncryptedAssertions(document).getLength() != 0;
-            } catch (SAXException e) {
-                BurpExtender.api.logging().logToError(e);
-                return false;
-            }
-        } else {
-            isWSSMessage = false;
-            isSOAPMessage = false;
-
-            String requestParameter;
-            requestParameter = request.parameterValue(certificateTabController.getSamlResponseParameterName(), HttpParameterType.BODY);
-            if (requestParameter != null) {
-                isSAMLRequest = false;
-                return true;
-            }
-            requestParameter = request.parameterValue(certificateTabController.getSamlRequestParameterName(), HttpParameterType.BODY);
-            if (requestParameter != null) {
-                isSAMLRequest = true;
-                return true;
-            }
-        }
-        return false;
-    }
 
     @Override
     public boolean isModified() {
@@ -248,6 +207,13 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
     @Override
     public void setRequestResponse(HttpRequestResponse requestResponse) {
         this.requestResponse = requestResponse;
+
+        this.samlMessageAnalysisResult =
+                SamlMessageAnalyzer.analyze(
+                        requestResponse.request(),
+                        this.certificateTabController.getSamlRequestParameterName(),
+                        this.certificateTabController.getSamlResponseParameterName());
+
         resetInfoMessageText();
         isEdited = false;
         if (requestResponse == null) {
@@ -257,24 +223,34 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
             resetInformationDisplay();
         } else {
             try {
-                if (isSOAPMessage) {
+                if (this.samlMessageAnalysisResult.isSOAPMessage()) {
                     String soapMessage = requestResponse.response().bodyToString();
                     Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(soapMessage);
                     Document documentSAML = xmlHelpers.getSAMLResponseOfSOAP(document);
-                    SAMLMessage = xmlHelpers.getStringOfDocument(documentSAML, 0, false);
-                } else if (isWSSMessage) {
+                    samlMessage = xmlHelpers.getStringOfDocument(documentSAML, 0, false);
+                } else if (this.samlMessageAnalysisResult.isWSSMessage()) {
                     var parameterValue = requestResponse.request().parameterValue("wresult", HttpParameterType.BODY);
-                    SAMLMessage = getDecodedSAMLMessage(parameterValue);
+                    var decodedSAMLMessage =
+                            SamlMessageDecoder.getDecodedSAMLMessage(
+                                    parameterValue,
+                                    this.samlMessageAnalysisResult.isWSSMessage(),
+                                    this.samlMessageAnalysisResult.isWSSUrlEncoded());
+                    this.samlMessage = decodedSAMLMessage.message();
                 } else {
                     String parameterValue;
 
-                    if (isSAMLRequest) {
+                    if (this.samlMessageAnalysisResult.isSAMLRequest()) {
                         parameterValue = requestResponse.request().parameterValue(certificateTabController.getSamlRequestParameterName(), HttpParameterType.BODY);
                     } else {
                         parameterValue = requestResponse.request().parameterValue(certificateTabController.getSamlResponseParameterName(), HttpParameterType.BODY);
                     }
 
-                    SAMLMessage = getDecodedSAMLMessage(parameterValue);
+                    var decodedSAMLMessage =
+                            SamlMessageDecoder.getDecodedSAMLMessage(
+                                    parameterValue,
+                                    this.samlMessageAnalysisResult.isWSSMessage(),
+                                    this.samlMessageAnalysisResult.isWSSUrlEncoded());
+                    this.samlMessage = decodedSAMLMessage.message();
                 }
 
             } catch (IOException e) {
@@ -283,7 +259,7 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
             } catch (SAXException e) {
                 BurpExtender.api.logging().logToError(e);
                 setInfoMessageText(XML_NOT_WELL_FORMED);
-                SAMLMessage = "<error>" + XML_NOT_WELL_FORMED + "</error>";
+                samlMessage = "<error>" + XML_NOT_WELL_FORMED + "</error>";
             } catch (ParserConfigurationException e) {
                 BurpExtender.api.logging().logToError(e);
             }
@@ -291,8 +267,8 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
             setInformationDisplay();
             updateCertificateList();
             updateXSWList();
-            orgSAMLMessage = SAMLMessage;
-            textArea.setContents(ByteArray.byteArray(SAMLMessage));
+            orgSAMLMessage = samlMessage;
+            textArea.setContents(ByteArray.byteArray(samlMessage));
             textArea.setEditable(editable);
 
             setGUIEditable(editable);
@@ -304,7 +280,7 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
         infoPanel.clearAll();
 
         try {
-            Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(SAMLMessage);
+            Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(samlMessage);
             NodeList assertions = xmlHelpers.getAssertions(document);
             if (assertions.getLength() > 0) {
                 Node assertion = assertions.item(0);
@@ -315,7 +291,7 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
                 infoPanel.setSubjectConfNotAfter(xmlHelpers.getSubjectConfNotAfter(assertion));
                 infoPanel.setSignatureAlgorithm(xmlHelpers.getSignatureAlgorithm(assertion));
                 infoPanel.setDigestAlgorithm(xmlHelpers.getDigestAlgorithm(assertion));
-                textEditorInformation.setContents(ByteArray.byteArray(xmlHelpers.getStringOfDocument(xmlHelpers.getXMLDocumentOfSAMLMessage(SAMLMessage), 2, true).getBytes()));
+                textEditorInformation.setContents(ByteArray.byteArray(xmlHelpers.getStringOfDocument(xmlHelpers.getXMLDocumentOfSAMLMessage(samlMessage), 2, true).getBytes()));
             } else {
                 assertions = xmlHelpers.getEncryptedAssertions(document);
                 Node assertion = assertions.item(0);
@@ -339,78 +315,14 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
         textEditorInformation.setContents(ByteArray.byteArray(""));
     }
 
-    public String getEncodedSAMLMessage(String message) {
-        byte[] byteMessage;
-        try {
-            if (isWSSMessage) {
-                if (isWSSUrlEncoded) {
-                    return URLEncoder.encode(message, "UTF-8");
-                } else {
-                    return message;
-                }
-            }
-            byteMessage = message.getBytes("UTF-8");
-            if (isInflated) {
-                try {
-                    byteMessage = httpHelpers.compress(byteMessage, isGZip);
-                } catch (IOException e) {
-                }
-            }
-            String base64Encoded = Base64.getEncoder().encodeToString(byteMessage);
-            return URLEncoder.encode(base64Encoded, "UTF-8");
-        } catch (UnsupportedEncodingException e1) {
-        }
-        return null;
-    }
-
-    public String getDecodedSAMLMessage(String message) {
-        if (isWSSMessage) {
-            if (isWSSUrlEncoded) {
-                return BurpExtender.api.utilities().urlUtils().decode(message);
-            } else {
-                return message;
-            }
-        }
-
-        String urlDecoded = BurpExtender.api.utilities().urlUtils().decode(message);
-        urlDecoded = urlDecoded.replaceAll("\\R", "");
-        byte[] base64Decoded = Base64.getDecoder().decode(urlDecoded);
-
-        isInflated = true;
-        isGZip = true;
-
-        // try normal Zip Inflate
-        try {
-            byte[] inflated = httpHelpers.decompress(base64Decoded, true);
-            return new String(inflated, "UTF-8");
-        } catch (IOException e) {
-        } catch (DataFormatException e) {
-            isGZip = false;
-        }
-
-        // try Gzip Inflate
-        try {
-            byte[] inflated = httpHelpers.decompress(base64Decoded, false);
-            return new String(inflated, "UTF-8");
-        } catch (IOException e) {
-        } catch (DataFormatException e) {
-            isInflated = false;
-        }
-
-        try {
-            return new String(base64Decoded, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-        }
-        return null;
-    }
 
     public void removeSignature() {
         resetInfoMessageText();
         try {
             Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(textArea.getContents().toString());
             if (xmlHelpers.removeAllSignatures(document) > 0) {
-                SAMLMessage = xmlHelpers.getStringOfDocument(document, 2, true);
-                textArea.setContents(ByteArray.byteArray(SAMLMessage));
+                samlMessage = xmlHelpers.getStringOfDocument(document, 2, true);
+                textArea.setContents(ByteArray.byteArray(samlMessage));
                 isEdited = true;
                 setRawMode(false);
                 setInfoMessageText("Message signature successful removed");
@@ -426,9 +338,9 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
 
     public void resetMessage() {
         if (isRawMode) {
-            SAMLMessage = orgSAMLMessage;
+            samlMessage = orgSAMLMessage;
         }
-        textArea.setContents(ByteArray.byteArray(SAMLMessage));
+        textArea.setContents(ByteArray.byteArray(samlMessage));
         isEdited = false;
     }
 
@@ -455,8 +367,8 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
                 xmlHelpers.removeEmptyTags(doc);
                 xmlHelpers.signAssertion(doc, signAlgorithm, digestAlgorithm, cert.getCertificate(),
                         cert.getPrivateKey());
-                SAMLMessage = xmlHelpers.getStringOfDocument(doc, 2, true);
-                textArea.setContents(ByteArray.byteArray(SAMLMessage));
+                samlMessage = xmlHelpers.getStringOfDocument(doc, 2, true);
+                textArea.setContents(ByteArray.byteArray(samlMessage));
                 isEdited = true;
                 setRawMode(false);
                 setInfoMessageText("Assertions successfully signed");
@@ -475,7 +387,7 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
     public void resignMessage() {
         try {
             resetInfoMessageText();
-            if (isWSSMessage) {
+            if (this.samlMessageAnalysisResult.isWSSMessage()) {
                 setInfoMessageText("Message signing is not possible with WS-Security messages");
             } else {
                 setInfoMessageText("Signing...");
@@ -489,8 +401,8 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
                     xmlHelpers.removeOnlyMessageSignature(document);
                     xmlHelpers.signMessage(document, signAlgorithm, digestAlgorithm, cert.getCertificate(),
                             cert.getPrivateKey());
-                    SAMLMessage = xmlHelpers.getStringOfDocument(document, 2, true);
-                    textArea.setContents(ByteArray.byteArray(SAMLMessage));
+                    samlMessage = xmlHelpers.getStringOfDocument(document, 2, true);
+                    textArea.setContents(ByteArray.byteArray(samlMessage));
                     isEdited = true;
                     setRawMode(false);
                     setInfoMessageText("Message successfully signed");
@@ -588,8 +500,8 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
         try {
             document = xmlHelpers.getXMLDocumentOfSAMLMessage(orgSAMLMessage);
             xswHelpers.applyXSW(samlGUI.getActionPanel().getSelectedXSW(), document);
-            SAMLMessage = xmlHelpers.getStringOfDocument(document, 2, true);
-            textArea.setContents(ByteArray.byteArray(SAMLMessage));
+            samlMessage = xmlHelpers.getStringOfDocument(document, 2, true);
+            textArea.setContents(ByteArray.byteArray(samlMessage));
             isEdited = true;
             setRawMode(false);
             setInfoMessageText(XSW_ATTACK_APPLIED);
@@ -606,12 +518,12 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
         String xxePayload = "<!DOCTYPE foo [ <!ENTITY % xxe SYSTEM \"" + collabUrl + "\"> %xxe; ]>\n";
         String[] splitMsg = orgSAMLMessage.split("\\?>");
         if (splitMsg.length == 2) {
-            SAMLMessage = splitMsg[0] + "?>" + xxePayload + splitMsg[1];
+            samlMessage = splitMsg[0] + "?>" + xxePayload + splitMsg[1];
         } else {
             String xmlDeclaration = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
-            SAMLMessage = xmlDeclaration + xxePayload + orgSAMLMessage;
+            samlMessage = xmlDeclaration + xxePayload + orgSAMLMessage;
         }
-        textArea.setContents(ByteArray.byteArray(SAMLMessage));
+        textArea.setContents(ByteArray.byteArray(samlMessage));
         isEdited = true;
         setRawMode(true);
         setInfoMessageText(XXE_CONTENT_APPLIED);
@@ -639,8 +551,8 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
             int substringIndex = index + transformString.length();
             String firstPart = orgSAMLMessage.substring(0, substringIndex);
             String secondPart = orgSAMLMessage.substring(substringIndex);
-            SAMLMessage = firstPart + xslt + secondPart;
-            textArea.setContents(ByteArray.byteArray(SAMLMessage));
+            samlMessage = firstPart + xslt + secondPart;
+            textArea.setContents(ByteArray.byteArray(samlMessage));
             isEdited = true;
             setRawMode(true);
             setInfoMessageText(XSLT_CONTENT_APPLIED);

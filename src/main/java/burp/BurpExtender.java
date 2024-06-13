@@ -11,9 +11,7 @@ import burp.api.montoya.ui.editor.extension.ExtensionProvidedHttpRequestEditor;
 import burp.api.montoya.ui.editor.extension.HttpRequestEditorProvider;
 import gui.CertificateTab;
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
-import java.io.PrintStream;
 
 import static java.util.Objects.requireNonNull;
 
@@ -23,7 +21,7 @@ public class BurpExtender implements BurpExtension, HttpRequestEditorProvider {
 
     private CertificateTab certificateTab;
     private CertificateTabController certificateTabController;
-    private SAMLHighlighter samlHighlighter = new SAMLHighlighter();
+    private SAMLHighlighter samlHighlighter;
 
     @Override
     public void initialize(MontoyaApi api) {
@@ -36,8 +34,10 @@ public class BurpExtender implements BurpExtension, HttpRequestEditorProvider {
         certificateTab.setCertificateTabController(certificateTabController);
         api.userInterface().registerSuiteTab(certificateTabController.getTabCaption(), certificateTabController.getUiComponent());
 
-        api.userInterface().registerHttpRequestEditorProvider(this);
+        this.samlHighlighter = new SAMLHighlighter(this.certificateTab::getSamlRequestParameterName, this.certificateTab::getSamlResponseParameterName);
         api.http().registerHttpHandler(samlHighlighter);
+
+        api.userInterface().registerHttpRequestEditorProvider(this);
 
         api.logging().logToOutput("SAML Raider loaded.");
 
@@ -53,9 +53,7 @@ public class BurpExtender implements BurpExtension, HttpRequestEditorProvider {
 
     @Override
     public ExtensionProvidedHttpRequestEditor provideHttpRequestEditor(EditorCreationContext creationContext) {
-        SamlTabController samlTabController = new SamlTabController(creationContext.editorMode() == EditorMode.DEFAULT, certificateTabController);
-        samlHighlighter.setSamlTabController(samlTabController);
-        return samlTabController;
+        return new SamlTabController(creationContext.editorMode() == EditorMode.DEFAULT, certificateTabController);
     }
 
 }
