@@ -127,7 +127,7 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
                 String textMessage = null;
 
                 if (isRawMode) {
-                    textMessage = new String(textArea.getContents().toString());
+                    textMessage = textArea.getContents().toString();
                 } else {
                     try {
                         textMessage = xmlHelpers
