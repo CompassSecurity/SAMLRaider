@@ -26,6 +26,10 @@ dependencies {
 	testImplementation libs.org.junit.jupiter
 }
 
+compileJava {
+	options.compilerArgs << "-Xlint:deprecation"
+}
+
 jar {
 	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 	from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
