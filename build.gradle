@@ -1,16 +1,16 @@
 plugins {
-	id 'java-library'
+	id "java-library"
 }
 
-version = '2.0.0'
+version = "2.0.0"
 
 repositories {
 	mavenCentral()
 }
 
 compileJava {
-	targetCompatibility '21'
-	sourceCompatibility '21'
+	targetCompatibility "21"
+	sourceCompatibility "21"
 }
 
 dependencies {
@@ -21,9 +21,9 @@ dependencies {
 	implementation libs.org.apache.santuario.xmlsec
 	implementation libs.xerces.xercesimpl
 
-	testImplementation libs.junit.junit
 	testImplementation libs.net.portswigger.burp.extensions.montoya.api
 	testImplementation libs.org.bouncycastle.bcpkix.jdk15on
+	testImplementation libs.org.junit.jupiter
 }
 
 jar {
@@ -36,4 +36,8 @@ jar {
 		Build-Revision  : ${"git rev-parse HEAD".execute().text.trim()}
 		Build-Jdk       : ${System.properties["java.version"]}
 		""".stripIndent().strip()
+}
+
+test {
+	useJUnitPlatform()
 }
