@@ -28,6 +28,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
@@ -102,7 +103,7 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
                     var response = this.requestResponse.response();
                     int bodyOffset = response.bodyOffset();
                     var byteMessage = this.requestResponse.response().toByteArray().getBytes();
-                    String HTTPHeader = new String(byteMessage, 0, bodyOffset, "UTF-8");
+                    String HTTPHeader = new String(byteMessage, 0, bodyOffset, StandardCharsets.UTF_8);
 
                     String soapMessage = requestResponse.response().bodyToString();
                     Document soapDocument = xmlHelpers.getXMLDocumentOfSAMLMessage(soapMessage);
@@ -115,7 +116,7 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
                     Element soapFirstChildOfBody = (Element) soapBody.getFirstChild();
                     soapBody.replaceChild(samlResponse, soapFirstChildOfBody);
                     String wholeMessage = HTTPHeader + xmlHelpers.getString(soapDocument);
-                    byteMessage = wholeMessage.getBytes("UTF-8");
+                    byteMessage = wholeMessage.getBytes(StandardCharsets.UTF_8);
                     request = HttpRequest.httpRequest(ByteArray.byteArray(byteMessage));
                 } catch (IOException e) {
                     BurpExtender.api.logging().logToError(e);
@@ -469,7 +470,7 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
             File file = File.createTempFile("tmp", ".html", null);
             FileOutputStream fileOutputStream = new FileOutputStream(file);
             file.deleteOnExit();
-            fileOutputStream.write(diff.getBytes("UTF-8"));
+            fileOutputStream.write(diff.getBytes(StandardCharsets.UTF_8));
             fileOutputStream.flush();
             fileOutputStream.close();
 
