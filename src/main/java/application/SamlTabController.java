@@ -118,6 +118,7 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
                     byteMessage = wholeMessage.getBytes("UTF-8");
                     request = HttpRequest.httpRequest(ByteArray.byteArray(byteMessage));
                 } catch (IOException e) {
+                    BurpExtender.api.logging().logToError(e);
                 } catch (SAXException e) {
                     setInfoMessageText(XML_NOT_WELL_FORMED);
                 }
@@ -489,7 +490,9 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
         } catch (DOMException e) {
             setInfoMessageText(XML_NOT_SUITABLE_FOR_XSW);
         } catch (MalformedURLException e) {
+            BurpExtender.api.logging().logToError(e);
         } catch (URISyntaxException e) {
+            BurpExtender.api.logging().logToError(e);
         } catch (IOException e) {
             setInfoMessageText(NO_DIFF_TEMP_FILE);
         }
