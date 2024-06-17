@@ -10,8 +10,10 @@ import burp.api.montoya.ui.editor.extension.EditorMode;
 import burp.api.montoya.ui.editor.extension.ExtensionProvidedHttpRequestEditor;
 import burp.api.montoya.ui.editor.extension.HttpRequestEditorProvider;
 import gui.CertificateTab;
+import helpers.Flags;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import livetesting.LiveTestingTab;
 
 import static java.util.Objects.requireNonNull;
 
@@ -33,6 +35,11 @@ public class BurpExtender implements BurpExtension, HttpRequestEditorProvider {
         certificateTabController = new CertificateTabController(certificateTab);
         certificateTab.setCertificateTabController(certificateTabController);
         api.userInterface().registerSuiteTab(certificateTabController.getTabCaption(), certificateTabController.getUiComponent());
+
+        if (Flags.DEBUG) {
+            var liveTestingTab = new LiveTestingTab();
+            api.userInterface().registerSuiteTab(liveTestingTab.caption(), liveTestingTab);
+        }
 
         this.samlHighlighter = new SAMLHighlighter(this.certificateTab::getSamlRequestParameterName, this.certificateTab::getSamlResponseParameterName);
         api.http().registerHttpHandler(samlHighlighter);
