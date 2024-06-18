@@ -499,6 +499,7 @@ public class CertificateTabController extends Observable {
 			BurpExtender.api.logging().logToError(e);
 		} catch (Exception e) {
 			setStatus("Error (" + e.getMessage() + ")");
+			BurpExtender.api.logging().logToError(e);
 		}
 		return null;
 	}

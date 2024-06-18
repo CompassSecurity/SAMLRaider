@@ -47,6 +47,10 @@ public class LiveTestingTab extends JPanel {
             var inGreen = new SimpleAttributeSet();
             inGreen.addAttribute(StyleConstants.Foreground, Color.GREEN);
 
+            var testsRun = 0;
+            var testsSuccess = 0;
+            var testsFail = 0;
+
             try {
                 var classLoader = this.getClass().getClassLoader();
 
@@ -96,8 +100,27 @@ public class LiveTestingTab extends JPanel {
                                     styling);
                         }
                         document.insertString(document.getLength(), "\n", null);
+
+                        testsRun++;
+                        if (result.success()) {
+                            testsSuccess++;
+                        } else {
+                            testsFail++;
+                        }
                     }
                 }
+
+                document.insertString(document.getLength(), "\n----------------", null);
+                document.insertString(document.getLength(), "\nTests run: %5d".formatted(testsRun), null);
+                document.insertString(document.getLength(), "\nSuccess:   %5d".formatted(testsSuccess), null);
+                document.insertString(document.getLength(), "\nFailed:    %5d".formatted(testsFail), null);
+                document.insertString(document.getLength(), "\n----------------", null);
+                if (testsFail == 0) {
+                    document.insertString(document.getLength(), "\nSUCCESS", inGreen);
+                } else {
+                    document.insertString(document.getLength(), "\nFAILED", inRed);
+                }
+                document.insertString(document.getLength(), "\n----------------", null);
             } catch (Exception exc) {
                 BurpExtender.api.logging().logToError(exc);
                 var byteArrayOutputStream = new ByteArrayOutputStream();
