@@ -250,7 +250,9 @@ public class CertificateTabController extends Observable {
 		CertificateFactory certFactory;
 		try {
 			certFactory = CertificateFactory.getInstance("X.509");
-			ByteArrayInputStream bais = new ByteArrayInputStream(Base64.getDecoder().decode(inputString));
+			var whitespaceRemoved = inputString.replaceAll("\\R", "");
+			var base64Decoded = Base64.getDecoder().decode(whitespaceRemoved);
+			ByteArrayInputStream bais = new ByteArrayInputStream(base64Decoded);
 			X509Certificate x509certificate = (X509Certificate) certFactory.generateCertificate(bais);
 			BurpCertificate certificate = new BurpCertificate(x509certificate);
 			certificate.setPublicKey(x509certificate.getPublicKey());
