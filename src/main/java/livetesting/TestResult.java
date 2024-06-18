@@ -1,4 +1,4 @@
 package livetesting;
 
-public record TestResult(boolean success,       String message, Throwable throwable) {
+public record TestResult(boolean success, String message, Throwable throwable) {
 }

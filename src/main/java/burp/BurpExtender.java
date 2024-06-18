@@ -13,7 +13,7 @@ import gui.CertificateTab;
 import helpers.Flags;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import livetesting.LiveTestingTab;
+import gui.LiveTestingTab;
 
 import static java.util.Objects.requireNonNull;
 

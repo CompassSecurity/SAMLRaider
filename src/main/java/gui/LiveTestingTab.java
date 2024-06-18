@@ -1,4 +1,4 @@
-package livetesting;
+package gui;
 
 import burp.BurpExtender;
 import com.google.common.reflect.ClassPath;
@@ -17,6 +17,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
+import livetesting.TestOrder;
+import livetesting.TestResult;
 
 public class LiveTestingTab extends JPanel {
 
@@ -63,20 +65,26 @@ public class LiveTestingTab extends JPanel {
                     var testMethods = Arrays.stream(testClass.getDeclaredMethods())
                             .filter(method -> method.canAccess(testInstance))
                             .filter(method -> method.getReturnType().equals(TestResult.class))
-                            .collect(Collectors.toSet());
+                            .sorted((testMethodA, testMethodB) -> {
+                                var orderA = testMethodA.getAnnotation(TestOrder.Order.class);
+                                var orderB = testMethodB.getAnnotation(TestOrder.Order.class);
+                                return TestOrder.comparator().compare(orderA, orderB);
+                            })
+                            .toList();
 
                     for (var testMethod : testMethods) {
                         document.insertString(document.getLength(), "  %s... ".formatted(testMethod.getName()), null);
                         var result = (TestResult) testMethod.invoke(testInstance);
+                        var styling = result.success() ? inGreen : inRed;
                         document.insertString(
                                 document.getLength(),
                                 result.success() ? "success" : "failed",
-                                result.success() ? inGreen : inRed);
+                                styling);
                         if (result.message() != null) {
                             document.insertString(
                                     document.getLength(),
                                     "\n%s".formatted(result.message()),
-                                    inRed);
+                                    styling);
                         }
                         if (result.throwable() != null) {
                             var byteArrayOutputStream = new ByteArrayOutputStream();
@@ -85,7 +93,7 @@ public class LiveTestingTab extends JPanel {
                             document.insertString(
                                     document.getLength(),
                                     "\n%s".formatted(byteArrayOutputStream.toString()),
-                                    inRed);
+                                    styling);
                         }
                         document.insertString(document.getLength(), "\n", null);
                     }
