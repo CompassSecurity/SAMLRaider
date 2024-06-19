@@ -18,6 +18,7 @@ dependencies {
 	compileOnly libs.org.bouncycastle.bcpkix.jdk15on
 
 	implementation libs.com.google.guava
+	implementation libs.com.miglayout
 	implementation libs.com.sun.xml.security.xml.security.impl
 	implementation libs.org.apache.santuario.xmlsec
 	implementation libs.xerces.xercesimpl
