@@ -491,6 +491,7 @@ public class CertificateTab extends JPanel {
 
         var scrollableBottomPanel = new JScrollPane(bottomPanel);
         scrollableBottomPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.LIGHT_GRAY));
+        scrollableBottomPanel.getVerticalScrollBar().setUnitIncrement(16);
 
         this.setLayout(new MigLayout());
         this.add(topPanel, "wrap");
