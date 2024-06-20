@@ -31,6 +31,7 @@ import java.text.ParseException;
 import java.util.*;
 
 import model.BurpCertificate;
+import model.BurpCertificateBuilder;
 import model.BurpCertificateExtension;
 import model.BurpCertificateStore;
 import model.ObjectIdentifier;

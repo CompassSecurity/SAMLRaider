@@ -4,6 +4,7 @@ import gui.CertificateTab;
 import java.security.Security;
 import java.util.List;
 import model.BurpCertificate;
+import model.BurpCertificateBuilder;
 import model.BurpCertificateStore;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.jupiter.api.BeforeEach;

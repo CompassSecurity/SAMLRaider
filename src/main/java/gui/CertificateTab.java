@@ -1,6 +1,6 @@
 package gui;
 
-import application.BurpCertificateBuilder;
+import model.BurpCertificateBuilder;
 import application.CertificateTabController;
 import model.BurpCertificate;
 import model.ObjectIdentifier;

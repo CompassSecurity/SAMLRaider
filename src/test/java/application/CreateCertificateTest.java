@@ -17,6 +17,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.text.ParseException;
 import java.util.Date;
 import model.BurpCertificate;
+import model.BurpCertificateBuilder;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.junit.jupiter.api.BeforeEach;
