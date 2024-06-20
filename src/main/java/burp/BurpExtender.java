@@ -10,14 +10,15 @@ import burp.api.montoya.ui.editor.extension.EditorMode;
 import burp.api.montoya.ui.editor.extension.ExtensionProvidedHttpRequestEditor;
 import burp.api.montoya.ui.editor.extension.HttpRequestEditorProvider;
 import gui.CertificateTab;
-import helpers.Flags;
+import gui.LiveTestingTab;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import gui.LiveTestingTab;
 
 import static java.util.Objects.requireNonNull;
 
 public class BurpExtender implements BurpExtension, HttpRequestEditorProvider {
+
+    public final static boolean isDebugOn = System.getProperty("samlraider.debug") != null;
 
     public static MontoyaApi api;
 
@@ -36,7 +37,7 @@ public class BurpExtender implements BurpExtension, HttpRequestEditorProvider {
         certificateTab.setCertificateTabController(certificateTabController);
         api.userInterface().registerSuiteTab(certificateTabController.getTabCaption(), certificateTabController.getUiComponent());
 
-        if (Flags.DEBUG) {
+        if (isDebugOn) {
             var liveTestingTab = new LiveTestingTab();
             api.userInterface().registerSuiteTab(liveTestingTab.caption(), liveTestingTab);
         }
