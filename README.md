@@ -6,12 +6,9 @@ SAML Raider is a Burp Suite extension for testing SAML infrastructures. It
 contains two core functionalities: Manipulating SAML Messages and manage X.509
 certificates.
 
-This software was created by Roland Bischofberger and [Emanuel
+This software was originally created by Roland Bischofberger and [Emanuel
 Duss](https://github.com/emanuelduss) (@emanuelduss) during a bachelor thesis at
-the [Hochschule für Technik Rapperswil](https://www.hsr.ch) (HSR). Our project
-partner and advisor was [Compass Security Schweiz
-AG](https://www.compass-security.com). We thank Compass for the nice
-collaboration and support during our bachelor thesis.
+the [Hochschule für Technik Rapperswil](https://www.hsr.ch) (HSR). 
 
 ## Features
 
