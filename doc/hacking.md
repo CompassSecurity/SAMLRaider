@@ -1,22 +1,25 @@
 ## Development
 
-### Burp Extender API
+### Burp Extension Montoya API
 
-The Burp Extender API can be found here:
-https://portswigger.net/burp/extender/api/index.html.
+The Burp Extension Montoya API can be found here:
+
+- https://portswigger.github.io/burp-extensions-montoya-api/javadoc/burp/api/montoya/MontoyaApi.html
+- https://github.com/PortSwigger/burp-extensions-montoya-api
+- https://github.com/PortSwigger/burp-extensions-montoya-api-examples
 
 ### Build
 
 Linux:
 
 ```shell
-./gradlew clean build fatJar
+./gradlew jar
 ```
 
 Windows: 
 
 ```shell
-.\gradlew.bat clean build fatJar
+.\gradlew.bat jar
 ```
 
 Get the jar from `build/libs/saml-raider-<version>.jar`
@@ -30,9 +33,20 @@ key and click on the checkbox next to the extension in the `Extensions` tab.
 
 ### Debug Mode
 
-To enable the Debug Mode, set the `DEBUG` Flag in the Class `Flags` from the
-Package `helpers` to `true`. This will write all output to the
-`SAMLRaiderDebug.log` logfile and load example certificates for testing.
+To enable the debug mode, start Burp with the Java VM option `-Dsamlraider.debug`.
+This will load example certificates for testing. Also, a new tab called `SAML Raider Live Testing`
+will appear where tests can be run. See `Live Testing` section for more information.
+
+### Live Testing
+
+This extension is programmed against Burp's Montoya API. This API consists of only interfaces. Concrete
+implementations to those interfaces are only available during runtime. This makes it difficult to write
+automated tests (unit tests). See also https://github.com/PortSwigger/burp-extensions-montoya-api/issues/97. 
+To still be able to write some tests against concrete implementations, tests can be written under the 
+`livetesting` package (follow the instructions in `livetesting/package-info.java`). When in debug mode, a new will 
+be rendered, on which these defined tests can be executed.
+
+![](./live_testing.png)
 
 ### Debugging
 
