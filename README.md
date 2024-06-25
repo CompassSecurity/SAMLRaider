@@ -155,3 +155,4 @@ SAML Raider is on the Internet :).
 
 * Roland Bischofberger (GitHub: [RouLee](https://github.com/RouLee))
 * Emanuel Duss (GitHub: [emanuelduss](https://github.com/emanuelduss))
+* Tobias Hort-Giess (GitHub: [t-hg](https://github.com/t-hg))
