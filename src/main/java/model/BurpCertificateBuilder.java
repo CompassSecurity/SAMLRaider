@@ -1,4 +1,4 @@
-package application;
+package model;
 
 import helpers.CertificateHelper;
 
@@ -28,10 +28,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.security.auth.x500.X500Principal;
-
-import model.BurpCertificate;
-import model.BurpCertificateExtension;
-import model.ObjectIdentifier;
 
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1EncodableVector;

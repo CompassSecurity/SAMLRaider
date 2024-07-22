@@ -1,0 +1,19 @@
+[versions]
+com-google-guava = "33.2.1-jre"
+com-miglayout = "3.7.4"
+com-sun-xml-security-xml-security-impl = "1.0"
+net-portswigger-burp-extensions-montoya-api = "2023.12.1"
+org-apache-santuario-xmlsec = "2.1.7"
+org-bouncycastle-bcpkix-jdk15on = "1.52"
+org-junit-jupiter = "5.10.2"
+xerces-xercesimpl = "2.12.2"
+
+[libraries]
+com-google-guava = { module = "com.google.guava:guava", version.ref = "com-google-guava"}
+com-miglayout =  { module = "com.miglayout:miglayout", version.ref = "com-miglayout" }
+com-sun-xml-security-xml-security-impl = { module = "com.sun.xml.security:xml-security-impl", version.ref = "com-sun-xml-security-xml-security-impl" }
+net-portswigger-burp-extensions-montoya-api = { module = "net.portswigger.burp.extensions:montoya-api", version.ref = "net-portswigger-burp-extensions-montoya-api" }
+org-apache-santuario-xmlsec = { module = "org.apache.santuario:xmlsec", version.ref = "org-apache-santuario-xmlsec" }
+org-bouncycastle-bcpkix-jdk15on = { module = "org.bouncycastle:bcpkix-jdk15on", version.ref = "org-bouncycastle-bcpkix-jdk15on" }
+org-junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "org-junit-jupiter" }
+xerces-xercesimpl = { module = "xerces:xercesImpl", version.ref = "xerces-xercesimpl" }

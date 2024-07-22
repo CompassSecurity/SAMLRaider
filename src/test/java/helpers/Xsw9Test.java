@@ -1,13 +1,11 @@
 package helpers;
 
-import helpers.XMLHelpers;
-import helpers.XSWHelpers;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
 
-public class xsw9Test {
+public class Xsw9Test {
     public static void main(String[] args) throws SAXException, IOException {
         String originalAssertion = "<samlp:Response xmlns:samlp=\"urn:oasis:names:tc:SAML:2.0:protocol\" xmlns:saml=\"urn:oasis:names:tc:SAML:2.0:assertion\" ID=\"_427c92140e2407df990cadb2212693f15a54f4aa7d\" Version=\"2.0\" IssueInstant=\"2021-02-11T12:47:44Z\" Destination=\"http://9ac42dac-7dbd-45e8-b991-6411adcb12c2-sp.idocker.vuln.land/simplesaml/module.php/saml/sp/saml2-acs.php/default-sp\" InResponseTo=\"_a46cd6ba3876d54d902264d8ebe59af869772550b4\"><saml:Issuer>http://9ac42dac-7dbd-45e8-b991-6411adcb12c2-idp.idocker.vuln.land</saml:Issuer><samlp:Status><samlp:StatusCode Value=\"urn:oasis:names:tc:SAML:2.0:status:Success\"/></samlp:Status><saml:Assertion xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" ID=\"_83cfd12dce95ed77bb2560c8e00fb2a98931c631e3\" Version=\"2.0\" IssueInstant=\"2021-02-11T12:47:44Z\"><saml:Issuer>http://9ac42dac-7dbd-45e8-b991-6411adcb12c2-idp.idocker.vuln.land</saml:Issuer><ds:Signature xmlns:ds=\"http://www.w3.org/2000/09/xmldsig#\">\n" +
                 "  <ds:SignedInfo><ds:CanonicalizationMethod Algorithm=\"http://www.w3.org/2001/10/xml-exc-c14n#\"/>\n" +

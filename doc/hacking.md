@@ -1,63 +1,52 @@
 ## Development
 
-### Burp Extender API
+### Burp Extension Montoya API
 
-The Burp Extender API can be found here:
-https://portswigger.net/burp/extender/api/index.html.
+The Burp Extension Montoya API can be found here:
+
+- https://portswigger.github.io/burp-extensions-montoya-api/javadoc/burp/api/montoya/MontoyaApi.html
+- https://github.com/PortSwigger/burp-extensions-montoya-api
+- https://github.com/PortSwigger/burp-extensions-montoya-api-examples
 
 ### Build
 
-Clone the project into your workspace:
+Linux:
 
-    git clone https://github.com/SAMLRaider/SAMLRaider.git
+```shell
+./gradlew jar
+```
 
-Import existing project into your Eclipse workspace: `File` → `Import...` →
-`Existing Projects into Workspace`. Select the cloned folder and press `Finish`.
+Windows: 
 
-[Download](https://portswigger.net/burp/download.html) the latest version of
-Burp Suite as a JAR file and place it in the `lib` folder.
+```shell
+.\gradlew.bat jar
+```
 
-Add the Burp Suite JAR file to the libraries: Rightclick on Project →
-`Properties` → `Java Build Path` → `Libraries` and add the JAR file.
+Get the jar from `build/libs/saml-raider-<version>.jar`
 
-Install `maven` so you can build SAMLRaider using the build automation tool
-Maven:
-
-    $ mvn install
-
-You can also build it without executing the tests:
-
-    $ mvn install -Dmaven.test.skip=true
-
-Load the Burp Extension into Burp: `Extender` → `Add` → select the JAR file
-(with dependencies) in the `./target` directory of the project, like
-`./target/saml-raider-$VERSION-SNAPSHOT-jar-with-dependencies.jar`.
+Load the Burp Extension into Burp: `Extensions` → `Add` → select the JAR file
 
 Then you can test the extension and rebuild it again after a change.
 
 Tipp: To reload the extension in Burp, without restarting Burp, hit the `Ctrl`
-key and click on the checkbox next to the extension in the `Extender` tab.
-
-### Run SAML Raider inside Eclipse
-
-To start the Extension directly from Eclipse, import the Repository into
-Eclipse. You can directly import a existing Maven Project. Note that the
-Eclipse Maven Plugin `m2e` is required. This is included in the latest "Eclipse
-IDE for Java Developers".
-
-Place the Burp Suite JAR file into the `lib` folder and add the Burp JAR as
-a Library in the Eclipse Project (`Properties` → `Build Path` → `Libraries`).
-
-Open the Burp JAR under `Referenced Libraries` in the Package Explorer and
-right click in the Package `burp` on `StartBurp.class` and select `Run As...` →
-`Java Application` to start Burp and load the Extension automatically.  (Or in
-Eclipse: `Run` → `Debug As` → `Java Application` → `StartBurp - burp` → `OK`.)
+key and click on the checkbox next to the extension in the `Extensions` tab.
 
 ### Debug Mode
 
-To enable the Debug Mode, set the `DEBUG` Flag in the Class `Flags` from the
-Package `helpers` to `true`. This will write all output to the
-`SAMLRaiderDebug.log` logfile and load example certificates for testing.
+To enable the debug mode, start Burp with the Java VM option `-Dsamlraider.debug`.
+This will load example certificates for testing. Also, a new tab called `SAML Raider Live Testing`
+will appear where tests can be run. See `Live Testing` section for more information.
+
+### Live Testing
+
+This extension is programmed against Burp's Montoya API. This API consists of only interfaces. Concrete
+implementations to those interfaces are only available during runtime. This makes it difficult to write
+automated tests (unit tests). See also https://github.com/PortSwigger/burp-extensions-montoya-api/issues/97. 
+To still be able to write some tests against concrete implementations, tests can be written under the 
+`livetesting` package (follow the instructions in `livetesting/package-info.java`). When in debug mode, a new will 
+be rendered, on which these defined tests can be executed.
+
+![](./live_testing.png)
 
 ### Debugging
 

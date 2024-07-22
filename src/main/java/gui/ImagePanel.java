@@ -1,5 +1,6 @@
 package gui;
 
+import burp.BurpExtender;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -25,7 +26,7 @@ public class ImagePanel extends JPanel {
 			try {
 				image = ImageIO.read(getClass().getResourceAsStream("/" + path));
 			} catch (IOException e) {
-				e.printStackTrace();
+				BurpExtender.api.logging().logToError(e);
 			}
 		}
 
