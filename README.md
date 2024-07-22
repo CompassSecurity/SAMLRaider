@@ -6,12 +6,9 @@ SAML Raider is a Burp Suite extension for testing SAML infrastructures. It
 contains two core functionalities: Manipulating SAML Messages and manage X.509
 certificates.
 
-This software was created by Roland Bischofberger and [Emanuel
+This software was originally created by Roland Bischofberger and [Emanuel
 Duss](https://github.com/emanuelduss) (@emanuelduss) during a bachelor thesis at
-the [Hochschule für Technik Rapperswil](https://www.hsr.ch) (HSR). Our project
-partner and advisor was [Compass Security Schweiz
-AG](https://www.compass-security.com). We thank Compass for the nice
-collaboration and support during our bachelor thesis.
+the [Hochschule für Technik Rapperswil](https://www.hsr.ch) (HSR). 
 
 ## Features
 
@@ -74,7 +71,7 @@ FusionAuth XXE Demo (CVE-2021-27736):
 ### Installation from BApp Store
 
 The recommended and easiest way to install SAML Raider is using the BApp Store.
-Open Burp and click in the `Extender` tab on the `BApp Store` tab. Select `SAML
+Open Burp and click in the `Extensions` tab on the `BApp Store` tab. Select `SAML
 Raider` and hit the `Install` button to install our extension.
 
 Don't forget to rate our extension with as many stars you like :smile:.
@@ -82,8 +79,8 @@ Don't forget to rate our extension with as many stars you like :smile:.
 ### Manual Installation
 
 First, download the latest SAML Raider version:
-[saml-raider-1.4.1.jar](https://github.com/SAMLRaider/SAMLRaider/releases/download/v1.4.1/saml-raider-1.4.1.jar).
-Then, start Burp Suite and click in the `Extender` tab on `Add`. Choose the
+[saml-raider-2.0.0.jar](https://github.com/SAMLRaider/SAMLRaider/releases/download/v2.0.0/saml-raider-2.0.0.jar).
+Then, start Burp Suite and click in the `Extensions` tab on `Add`. Choose the
 SAML Raider JAR file to install it and you are ready to go.
 
 ## Usage Hints
@@ -158,3 +155,4 @@ SAML Raider is on the Internet :).
 
 * Roland Bischofberger (GitHub: [RouLee](https://github.com/RouLee))
 * Emanuel Duss (GitHub: [emanuelduss](https://github.com/emanuelduss))
+* Tobias Hort-Giess (GitHub: [t-hg](https://github.com/t-hg))

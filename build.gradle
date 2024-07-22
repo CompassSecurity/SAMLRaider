@@ -1,32 +1,49 @@
-apply plugin: 'java'
+plugins {
+	id "java-library"
+}
+
+version = "2.0.0"
 
 repositories {
-    mavenCentral()
-}
-
-dependencies {
-    compile 'net.portswigger.burp.extender:burp-extender-api:1.7.22'
-}
-
-sourceSets {
-    main {
-        java {
-            srcDir 'src'
-        }
-        resources {
-            srcDir 'resources'
-        }
-    }
-}
-
-task fatJar(type: Jar) {
-
-    baseName = project.name + '-all'
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-    with jar
+	mavenCentral()
 }
 
 compileJava {
-    targetCompatibility '1.8'
-    sourceCompatibility '1.8'
+	targetCompatibility "21"
+	sourceCompatibility "21"
+}
+
+dependencies {
+	compileOnly libs.net.portswigger.burp.extensions.montoya.api
+	compileOnly libs.org.bouncycastle.bcpkix.jdk15on
+
+	implementation libs.com.google.guava
+	implementation libs.com.miglayout
+	implementation libs.com.sun.xml.security.xml.security.impl
+	implementation libs.org.apache.santuario.xmlsec
+	implementation libs.xerces.xercesimpl
+
+	testImplementation libs.net.portswigger.burp.extensions.montoya.api
+	testImplementation libs.org.bouncycastle.bcpkix.jdk15on
+	testImplementation libs.org.junit.jupiter
+}
+
+compileJava {
+	options.compilerArgs << "-Xlint:deprecation"
+}
+
+jar {
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+	from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+	new File(projectDir, "src/main/resources/version.txt").text = """
+		Version         : ${version}
+		Build-By        : Gradle ${gradle.gradleVersion}
+		Build-Timestamp : ${java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.now())}
+		Build-Revision  : ${"git rev-parse HEAD".execute().text.trim()}
+		Build-Jdk       : ${System.properties["java.version"]}
+		""".stripIndent().strip()
+}
+
+test {
+	useJUnitPlatform()
 }
