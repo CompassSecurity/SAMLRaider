@@ -283,6 +283,7 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
 
         try {
             Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(samlMessage);
+            textEditorInformation.setContents(ByteArray.byteArray(xmlHelpers.getStringOfDocument(xmlHelpers.getXMLDocumentOfSAMLMessage(samlMessage), 2, true).getBytes()));
             NodeList assertions = xmlHelpers.getAssertions(document);
             if (assertions.getLength() > 0) {
                 Node assertion = assertions.item(0);
@@ -293,7 +294,6 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
                 infoPanel.setSubjectConfNotAfter(xmlHelpers.getSubjectConfNotAfter(assertion));
                 infoPanel.setSignatureAlgorithm(xmlHelpers.getSignatureAlgorithm(assertion));
                 infoPanel.setDigestAlgorithm(xmlHelpers.getDigestAlgorithm(assertion));
-                textEditorInformation.setContents(ByteArray.byteArray(xmlHelpers.getStringOfDocument(xmlHelpers.getXMLDocumentOfSAMLMessage(samlMessage), 2, true).getBytes()));
             } else {
                 assertions = xmlHelpers.getEncryptedAssertions(document);
                 Node assertion = assertions.item(0);
