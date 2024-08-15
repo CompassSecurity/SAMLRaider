@@ -277,6 +277,7 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
     }
 
     private void setInformationDisplay() {
+        samlGUI.getTextEditorInformation().setContents(ByteArray.byteArray(""));
         SamlPanelInfo infoPanel = samlGUI.getInfoPanel();
         infoPanel.clearAll();
 
