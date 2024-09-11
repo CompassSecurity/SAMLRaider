@@ -44,6 +44,7 @@ public class SamlMain extends JPanel {
         panelActionBottom.setLayout(new BorderLayout(0, 0));
         textEditorAction = BurpExtender.api.userInterface().createRawEditor();
         textEditorAction.setContents(ByteArray.byteArray("<SAMLRaiderFailureInInitialization></SAMLRaiderFailureInInitialization>"));
+        textEditorAction.setEditable(false);
         panelActionBottom.add(textEditorAction.uiComponent(), BorderLayout.CENTER);
 
         JSplitPane splitPaneInformation = new JSplitPane();
@@ -62,7 +63,6 @@ public class SamlMain extends JPanel {
         panelInformationBottom.setLayout(new BorderLayout(0, 0));
         textEditorInformation = BurpExtender.api.userInterface().createRawEditor();
         textEditorInformation.setContents(ByteArray.byteArray(""));
-        textEditorAction.setEditable(false);
         panelInformationBottom.add(textEditorInformation.uiComponent(), BorderLayout.CENTER);
 
         JTabbedPane tabbedPane = new JTabbedPane();
