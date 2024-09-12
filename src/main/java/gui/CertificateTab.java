@@ -1,10 +1,8 @@
 package gui;
 
-import burp.BurpExtender;
-import javax.swing.tree.TreeSelectionModel;
-import model.BurpCertificateBuilder;
 import application.CertificateTabController;
 import model.BurpCertificate;
+import model.BurpCertificateBuilder;
 import model.ObjectIdentifier;
 import net.miginfocom.swing.MigLayout;
 
@@ -13,6 +11,7 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -500,19 +499,6 @@ public class CertificateTab extends JPanel {
         this.setLayout(new MigLayout());
         this.add(topPanel, "wrap");
         this.add(scrollableBottomPanel, "width 100%");
-
-        // In the default look and feel the JTree component does not render correctly.
-        // Icons are missing and tree notes are not correctly indented.
-        // This workaround should changes the look and feel of the JTree only.
-        // https://forum.portswigger.net/thread/jtree-not-rendering-correctly-with-burpsuite-s-look-and-feel-2a164857?CategoryId=bug-reports
-        try {
-            var lookAndFeel = UIManager.getLookAndFeel();
-            UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-            SwingUtilities.updateComponentTreeUI(certificateTree);
-            UIManager.setLookAndFeel(lookAndFeel);
-        } catch (Exception exc) {
-            BurpExtender.api.logging().logToError(exc);
-        }
     }
 
     public void setCertificateTabController(CertificateTabController certificateTabController) {
