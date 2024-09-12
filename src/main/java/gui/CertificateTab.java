@@ -7,9 +7,8 @@ import model.ObjectIdentifier;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
@@ -149,16 +148,34 @@ public class CertificateTab extends JPanel {
         certificateTreeModel = new DefaultTreeModel(new DefaultMutableTreeNode("root"));
         certificateTree = new JTree(certificateTreeModel);
         certificateTree.setRootVisible(false);
-        certificateTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-        certificateTree.addTreeSelectionListener(new TreeSelectionListener() {
-            public void valueChanged(TreeSelectionEvent e) {
-                DefaultMutableTreeNode node = (DefaultMutableTreeNode) certificateTree.getLastSelectedPathComponent();
-                if (node == null || node.getUserObject() instanceof String) {
-                    return;
-                }
-                BurpCertificate burpCertificate = (BurpCertificate) node.getUserObject();
-                certificateTabController.setCertificateDetails(burpCertificate);
+        certificateTree.setShowsRootHandles(true);
+        certificateTree.setCellRenderer((tree, value, selected, expanded, leaf, row, hasFocus) -> {
+            var label = new JLabel();
+            label.setText(value.toString());
+            if (leaf) {
+                label.setIcon(UIManager.getIcon("Tree.leafIcon"));
+            } else if (expanded) {
+                label.setIcon(UIManager.getIcon("Tree.openIcon"));
+            } else {
+                label.setIcon(UIManager.getIcon("Tree.closedIcon"));
             }
+            if (selected) {
+                label.setForeground(UIManager.getColor("Tree.selectionForeground"));
+                label.setBackground(UIManager.getColor("Tree.selectionBackground"));
+            } else  {
+                label.setForeground(UIManager.getColor("Tree.textForeground"));
+                label.setBackground(UIManager.getColor("Tree.textBackground"));
+            }
+            return label;
+        });
+        certificateTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+        certificateTree.addTreeSelectionListener(event -> {
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode) certificateTree.getLastSelectedPathComponent();
+            if (node == null || node.getUserObject() instanceof String) {
+                return;
+            }
+            BurpCertificate burpCertificate = (BurpCertificate) node.getUserObject();
+            certificateTabController.setCertificateDetails(burpCertificate);
         });
 
         txtStatus = new JTextPane();
@@ -749,7 +766,6 @@ public class CertificateTab extends JPanel {
 
     public void setCertificateRootNode(DefaultMutableTreeNode rootNode) {
         this.certificateTreeModel.setRoot(rootNode);
-        certificateTree.setModel(certificateTreeModel);
     }
 
     public void setAllExtensions(List<String> allExtensions) {
