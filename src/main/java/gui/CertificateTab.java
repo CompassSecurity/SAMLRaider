@@ -1,18 +1,15 @@
 package gui;
 
-import burp.BurpExtender;
-import javax.swing.tree.TreeSelectionModel;
-import model.BurpCertificateBuilder;
 import application.CertificateTabController;
 import model.BurpCertificate;
+import model.BurpCertificateBuilder;
 import model.ObjectIdentifier;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -150,16 +147,34 @@ public class CertificateTab extends JPanel {
         certificateTreeModel = new DefaultTreeModel(new DefaultMutableTreeNode("root"));
         certificateTree = new JTree(certificateTreeModel);
         certificateTree.setRootVisible(false);
-        certificateTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-        certificateTree.addTreeSelectionListener(new TreeSelectionListener() {
-            public void valueChanged(TreeSelectionEvent e) {
-                DefaultMutableTreeNode node = (DefaultMutableTreeNode) certificateTree.getLastSelectedPathComponent();
-                if (node == null || node.getUserObject() instanceof String) {
-                    return;
-                }
-                BurpCertificate burpCertificate = (BurpCertificate) node.getUserObject();
-                certificateTabController.setCertificateDetails(burpCertificate);
+        certificateTree.setShowsRootHandles(true);
+        certificateTree.setCellRenderer((tree, value, selected, expanded, leaf, row, hasFocus) -> {
+            var label = new JLabel();
+            label.setText(value.toString());
+            if (leaf) {
+                label.setIcon(UIManager.getIcon("Tree.leafIcon"));
+            } else if (expanded) {
+                label.setIcon(UIManager.getIcon("Tree.openIcon"));
+            } else {
+                label.setIcon(UIManager.getIcon("Tree.closedIcon"));
             }
+            if (selected) {
+                label.setForeground(UIManager.getColor("Tree.selectionForeground"));
+                label.setBackground(UIManager.getColor("Tree.selectionBackground"));
+            } else {
+                label.setForeground(UIManager.getColor("Tree.textForeground"));
+                label.setBackground(UIManager.getColor("Tree.textBackground"));
+            }
+            return label;
+        });
+        certificateTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+        certificateTree.addTreeSelectionListener(event -> {
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode) certificateTree.getLastSelectedPathComponent();
+            if (node == null || node.getUserObject() instanceof String) {
+                return;
+            }
+            BurpCertificate burpCertificate = (BurpCertificate) node.getUserObject();
+            certificateTabController.setCertificateDetails(burpCertificate);
         });
 
         txtStatus = new JTextPane();
@@ -500,19 +515,6 @@ public class CertificateTab extends JPanel {
         this.setLayout(new MigLayout());
         this.add(topPanel, "wrap");
         this.add(scrollableBottomPanel, "width 100%");
-
-        // In the default look and feel the JTree component does not render correctly.
-        // Icons are missing and tree notes are not correctly indented.
-        // This workaround should changes the look and feel of the JTree only.
-        // https://forum.portswigger.net/thread/jtree-not-rendering-correctly-with-burpsuite-s-look-and-feel-2a164857?CategoryId=bug-reports
-        try {
-            var lookAndFeel = UIManager.getLookAndFeel();
-            UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-            SwingUtilities.updateComponentTreeUI(certificateTree);
-            UIManager.setLookAndFeel(lookAndFeel);
-        } catch (Exception exc) {
-            BurpExtender.api.logging().logToError(exc);
-        }
     }
 
     public void setCertificateTabController(CertificateTabController certificateTabController) {
@@ -763,7 +765,6 @@ public class CertificateTab extends JPanel {
 
     public void setCertificateRootNode(DefaultMutableTreeNode rootNode) {
         this.certificateTreeModel.setRoot(rootNode);
-        certificateTree.setModel(certificateTreeModel);
     }
 
     public void setAllExtensions(List<String> allExtensions) {
