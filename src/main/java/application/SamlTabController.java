@@ -51,18 +51,18 @@ import static java.util.Objects.requireNonNull;
 
 public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Observer {
 
-    private static final String XML_CERTIFICATE_NOT_FOUND = "X509 Certificate not found";
-    private static final String XSW_ATTACK_APPLIED = "XSW Attack applied";
-    private static final String XXE_CONTENT_APPLIED = "XXE content applied";
-    private static final String XML_NOT_SUITABLE_FOR_XXE = "This XML Message is not suitable for this particular XXE attack";
-    private static final String XSLT_CONTENT_APPLIED = "XSLT content applied";
-    private static final String XML_NOT_SUITABLE_FOR_XLST = "This XML Message is not suitable for this particular XLST attack";
-    private static final String XML_COULD_NOT_SIGN = "Could not sign XML";
-    private static final String XML_COULD_NOT_SERIALIZE = "Could not serialize XML";
-    private static final String XML_NOT_WELL_FORMED = "XML isn't well formed or binding is not supported";
-    private static final String XML_NOT_SUITABLE_FOR_XSW = "This XML Message is not suitable for this particular XSW, is there a signature?";
-    private static final String NO_BROWSER = "Could not open diff in Browser. Path to file was copied to clipboard";
-    private static final String NO_DIFF_TEMP_FILE = "Could not create diff temp file.";
+    public static final String XML_CERTIFICATE_NOT_FOUND = "X509 Certificate not found";
+    public static final String XSW_ATTACK_APPLIED = "XSW Attack applied";
+    public static final String XXE_CONTENT_APPLIED = "XXE content applied";
+    public static final String XML_NOT_SUITABLE_FOR_XXE = "This XML Message is not suitable for this particular XXE attack";
+    public static final String XSLT_CONTENT_APPLIED = "XSLT content applied";
+    public static final String XML_NOT_SUITABLE_FOR_XSLT = "This XML Message is not suitable for this particular XSLT attack";
+    public static final String XML_COULD_NOT_SIGN = "Could not sign XML";
+    public static final String XML_COULD_NOT_SERIALIZE = "Could not serialize XML";
+    public static final String XML_NOT_WELL_FORMED = "XML isn't well formed or binding is not supported";
+    public static final String XML_NOT_SUITABLE_FOR_XSW = "This XML Message is not suitable for this particular XSW, is there a signature?";
+    public static final String NO_BROWSER = "Could not open diff in Browser. Path to file was copied to clipboard";
+    public static final String NO_DIFF_TEMP_FILE = "Could not create diff temp file.";
 
     private final CertificateTabController certificateTabController;
     private XMLHelpers xmlHelpers;
@@ -433,6 +433,10 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
         samlGUI.getActionPanel().getInfoMessageLabel().setText(infoMessage);
     }
 
+    public String getInfoMessageText() {
+        return samlGUI.getActionPanel().getInfoMessageLabel().getText();
+    }
+
     private void resetInfoMessageText() {
         samlGUI.getActionPanel().getInfoMessageLabel().setText("");
     }
@@ -550,7 +554,7 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
         int index = orgSAMLMessage.indexOf(transformString);
 
         if (index == -1) {
-            setInfoMessageText(XML_NOT_SUITABLE_FOR_XLST);
+            setInfoMessageText(XML_NOT_SUITABLE_FOR_XSLT);
         } else {
             int substringIndex = index + transformString.length();
             String firstPart = orgSAMLMessage.substring(0, substringIndex);
