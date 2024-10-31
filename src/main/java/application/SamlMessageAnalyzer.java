@@ -17,7 +17,8 @@ public class SamlMessageAnalyzer {
             boolean isWSSMessage,
             boolean isSAMLRequest,
             boolean isInflated,
-            boolean isGZip) {
+            boolean isGZip,
+            boolean isURLParam) {
     }
 
     public static SamlMessageAnalysisResult analyze(
@@ -32,6 +33,7 @@ public class SamlMessageAnalyzer {
         var isSAMLRequest = false;
         var isInflated = false;
         var isGZip = false;
+        var isURLParam = false;
 
         var xmlHelpers = new XMLHelpers();
         if (request.contentType() == ContentType.XML) {
@@ -59,16 +61,19 @@ public class SamlMessageAnalyzer {
                 BurpExtender.api.logging().logToError(e);
             }
         } else {
-            String requestParameter;
-            requestParameter = request.parameterValue(samlResponseParameterName, HttpParameterType.BODY);
-            if (requestParameter != null) {
-                isSAMLMessage = true;
-            }
-            requestParameter = request.parameterValue(samlRequestParameterName, HttpParameterType.BODY);
-            if (requestParameter != null) {
-                isSAMLRequest = true;
-                isSAMLMessage = true;
-            }
+            var samlResponseInBody = request.parameterValue(samlResponseParameterName, HttpParameterType.BODY);
+            var samlResponseInUrl = request.parameterValue(samlResponseParameterName, HttpParameterType.URL);
+            var samlRequestInBody = request.parameterValue(samlRequestParameterName, HttpParameterType.BODY);
+            var samlRequestInUrl = request.parameterValue(samlRequestParameterName, HttpParameterType.URL);
+
+            isSAMLMessage =
+                    samlResponseInBody != null
+                            || samlResponseInUrl != null
+                            || samlRequestInBody != null
+                            || samlRequestInUrl != null;
+
+            isSAMLRequest = samlRequestInBody != null || samlRequestInUrl != null;
+            isURLParam = samlResponseInUrl != null || samlRequestInUrl != null;
         }
 
         return new SamlMessageAnalysisResult(
@@ -78,7 +83,8 @@ public class SamlMessageAnalyzer {
                 isWSSMessage,
                 isSAMLRequest,
                 isInflated,
-                isGZip);
+                isGZip,
+                isURLParam);
     }
 
     private SamlMessageAnalyzer() {

@@ -16,14 +16,9 @@ import gui.SignatureHelpWindow;
 import gui.XSWHelpWindow;
 import helpers.XMLHelpers;
 import helpers.XSWHelpers;
-import model.BurpCertificate;
-import org.w3c.dom.*;
-import org.xml.sax.SAXException;
-
-import javax.xml.crypto.MarshalException;
-import javax.xml.crypto.dsig.XMLSignatureException;
-import javax.xml.parsers.ParserConfigurationException;
-import java.awt.*;
+import java.awt.Component;
+import java.awt.Desktop;
+import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.io.File;
@@ -41,6 +36,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
+import javax.xml.crypto.MarshalException;
+import javax.xml.crypto.dsig.XMLSignatureException;
+import javax.xml.parsers.ParserConfigurationException;
+import model.BurpCertificate;
+import org.w3c.dom.*;
+import org.xml.sax.SAXException;
 
 import static java.util.Objects.requireNonNull;
 
@@ -233,22 +234,24 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
                                     this.samlMessageAnalysisResult.isWSSUrlEncoded());
                     this.samlMessage = decodedSAMLMessage.message();
                 } else {
-                    String parameterValue;
+                    var httpParamType =
+                            this.samlMessageAnalysisResult.isURLParam()
+                                    ? HttpParameterType.URL
+                                    : HttpParameterType.BODY;
 
-                    if (this.samlMessageAnalysisResult.isSAMLRequest()) {
-                        parameterValue = requestResponse.request().parameterValue(certificateTabController.getSamlRequestParameterName(), HttpParameterType.BODY);
-                    } else {
-                        parameterValue = requestResponse.request().parameterValue(certificateTabController.getSamlResponseParameterName(), HttpParameterType.BODY);
-                    }
+                    var parameterValue =
+                            this.samlMessageAnalysisResult.isSAMLRequest()
+                                    ? requestResponse.request().parameterValue(certificateTabController.getSamlRequestParameterName(), httpParamType)
+                                    : requestResponse.request().parameterValue(certificateTabController.getSamlResponseParameterName(), httpParamType);
 
                     var decodedSAMLMessage =
                             SamlMessageDecoder.getDecodedSAMLMessage(
                                     parameterValue,
                                     this.samlMessageAnalysisResult.isWSSMessage(),
                                     this.samlMessageAnalysisResult.isWSSUrlEncoded());
+
                     this.samlMessage = decodedSAMLMessage.message();
                 }
-
             } catch (IOException e) {
                 BurpExtender.api.logging().logToError(e);
                 setInfoMessageText(XML_COULD_NOT_SERIALIZE);
