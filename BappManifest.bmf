@@ -2,12 +2,12 @@ Uuid: c61cfa893bb14db4b01775554f7b802e
 ExtensionType: 1
 Name: SAML Raider
 RepoName: saml-raider
-ScreenVersion: 2.0.3
+ScreenVersion: 2.0.4
 SerialVersion: 17
 MinPlatformVersion: 0
 ProOnly: False
 Author: Roland Bischofberger / Emanuel Duss / Tobias Hort-Giess
 ShortDescription: Provides a SAML message editor and a certificate management tool to help with testing SAML infrastructures.
-EntryPoint: build/libs/saml-raider-2.0.3.jar
+EntryPoint: build/libs/saml-raider-2.0.4.jar
 BuildCommand: ./gradlew jar
 SupportedProducts: Pro, Community
