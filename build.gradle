@@ -14,6 +14,7 @@ compileJava {
 }
 
 dependencies {
+	compileOnly libs.com.formdev.flatlaf
 	compileOnly libs.net.portswigger.burp.extensions.montoya.api
 	compileOnly libs.org.bouncycastle.bcpkix.jdk15on
 
