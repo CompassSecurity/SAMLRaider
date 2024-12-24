@@ -600,6 +600,7 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
 
     public void showXSWHelp() {
         XSWHelpWindow window = new XSWHelpWindow();
+        window.setLocationRelativeTo(BurpExtender.api.userInterface().swingUtils().suiteFrame());
         window.setVisible(true);
     }
 
