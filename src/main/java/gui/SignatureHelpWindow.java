@@ -1,7 +1,6 @@
 package gui;
 
 import javax.swing.*;
-import java.awt.*;
 import java.io.Serial;
 
 public class SignatureHelpWindow extends JFrame {

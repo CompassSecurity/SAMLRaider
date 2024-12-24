@@ -21,26 +21,26 @@ public class SamlPanelAction extends JPanel {
 
     private SamlTabController controller;
 
-    private JButton btnMessageReset;
-    private JCheckBox chkRawMode;
+    private final JButton btnMessageReset = new JButton("Reset Message");
+    private final JCheckBox chkRawMode = new JCheckBox("Raw Mode (don't parse XML before sending)");
 
-    private JButton btnXSWHelp;
-    private JComboBox<String> cmbboxXSW;
-    private JButton btnXSWPreview;
-    private JButton btnMatchAndReplace;
-    private JButton btnXSWApply;
+    private final JButton btnXSWHelp = new JButton("Help");
+    private final JComboBox<String> cmbboxXSW = new JComboBox<>();
+    private final JButton btnXSWPreview = new JButton("Preview in Browser...");
+    private final JButton btnMatchAndReplace = new JButton("Match and Replace");
+    private final JButton btnXSWApply = new JButton("Apply XSW");
 
-    private JButton btnTestXXE;
-    private JButton btnTestXSLT;
+    private final JButton btnTestXXE = new JButton("Test XXE");
+    private final JButton btnTestXSLT = new JButton("Test XSLT");
 
-    private JButton btnSignatureHelp;
-    private JComboBox<BurpCertificate> cmbboxCertificate;
-    private JButton btnSignatureRemove;
-    private JButton btnResignAssertion;
-    private JButton btnSendCertificate;
-    private JButton btnResignMessage;
+    private final JButton btnSignatureHelp = new JButton("Help");
+    private final JComboBox<BurpCertificate> cmbboxCertificate = new JComboBox<>();
+    private final JButton btnSignatureRemove = new JButton("Remove Signatures");
+    private final JButton btnResignAssertion = new JButton("(Re-)Sign Assertion");
+    private final JButton btnSendCertificate = new JButton("Send Certificate to SAML Raider Certificates");
+    private final JButton btnResignMessage = new JButton("(Re-)Sign Message");
 
-    private JLabel lblStatusMessage;
+    private final JLabel lblStatusMessage = new JLabel("");
 
     public SamlPanelAction() {
         initialize();
@@ -52,10 +52,11 @@ public class SamlPanelAction extends JPanel {
     }
 
     private void initialize() {
-        btnMessageReset = new JButton("Reset Message");
-        btnMessageReset.addActionListener(event -> controller.resetMessage());
+        btnMessageReset.addActionListener(event -> {
+            controller.resetMessage();
+            lblStatusMessage.setText("");
+        });
 
-        chkRawMode = new JCheckBox("Raw Mode (don't parse XML before sending)");
         chkRawMode.addActionListener(event -> controller.setRawMode(chkRawMode.isSelected()));
 
         var samlMessagePanel = new JPanel();
@@ -64,18 +65,12 @@ public class SamlPanelAction extends JPanel {
         samlMessagePanel.add(btnMessageReset, "wrap");
         samlMessagePanel.add(chkRawMode, "wrap");
 
-        btnXSWHelp = new JButton("Help");
         btnXSWHelp.addActionListener(event -> controller.showXSWHelp());
 
-        cmbboxXSW = new JComboBox<>();
-
-        btnXSWPreview = new JButton("Preview in Browser...");
         btnXSWPreview.addActionListener(event -> controller.showXSWPreview());
 
-        btnMatchAndReplace = new JButton("Match and Replace");
         btnMatchAndReplace.addActionListener(event -> showMatchAndReplaceDialog());
 
-        btnXSWApply = new JButton("Apply XSW");
         btnXSWApply.addActionListener(event -> controller.applyXSW());
 
         var xswAttacksPanel = new JPanel();
@@ -87,12 +82,10 @@ public class SamlPanelAction extends JPanel {
         xswAttacksPanel.add(btnXSWPreview);
         xswAttacksPanel.add(btnXSWApply, "wrap");
 
-        btnTestXXE = new JButton("Test XXE");
         btnTestXXE.addActionListener(event ->
                 Optional.ofNullable(JOptionPane.showInputDialog(btnXSWApply, "Enter Burp Collaborator URL (e.g. https://xyz.burpcollaborator.net)"))
                         .ifPresent(controller::applyXXE));
 
-        btnTestXSLT = new JButton("Test XSLT");
         btnTestXSLT.addActionListener(event ->
                 Optional.ofNullable(JOptionPane.showInputDialog(btnXSWApply, "Enter Burp Collaborator URL (e.g. https://xyz.burpcollaborator.net)"))
                         .ifPresent(controller::applyXSLT));
@@ -103,21 +96,14 @@ public class SamlPanelAction extends JPanel {
         xmlAttacksPanel.add(btnTestXXE, "split 2");
         xmlAttacksPanel.add(btnTestXSLT, "wrap");
 
-        btnSignatureHelp = new JButton("Help");
         btnSignatureHelp.addActionListener(event -> controller.showSignatureHelp());
 
-        cmbboxCertificate = new JComboBox<>();
-
-        btnSignatureRemove = new JButton("Remove Signatures");
         btnSignatureRemove.addActionListener(event -> controller.removeSignature());
 
-        btnResignAssertion = new JButton("(Re-)Sign Assertion");
         btnResignAssertion.addActionListener(event -> controller.resignAssertion());
 
-        btnSendCertificate = new JButton("Send Certificate to SAML Raider Certificates");
         btnSendCertificate.addActionListener(event -> controller.sendToCertificatesTab());
 
-        btnResignMessage = new JButton("(Re-)Sign Message");
         btnResignMessage.addActionListener(event -> controller.resignMessage());
 
         var signatureAttacksPanel = new JPanel();
@@ -130,7 +116,6 @@ public class SamlPanelAction extends JPanel {
         signatureAttacksPanel.add(btnResignAssertion);
         signatureAttacksPanel.add(btnResignMessage, "wrap");
 
-        lblStatusMessage = new JLabel("");
         lblStatusMessage.setForeground(new Color(255, 140, 0));
 
         var statusMessagePanel = new JPanel();

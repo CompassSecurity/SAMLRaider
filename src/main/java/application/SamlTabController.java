@@ -337,9 +337,7 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
     }
 
     public void resetMessage() {
-        if (isRawMode) {
-            samlMessage = orgSAMLMessage;
-        }
+        samlMessage = orgSAMLMessage;
         textArea.setContents(ByteArray.byteArray(samlMessage));
         isEdited = false;
     }
