@@ -594,7 +594,8 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
     }
 
     public void showSignatureHelp() {
-        SignatureHelpWindow window = new SignatureHelpWindow();
+        var window = new SignatureHelpWindow();
+        window.setLocationRelativeTo(BurpExtender.api.userInterface().swingUtils().suiteFrame());
         window.setVisible(true);
     }
 
