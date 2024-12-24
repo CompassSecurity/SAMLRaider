@@ -1,443 +1,299 @@
 package gui;
 
+import application.SamlTabController;
+import model.BurpCertificate;
+import net.miginfocom.swing.MigLayout;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.Serial;
 import java.util.HashMap;
 import java.util.List;
-
-import javax.swing.*;
-
-import model.BurpCertificate;
-import application.SamlTabController;
+import java.util.Optional;
 
 public class SamlPanelAction extends JPanel {
 
-	private static final long serialVersionUID = 1L;
-	private SamlTabController controller;
-	private JLabel lblMessage;
-	private JComboBox<BurpCertificate> cmbboxCertificate;
-	private JComboBox<String> cmbboxXSW;
-	private JButton btnXSWHelp;
-	private JButton btnXSWPreview;
-	private JButton btnSignatureReset;
-	private JButton btnXSWApply;
-	private JButton btnMatchAndReplace;
-	private JButton btnTestXXE;
-	private JButton btnTestXSLT;
-	private JButton btnSignatureHelp;
-	private JButton btnSignatureRemove;
-	private JButton btnSignatureReplace;
-	private JButton btnSendCertificate;
-	private JButton btnSignatureAdd;
-	private JTextField txtSearch;
-	private JCheckBox chkRawMode;
+    @Serial
+    private static final long serialVersionUID = 1L;
 
-	public SamlPanelAction() {
-		initialize();
-	}
+    private SamlTabController controller;
 
-	public SamlPanelAction(SamlTabController controller) {
-		this.controller = controller;
-		initialize();
-	}
+    private JButton btnMessageReset;
+    private JCheckBox chkRawMode;
 
-	private void initialize() {
-		GridBagLayout gridBagLayout = new GridBagLayout();
-		gridBagLayout.columnWidths = new int[] { 0, 0, 0};
-		gridBagLayout.rowHeights = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-		gridBagLayout.columnWeights = new double[] { 0.0, 0.0, 0.0, Double.MIN_VALUE};
-		gridBagLayout.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
-		setLayout(gridBagLayout);
+    private JButton btnXSWHelp;
+    private JComboBox<String> cmbboxXSW;
+    private JButton btnXSWPreview;
+    private JButton btnMatchAndReplace;
+    private JButton btnXSWApply;
 
+    private JButton btnTestXXE;
+    private JButton btnTestXSLT;
 
-		JLabel lblSamlMsgTitle = new JLabel("SAML Message");
-		GridBagConstraints gbc_lblSamlMsgTitle = new GridBagConstraints();
-		gbc_lblSamlMsgTitle.insets = new Insets(10, 5, 5, 0);
-		gbc_lblSamlMsgTitle.anchor = GridBagConstraints.WEST;
-		gbc_lblSamlMsgTitle.gridx = 0;
-		gbc_lblSamlMsgTitle.gridy = 0;
-		gbc_lblSamlMsgTitle.gridwidth = 3;
-		add(lblSamlMsgTitle, gbc_lblSamlMsgTitle);
+    private JButton btnSignatureHelp;
+    private JComboBox<BurpCertificate> cmbboxCertificate;
+    private JButton btnSignatureRemove;
+    private JButton btnResignAssertion;
+    private JButton btnSendCertificate;
+    private JButton btnResignMessage;
 
-		btnSignatureReset = new JButton("Reset Message");
-		GridBagConstraints gbc_btnSignatureReset = new GridBagConstraints();
-		gbc_btnSignatureReset.anchor = GridBagConstraints.WEST;
-		gbc_btnSignatureReset.insets = new Insets(5, 5, 0, 0);
-		gbc_btnSignatureReset.gridx = 1;
-		gbc_btnSignatureReset.gridy = 1;
-		add(btnSignatureReset, gbc_btnSignatureReset);
-		btnSignatureReset.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				controller.resetMessage();
-			}
-		});
+    private JLabel lblStatusMessage;
 
-		chkRawMode = new JCheckBox("Raw Mode (don't parse XML before sending)");
-		GridBagConstraints gbc_chkRawMode = new GridBagConstraints();
-		gbc_chkRawMode.anchor = GridBagConstraints.WEST;
-		gbc_chkRawMode.insets = new Insets(5, 5, 0, 0);
-		gbc_chkRawMode.gridx = 2;
-		gbc_chkRawMode.gridy = 1;
-		gbc_chkRawMode.gridwidth = 2;
-		add(chkRawMode, gbc_chkRawMode);
-		chkRawMode.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				controller.setRawMode(chkRawMode.isSelected());
-			}
-		});
+    public SamlPanelAction() {
+        initialize();
+    }
 
-		JLabel lblXSWTitle = new JLabel("XSW Attacks");
-		GridBagConstraints gbc_lblXSWTitle = new GridBagConstraints();
-		gbc_lblXSWTitle.insets = new Insets(10, 5, 5, 0);
-		gbc_lblXSWTitle.anchor = GridBagConstraints.WEST;
-		gbc_lblXSWTitle.gridx = 0;
-		gbc_lblXSWTitle.gridy = 3;
-		gbc_lblXSWTitle.gridwidth = 3;
-		add(lblXSWTitle, gbc_lblXSWTitle);
+    public SamlPanelAction(SamlTabController controller) {
+        this.controller = controller;
+        initialize();
+    }
 
-		btnXSWHelp = new JButton("?");
-		GridBagConstraints gbc_btnXSWHelp = new GridBagConstraints();
-		gbc_btnXSWHelp.insets = new Insets(5, 5, 0, 0);
-		gbc_btnXSWHelp.gridx = 0;
-		gbc_btnXSWHelp.gridy = 4;
-		btnXSWHelp.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				controller.showXSWHelp();
-			}
-		});
-		add(btnXSWHelp, gbc_btnXSWHelp);
+    private void initialize() {
+        btnMessageReset = new JButton("Reset Message");
+        btnMessageReset.addActionListener(event -> controller.resetMessage());
 
-		cmbboxXSW = new JComboBox<String>();
-		GridBagConstraints gbc_cmbboxXSW = new GridBagConstraints();
-		gbc_cmbboxXSW.insets = new Insets(5, 5, 0, 0);
-		gbc_cmbboxXSW.anchor = GridBagConstraints.WEST;
-		gbc_cmbboxXSW.gridx = 1;
-		gbc_cmbboxXSW.gridy = 4;
-		gbc_cmbboxXSW.gridwidth = 3;
-		add(cmbboxXSW, gbc_cmbboxXSW);
+        chkRawMode = new JCheckBox("Raw Mode (don't parse XML before sending)");
+        chkRawMode.addActionListener(event -> controller.setRawMode(chkRawMode.isSelected()));
 
-		btnXSWPreview = new JButton("Preview in Browser...");
-		GridBagConstraints gbc_btnXSWPreview = new GridBagConstraints();
-		gbc_btnXSWPreview.anchor = GridBagConstraints.WEST;
-		gbc_btnXSWPreview.insets = new Insets(5, 5, 0, 0);
-		gbc_btnXSWPreview.gridx = 1;
-		gbc_btnXSWPreview.gridy = 5;
-		btnXSWPreview.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				controller.showXSWPreview();
-			}
-		});
-		add(btnXSWPreview, gbc_btnXSWPreview);
+        var samlMessagePanel = new JPanel();
+        samlMessagePanel.setBorder(BorderFactory.createTitledBorder("SAML Message"));
+        samlMessagePanel.setLayout(new MigLayout());
+        samlMessagePanel.add(btnMessageReset, "wrap");
+        samlMessagePanel.add(chkRawMode, "wrap");
 
-		btnXSWApply = new JButton("Apply XSW");
-		GridBagConstraints gbc_btnXSWApply = new GridBagConstraints();
-		gbc_btnXSWApply.insets = new Insets(5, 5, 0, 0);
-		gbc_btnXSWApply.anchor = GridBagConstraints.WEST;
-		gbc_btnXSWApply.gridx = 3;
-		gbc_btnXSWApply.gridy = 5;
-		btnXSWApply.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				controller.applyXSW();				
-			}
-		});
-		add(btnXSWApply, gbc_btnXSWApply);
-		
-		btnMatchAndReplace = new JButton("Match and Replace");
-		GridBagConstraints gbc_btnMatchAndReplace = new GridBagConstraints();
-		gbc_btnMatchAndReplace.insets = new Insets(5, 5, 0, 0);
-		gbc_btnMatchAndReplace.anchor = GridBagConstraints.WEST;
-		gbc_btnMatchAndReplace.gridx = 2;
-		gbc_btnMatchAndReplace.gridy = 5;
-		btnMatchAndReplace.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				showMatchAndReplaceDialog();
-			}
-		});
-		add(btnMatchAndReplace, gbc_btnMatchAndReplace);
+        btnXSWHelp = new JButton("Help");
+        btnXSWHelp.addActionListener(event -> controller.showXSWHelp());
 
-		JLabel lblXmlAttacksTitle = new JLabel("XML Attacks");
-		GridBagConstraints gbc_lblXmlAttacksTitle = new GridBagConstraints();
-		gbc_lblXmlAttacksTitle.anchor = GridBagConstraints.WEST;
-		gbc_lblXmlAttacksTitle.insets = new Insets(10, 5, 5, 0);
-		gbc_lblXmlAttacksTitle.gridx = 0;
-		gbc_lblXmlAttacksTitle.gridy = 7;
-		gbc_lblXmlAttacksTitle.gridwidth = 3;
-		add(lblXmlAttacksTitle, gbc_lblXmlAttacksTitle);
+        cmbboxXSW = new JComboBox<>();
 
-		btnTestXXE = new JButton("Test XXE");
-		GridBagConstraints gbc_btnTestXXE = new GridBagConstraints();
-		gbc_btnTestXXE.insets = new Insets(5, 5, 0, 0);
-		gbc_btnTestXXE.anchor = GridBagConstraints.WEST;
-		gbc_btnTestXXE.gridx = 1;
-		gbc_btnTestXXE.gridy = 8;
-		btnTestXXE.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				String collabUrl = JOptionPane.showInputDialog(btnXSWApply, 
-				        "Enter Burp Collaborator URL (e.g. https://xyz.burpcollaborator.net)");
-				if(collabUrl != null) {
-					controller.applyXXE(collabUrl);
-				}
-			}
-		});
-		add(btnTestXXE, gbc_btnTestXXE);
-		
-		btnTestXSLT = new JButton("Test XSLT");
-		GridBagConstraints gbc_btnTestXSLT = new GridBagConstraints();
-		gbc_btnTestXSLT.insets =new Insets(5, 5, 0, 0);
-		gbc_btnTestXSLT.anchor = GridBagConstraints.WEST;
-		gbc_btnTestXSLT.gridx = 2;
-		gbc_btnTestXSLT.gridy = 8;
-		btnTestXSLT.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				String collabUrl = JOptionPane.showInputDialog(btnXSWApply, 
-				        "Enter Burp Collaborator URL (e.g. https://xyz.burpcollaborator.net)");
-				if(collabUrl != null) {
-					controller.applyXSLT(collabUrl);
-				}
-			}
-		});
-		add(btnTestXSLT, gbc_btnTestXSLT);
+        btnXSWPreview = new JButton("Preview in Browser...");
+        btnXSWPreview.addActionListener(event -> controller.showXSWPreview());
 
-		JLabel lblSignatureTitle = new JLabel("XML Signature Attacks");
-		GridBagConstraints gbc_lblSignatureTitle = new GridBagConstraints();
-		gbc_lblSignatureTitle.anchor = GridBagConstraints.WEST;
-		gbc_lblSignatureTitle.insets = new Insets(10, 5, 5, 0);
-		gbc_lblSignatureTitle.gridx = 0;
-		gbc_lblSignatureTitle.gridy = 10;
-		gbc_lblSignatureTitle.gridwidth = 3;
-		add(lblSignatureTitle, gbc_lblSignatureTitle);
+        btnMatchAndReplace = new JButton("Match and Replace");
+        btnMatchAndReplace.addActionListener(event -> showMatchAndReplaceDialog());
 
-		btnSignatureHelp = new JButton("?");
-		GridBagConstraints gbc_btnSignatureHelp = new GridBagConstraints();
-		gbc_btnSignatureHelp.insets = new Insets(5, 5, 0, 0);
-		gbc_btnSignatureHelp.gridx = 0;
-		gbc_btnSignatureHelp.gridy = 11;
-		btnSignatureHelp.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				controller.showSignatureHelp();
-			}
-		});
-		add(btnSignatureHelp, gbc_btnSignatureHelp);
+        btnXSWApply = new JButton("Apply XSW");
+        btnXSWApply.addActionListener(event -> controller.applyXSW());
 
-		cmbboxCertificate = new JComboBox<BurpCertificate>();
-		GridBagConstraints gbc_cmbboxCertificate = new GridBagConstraints();
-		gbc_cmbboxCertificate.insets = new Insets(5, 5, 0, 0);
-		gbc_cmbboxCertificate.anchor = GridBagConstraints.WEST;
-		gbc_cmbboxCertificate.gridx = 1;
-		gbc_cmbboxCertificate.gridy = 12;
-		gbc_cmbboxCertificate.gridwidth = 3;
-		add(cmbboxCertificate, gbc_cmbboxCertificate);
+        var xswAttacksPanel = new JPanel();
+        xswAttacksPanel.setBorder(BorderFactory.createTitledBorder("XSW Attacks"));
+        xswAttacksPanel.setLayout(new MigLayout());
+        xswAttacksPanel.add(btnXSWHelp, "wrap");
+        xswAttacksPanel.add(cmbboxXSW, "split 4");
+        xswAttacksPanel.add(btnMatchAndReplace);
+        xswAttacksPanel.add(btnXSWPreview);
+        xswAttacksPanel.add(btnXSWApply, "wrap");
 
-		btnSignatureRemove = new JButton("Remove Signatures");
-		btnSignatureRemove.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				controller.removeSignature();
-			}
-		});
-		GridBagConstraints gbc_btnSignatureRemove = new GridBagConstraints();
-		gbc_btnSignatureRemove.anchor = GridBagConstraints.WEST;
-		gbc_btnSignatureRemove.insets = new Insets(5, 5, 0, 0);
-		gbc_btnSignatureRemove.gridx = 1;
-		gbc_btnSignatureRemove.gridy = 11;
-		add(btnSignatureRemove, gbc_btnSignatureRemove);
+        btnTestXXE = new JButton("Test XXE");
+        btnTestXXE.addActionListener(event ->
+                Optional.ofNullable(JOptionPane.showInputDialog(btnXSWApply, "Enter Burp Collaborator URL (e.g. https://xyz.burpcollaborator.net)"))
+                        .ifPresent(controller::applyXXE));
 
-		btnSignatureReplace = new JButton("(Re-)Sign Assertion");
-		btnSignatureReplace.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				controller.resignAssertion();
-			}
-		});
-		GridBagConstraints gbc_btnSignatureReplace = new GridBagConstraints();
-		gbc_btnSignatureReplace.anchor = GridBagConstraints.WEST;
-		gbc_btnSignatureReplace.insets = new Insets(5, 5, 0, 0);
-		gbc_btnSignatureReplace.gridx = 1;
-		gbc_btnSignatureReplace.gridy = 13;
-		add(btnSignatureReplace, gbc_btnSignatureReplace);
+        btnTestXSLT = new JButton("Test XSLT");
+        btnTestXSLT.addActionListener(event ->
+                Optional.ofNullable(JOptionPane.showInputDialog(btnXSWApply, "Enter Burp Collaborator URL (e.g. https://xyz.burpcollaborator.net)"))
+                        .ifPresent(controller::applyXSLT));
 
+        var xmlAttacksPanel = new JPanel();
+        xmlAttacksPanel.setBorder(BorderFactory.createTitledBorder("XML Attacks"));
+        xmlAttacksPanel.setLayout(new MigLayout());
+        xmlAttacksPanel.add(btnTestXXE, "split 2");
+        xmlAttacksPanel.add(btnTestXSLT, "wrap");
 
-		btnSendCertificate = new JButton("Send Certificate to SAML Raider Certificates");
-		GridBagConstraints gbc_btnSendCertificate = new GridBagConstraints();
-		gbc_btnSendCertificate.anchor = GridBagConstraints.WEST;
-		gbc_btnSendCertificate.insets = new Insets(5, 5, 0, 0);
-		gbc_btnSendCertificate.gridx = 2;
-		gbc_btnSendCertificate.gridy = 11;
-		gbc_btnSendCertificate.gridwidth = 2;
-		btnSendCertificate.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				controller.sendToCertificatesTab();
-			}
-		});
-		add(btnSendCertificate, gbc_btnSendCertificate);
+        btnSignatureHelp = new JButton("Help");
+        btnSignatureHelp.addActionListener(event -> controller.showSignatureHelp());
 
-		btnSignatureAdd = new JButton("(Re-)Sign Message");
-		GridBagConstraints gbc_btnSignatureAdd = new GridBagConstraints();
-		gbc_btnSignatureAdd.anchor = GridBagConstraints.WEST;
-		btnSignatureAdd.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				controller.resignMessage();
-			}
-		});
-		gbc_btnSignatureAdd.insets = new Insets(5, 5, 0, 0);
-		gbc_btnSignatureAdd.gridx = 2;
-		gbc_btnSignatureAdd.gridy = 13;
-		add(btnSignatureAdd, gbc_btnSignatureAdd);
+        cmbboxCertificate = new JComboBox<>();
 
-		
-		lblMessage = new JLabel("");
-		lblMessage.setBackground(new Color(255, 250, 205));
-		lblMessage.setForeground(new Color(255, 140, 0));
-		GridBagConstraints gbc_lblMessage = new GridBagConstraints();
-		gbc_lblMessage.anchor = GridBagConstraints.WEST;
-		gbc_lblMessage.gridwidth = 3;
-		gbc_lblMessage.insets = new Insets(20, 5, 10, 0);
-		gbc_lblMessage.gridx = 0;
-		gbc_lblMessage.gridy = 14;
-		add(lblMessage, gbc_lblMessage);
-	}
+        btnSignatureRemove = new JButton("Remove Signatures");
+        btnSignatureRemove.addActionListener(event -> controller.removeSignature());
 
-	public JLabel getInfoMessageLabel() {
-		return lblMessage;
-	}
+        btnResignAssertion = new JButton("(Re-)Sign Assertion");
+        btnResignAssertion.addActionListener(event -> controller.resignAssertion());
 
-	public void setCertificateList(List<BurpCertificate> list) {
-		DefaultComboBoxModel<BurpCertificate> model = new DefaultComboBoxModel<BurpCertificate>();
+        btnSendCertificate = new JButton("Send Certificate to SAML Raider Certificates");
+        btnSendCertificate.addActionListener(event -> controller.sendToCertificatesTab());
 
-		for (BurpCertificate cert : list) {
-			model.addElement(cert);
-		}
-		cmbboxCertificate.setModel(model);
-	}
+        btnResignMessage = new JButton("(Re-)Sign Message");
+        btnResignMessage.addActionListener(event -> controller.resignMessage());
 
-	public BurpCertificate getSelectedCertificate() {
-		return (BurpCertificate) cmbboxCertificate.getSelectedItem();
-	}
+        var signatureAttacksPanel = new JPanel();
+        signatureAttacksPanel.setBorder(BorderFactory.createTitledBorder("Signature Attacks"));
+        signatureAttacksPanel.setLayout(new MigLayout());
+        signatureAttacksPanel.add(btnSignatureHelp, "wrap");
+        signatureAttacksPanel.add(btnSignatureRemove, "split 2");
+        signatureAttacksPanel.add(btnSendCertificate, "wrap");
+        signatureAttacksPanel.add(cmbboxCertificate, "split 3");
+        signatureAttacksPanel.add(btnResignAssertion);
+        signatureAttacksPanel.add(btnResignMessage, "wrap");
 
-	public void setXSWList(String[] xswTypes) {
-		DefaultComboBoxModel<String> model = new DefaultComboBoxModel<String>(xswTypes);
-		cmbboxXSW.setModel(model);
-	}
+        lblStatusMessage = new JLabel("");
+        lblStatusMessage.setForeground(new Color(255, 140, 0));
 
-	public String getSelectedXSW() {
-		return (String) cmbboxXSW.getSelectedItem();
-	}
-	
-	public String getSearchText(){
-		return txtSearch.getText();
-	}
+        var statusMessagePanel = new JPanel();
+        statusMessagePanel.setBorder(BorderFactory.createTitledBorder("Status Message"));
+        statusMessagePanel.setLayout(new MigLayout());
+        statusMessagePanel.add(lblStatusMessage, "width 300::, height 20::");
 
-	public boolean isRawModeEnabled(){ return chkRawMode.isSelected(); }
+        var actionPanels = new JPanel();
+        var actionPanelConstraints = "wrap";
+        actionPanels.setLayout(new MigLayout());
+        actionPanels.add(samlMessagePanel, actionPanelConstraints);
+        actionPanels.add(xswAttacksPanel, actionPanelConstraints);
+        actionPanels.add(xmlAttacksPanel, actionPanelConstraints);
+        actionPanels.add(signatureAttacksPanel, actionPanelConstraints);
+        actionPanels.add(statusMessagePanel, actionPanelConstraints);
 
-	public void setRawModeEnabled(boolean rawModeEnabled) {
-		chkRawMode.setSelected(rawModeEnabled);
-	}
+        var scrollPane = new JScrollPane(actionPanels);
+        scrollPane.setBorder(new EmptyBorder(0, 0, 0, 0));
 
-	public void disableControls() {
-		cmbboxCertificate.setEnabled(false);
-		cmbboxXSW.setEnabled(false);
-		btnXSWHelp.setEnabled(false);
-		btnXSWPreview.setEnabled(false);
-		btnSignatureReset.setEnabled(false);
-		btnXSWApply.setEnabled(false);
-		btnSignatureHelp.setEnabled(false);
-		btnSignatureRemove.setEnabled(false);
-		btnSignatureReplace.setEnabled(false);
-		btnSendCertificate.setEnabled(false);
-		btnSignatureAdd.setEnabled(false);
-		btnMatchAndReplace.setEnabled(false);
-		btnTestXXE.setEnabled(false);
-		btnTestXSLT.setEnabled(false);
-		chkRawMode.setEnabled(false);
-		this.revalidate();
-	}
+        setLayout(new BorderLayout());
+        add(scrollPane, BorderLayout.CENTER);
+    }
 
-	public void enableControls() {
-		cmbboxCertificate.setEnabled(true);
-		cmbboxXSW.setEnabled(true);
-		btnXSWHelp.setEnabled(true);
-		btnXSWPreview.setEnabled(true);
-		btnSignatureReset.setEnabled(true);
-		btnXSWApply.setEnabled(true);
-		btnSignatureHelp.setEnabled(true);
-		btnSignatureRemove.setEnabled(true);
-		btnSignatureReplace.setEnabled(true);
-		btnSendCertificate.setEnabled(true);
-		btnSignatureAdd.setEnabled(true);
-		btnMatchAndReplace.setEnabled(true);
-		btnTestXXE.setEnabled(true);
-		btnTestXSLT.setEnabled(true);
-		chkRawMode.setEnabled(true);
-		this.revalidate();
-	}
+    public JLabel getStatusMessageLabel() {
+        return lblStatusMessage;
+    }
 
-	private void showMatchAndReplaceDialog() {
-		HashMap<String, String> matchAndReplaceMap = controller.getMatchAndReplaceMap();
-		
-	    JPanel dialogPanel = new JPanel();
-	    dialogPanel.setLayout(new BorderLayout());
-	    dialogPanel.add(new JLabel("Match and replace rules takes effect after apply XSW"), BorderLayout.NORTH);
-	    
-	    JPanel listPanel = new JPanel();
-	    JTextField matchInputText = new JTextField();
-	    JTextField replaceInputText = new JTextField();
-	    
-	    JButton addEntryButton = new JButton("\u2795");
-	    addEntryButton.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if(matchInputText.getText() != "" && replaceInputText.getText() != "") {
-					matchAndReplaceMap.put(matchInputText.getText(), replaceInputText.getText());
-					updateMatchAndReplaceList(listPanel, matchInputText, replaceInputText, addEntryButton);
-					SwingUtilities.getWindowAncestor((Component) e.getSource()).pack();
-				}
-			}
-		});
-	    	    
-	    updateMatchAndReplaceList(listPanel, matchInputText, replaceInputText, addEntryButton);
-	    JOptionPane.showMessageDialog(this, listPanel, "Apply XSW - Match and Replace", JOptionPane.PLAIN_MESSAGE);
-	}
-	
-	private void updateMatchAndReplaceList(JPanel listPanel, JTextField matchInputText, JTextField replaceInputText, JButton addEntryButton) {
-		HashMap<String, String> matchAndReplaceMap = controller.getMatchAndReplaceMap();
-		listPanel.setLayout(new GridBagLayout());
-		listPanel.removeAll();
-		GridBagConstraints c = new GridBagConstraints();
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 0;
-		c.gridy = 0;
-		listPanel.add(new JLabel("Match:                                          "),c);
-		c.gridx = 1;
-	    listPanel.add(new JLabel("Replace:                                        "),c);
-	    c.gridx = 0;
-		c.gridy = 1;
-	    listPanel.add(matchInputText,c);
-	    c.gridx = 1;
-	    listPanel.add(replaceInputText,c);
-	    c.gridx = 2;
-	    listPanel.add(addEntryButton,c);
-	    
-	    c.gridy = 2;
-		for(String matchRule : matchAndReplaceMap.keySet()) {
-			c.gridx = 0;
-			listPanel.add(new JLabel(matchRule),c);
-			
-			c.gridx = 1;
-			listPanel.add(new JLabel(matchAndReplaceMap.get(matchRule)),c);
-			JButton deleteEntryBtn = new JButton("\u2796");
-			deleteEntryBtn.addActionListener(new ActionListener() {
-				
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					matchAndReplaceMap.remove(matchRule);
-					updateMatchAndReplaceList(listPanel, matchInputText, replaceInputText, addEntryButton);
-					SwingUtilities.getWindowAncestor((Component) e.getSource()).pack();
-				}
-			});
-			c.gridx = 2;
-			listPanel.add(deleteEntryBtn,c);
-			c.gridy++;
-		}
-		listPanel.revalidate();
-	}
+    public void setCertificateList(List<BurpCertificate> list) {
+        DefaultComboBoxModel<BurpCertificate> model = new DefaultComboBoxModel<BurpCertificate>();
+
+        for (BurpCertificate cert : list) {
+            model.addElement(cert);
+        }
+        cmbboxCertificate.setModel(model);
+    }
+
+    public BurpCertificate getSelectedCertificate() {
+        return (BurpCertificate) cmbboxCertificate.getSelectedItem();
+    }
+
+    public void setXSWList(String[] xswTypes) {
+        DefaultComboBoxModel<String> model = new DefaultComboBoxModel<String>(xswTypes);
+        cmbboxXSW.setModel(model);
+    }
+
+    public String getSelectedXSW() {
+        return (String) cmbboxXSW.getSelectedItem();
+    }
+
+    public boolean isRawModeEnabled() {
+        return chkRawMode.isSelected();
+    }
+
+    public void setRawModeEnabled(boolean rawModeEnabled) {
+        chkRawMode.setSelected(rawModeEnabled);
+    }
+
+    public void disableControls() {
+        cmbboxCertificate.setEnabled(false);
+        cmbboxXSW.setEnabled(false);
+        btnXSWHelp.setEnabled(false);
+        btnXSWPreview.setEnabled(false);
+        btnMessageReset.setEnabled(false);
+        btnXSWApply.setEnabled(false);
+        btnSignatureHelp.setEnabled(false);
+        btnSignatureRemove.setEnabled(false);
+        btnResignAssertion.setEnabled(false);
+        btnSendCertificate.setEnabled(false);
+        btnResignMessage.setEnabled(false);
+        btnMatchAndReplace.setEnabled(false);
+        btnTestXXE.setEnabled(false);
+        btnTestXSLT.setEnabled(false);
+        chkRawMode.setEnabled(false);
+        this.revalidate();
+    }
+
+    public void enableControls() {
+        cmbboxCertificate.setEnabled(true);
+        cmbboxXSW.setEnabled(true);
+        btnXSWHelp.setEnabled(true);
+        btnXSWPreview.setEnabled(true);
+        btnMessageReset.setEnabled(true);
+        btnXSWApply.setEnabled(true);
+        btnSignatureHelp.setEnabled(true);
+        btnSignatureRemove.setEnabled(true);
+        btnResignAssertion.setEnabled(true);
+        btnSendCertificate.setEnabled(true);
+        btnResignMessage.setEnabled(true);
+        btnMatchAndReplace.setEnabled(true);
+        btnTestXXE.setEnabled(true);
+        btnTestXSLT.setEnabled(true);
+        chkRawMode.setEnabled(true);
+        this.revalidate();
+    }
+
+    private void showMatchAndReplaceDialog() {
+        HashMap<String, String> matchAndReplaceMap = controller.getMatchAndReplaceMap();
+
+        JPanel dialogPanel = new JPanel();
+        dialogPanel.setLayout(new BorderLayout());
+        dialogPanel.add(new JLabel("Match and replace rules takes effect after apply XSW"), BorderLayout.NORTH);
+
+        JPanel listPanel = new JPanel();
+        JTextField matchInputText = new JTextField();
+        JTextField replaceInputText = new JTextField();
+
+        JButton addEntryButton = new JButton("\u2795");
+        addEntryButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (matchInputText.getText() != "" && replaceInputText.getText() != "") {
+                    matchAndReplaceMap.put(matchInputText.getText(), replaceInputText.getText());
+                    updateMatchAndReplaceList(listPanel, matchInputText, replaceInputText, addEntryButton);
+                    SwingUtilities.getWindowAncestor((Component) e.getSource()).pack();
+                }
+            }
+        });
+
+        updateMatchAndReplaceList(listPanel, matchInputText, replaceInputText, addEntryButton);
+        JOptionPane.showMessageDialog(this, listPanel, "Apply XSW - Match and Replace", JOptionPane.PLAIN_MESSAGE);
+    }
+
+    private void updateMatchAndReplaceList(JPanel listPanel, JTextField matchInputText, JTextField replaceInputText, JButton addEntryButton) {
+        HashMap<String, String> matchAndReplaceMap = controller.getMatchAndReplaceMap();
+        listPanel.setLayout(new GridBagLayout());
+        listPanel.removeAll();
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.gridx = 0;
+        c.gridy = 0;
+        listPanel.add(new JLabel("Match:                                          "), c);
+        c.gridx = 1;
+        listPanel.add(new JLabel("Replace:                                        "), c);
+        c.gridx = 0;
+        c.gridy = 1;
+        listPanel.add(matchInputText, c);
+        c.gridx = 1;
+        listPanel.add(replaceInputText, c);
+        c.gridx = 2;
+        listPanel.add(addEntryButton, c);
+
+        c.gridy = 2;
+        for (String matchRule : matchAndReplaceMap.keySet()) {
+            c.gridx = 0;
+            listPanel.add(new JLabel(matchRule), c);
+
+            c.gridx = 1;
+            listPanel.add(new JLabel(matchAndReplaceMap.get(matchRule)), c);
+            JButton deleteEntryBtn = new JButton("\u2796");
+            deleteEntryBtn.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    matchAndReplaceMap.remove(matchRule);
+                    updateMatchAndReplaceList(listPanel, matchInputText, replaceInputText, addEntryButton);
+                    SwingUtilities.getWindowAncestor((Component) e.getSource()).pack();
+                }
+            });
+            c.gridx = 2;
+            listPanel.add(deleteEntryBtn, c);
+            c.gridy++;
+        }
+        listPanel.revalidate();
+    }
 }

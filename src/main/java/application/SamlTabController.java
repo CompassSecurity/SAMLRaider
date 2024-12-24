@@ -428,15 +428,15 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
     }
 
     private void setInfoMessageText(String infoMessage) {
-        samlGUI.getActionPanel().getInfoMessageLabel().setText(infoMessage);
+        samlGUI.getActionPanel().getStatusMessageLabel().setText(infoMessage);
     }
 
     public String getInfoMessageText() {
-        return samlGUI.getActionPanel().getInfoMessageLabel().getText();
+        return samlGUI.getActionPanel().getStatusMessageLabel().getText();
     }
 
     private void resetInfoMessageText() {
-        samlGUI.getActionPanel().getInfoMessageLabel().setText("");
+        samlGUI.getActionPanel().getStatusMessageLabel().setText("");
     }
 
     private void updateCertificateList() {

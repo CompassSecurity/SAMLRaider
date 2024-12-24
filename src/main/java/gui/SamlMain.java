@@ -30,6 +30,7 @@ public class SamlMain extends JPanel {
 
         JPanel panelActionTop = new JPanel();
         panelActionTop.setLayout(new BorderLayout());
+        panelActionTop.setPreferredSize(new Dimension(0, 460));
         panelActionTop.add(panelAction);
 
         textEditorAction = BurpExtender.api.userInterface().createRawEditor();
@@ -38,19 +39,21 @@ public class SamlMain extends JPanel {
 
         JPanel panelActionBottom = new JPanel();
         panelActionBottom.setLayout(new BorderLayout());
+        panelActionBottom.setPreferredSize(new Dimension(0, 100));
         panelActionBottom.add(textEditorAction.uiComponent(), BorderLayout.CENTER);
 
         JSplitPane splitPaneAction = new JSplitPane();
         splitPaneAction.setOrientation(JSplitPane.VERTICAL_SPLIT);
         splitPaneAction.setLeftComponent(panelActionTop);
         splitPaneAction.setRightComponent(panelActionBottom);
+        splitPaneAction.resetToPreferredSizes();
 
         panelInformation = new SamlPanelInfo();
 
         JPanel panelInformationTop = new JPanel();
         panelInformationTop.setLayout(new BorderLayout());
-        panelInformationTop.add(panelInformation);
         panelInformationTop.setPreferredSize(new Dimension(0, 375));
+        panelInformationTop.add(panelInformation);
 
         textEditorInformation = BurpExtender.api.userInterface().createRawEditor();
         textEditorInformation.setContents(ByteArray.byteArray(""));
@@ -60,9 +63,9 @@ public class SamlMain extends JPanel {
 
         JPanel panelInformationBottom = new JPanel();
         panelInformationBottom.setLayout(new BorderLayout());
+        panelInformationBottom.setPreferredSize(new Dimension(0, 100));
         panelInformationBottom.add(panelInformationBottomLabel, BorderLayout.NORTH);
         panelInformationBottom.add(textEditorInformation.uiComponent(), BorderLayout.CENTER);
-        panelInformationBottom.setPreferredSize(new Dimension(0, 100));
 
         JSplitPane splitPaneInformation = new JSplitPane();
         splitPaneInformation.setOrientation(JSplitPane.VERTICAL_SPLIT);

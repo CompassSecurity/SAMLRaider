@@ -82,7 +82,7 @@ public class SamlPanelInfo extends JPanel {
 		scrollPane.setBorder(new EmptyBorder(0, 0, 0, 0));
 
 		setLayout(new BorderLayout());
-		add(scrollPane);
+		add(scrollPane, BorderLayout.CENTER);
 	}
 
 	public void setIssuer(String string){
