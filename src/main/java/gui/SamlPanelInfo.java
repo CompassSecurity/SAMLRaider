@@ -1,28 +1,29 @@
 package gui;
 
-import java.awt.*;
+import net.miginfocom.swing.MigLayout;
 
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import java.io.Serial;
 
 public class SamlPanelInfo extends JPanel {
 
+	@Serial
 	private static final long serialVersionUID = 1L;
-	private JLabel lblIssuer;
-	private JLabel lblSubject;
-	private JLabel lblConditionNotAfter;
-	private JLabel lblConditionNotBefore;
-	private JLabel lblAssertionTitle;
-	private JLabel lblSubjectConfNotBefore;
-	private JLabel lblSubjectConfNotAfter;
-	private JLabel lblSignatureCaption;
-	private JLabel lblSignatureAlgorithmCaption;
-	private JLabel lblSignatureAlgorithm;
-	private JLabel lblDigestAlgorithmCaption;
-	private JLabel lblDigestAlgorithm;
-	private JLabel lblEncryptionCaption;
-	private JLabel lblEncryption;
-	private JLabel lblPrettifiedCaption;
+
+	private final JLabel conditionNotBefore = new JLabel("");
+	private final JLabel conditionNotAfter = new JLabel("");
+	private final JLabel issuer = new JLabel("");
+
+	private final JLabel signatureAlgorithm = new JLabel("");
+	private final JLabel digestAlgorithm = new JLabel("");
+
+	private final JLabel subject = new JLabel("");
+	private final JLabel subjectConfNotBefore = new JLabel("");
+	private final JLabel subjectConfNotAfter = new JLabel("");
+
+	private final JLabel encryptedWith = new JLabel("");
 
 	public SamlPanelInfo() {
 		super();
@@ -30,217 +31,94 @@ public class SamlPanelInfo extends JPanel {
 	}
 
 	private void initialize() {
-		GridBagLayout gridBagLayout = new GridBagLayout();
-		gridBagLayout.columnWidths = new int[]{0, 0};
-		gridBagLayout.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-		gridBagLayout.columnWeights = new double[]{0.0,  Double.MIN_VALUE};
-		gridBagLayout.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
-		setLayout(gridBagLayout);
-		
-		lblAssertionTitle = new JLabel("Assertion Information");
-		GridBagConstraints gbc_lblAssertionTitle = new GridBagConstraints();
-		gbc_lblAssertionTitle.anchor = GridBagConstraints.WEST;
-		gbc_lblAssertionTitle.insets = new Insets(5, 5, 5, 5);
-		gbc_lblAssertionTitle.gridx = 0;
-		gbc_lblAssertionTitle.gridy = 0;
-		add(lblAssertionTitle, gbc_lblAssertionTitle);
-		
-		JLabel lblNotBeforeCaption = new JLabel("Condition Not Before");
-		GridBagConstraints gbc_lblNotBeforeCaption = new GridBagConstraints();
-		gbc_lblNotBeforeCaption.anchor = GridBagConstraints.WEST;
-		gbc_lblNotBeforeCaption.insets = new Insets(0, 5, 5, 5);
-		gbc_lblNotBeforeCaption.gridx = 0;
-		gbc_lblNotBeforeCaption.gridy = 2;
-		gbc_lblNotBeforeCaption.weightx = 1.0;
-		add(lblNotBeforeCaption, gbc_lblNotBeforeCaption);
-		
-		lblConditionNotBefore = new JLabel("");
-		GridBagConstraints gbc_lblNotBefore = new GridBagConstraints();
-		gbc_lblNotBefore.anchor = GridBagConstraints.WEST;
-		gbc_lblNotBefore.insets = new Insets(0, 5, 5, 0);
-		gbc_lblNotBefore.gridx = 1;
-		gbc_lblNotBefore.gridy = 2;
-		add(lblConditionNotBefore, gbc_lblNotBefore);
-		
-		JLabel lblNotAfterCaption = new JLabel("Condition Not After");
-		GridBagConstraints gbc_lblNotAfterCaption = new GridBagConstraints();
-		gbc_lblNotAfterCaption.anchor = GridBagConstraints.WEST;
-		gbc_lblNotAfterCaption.insets = new Insets(0, 5, 5, 5);
-		gbc_lblNotAfterCaption.gridx = 0;
-		gbc_lblNotAfterCaption.gridy = 3;
-		add(lblNotAfterCaption, gbc_lblNotAfterCaption);
-		
-		lblConditionNotAfter = new JLabel("");
-		GridBagConstraints gbc_lblNotAfter = new GridBagConstraints();
-		gbc_lblNotAfter.anchor = GridBagConstraints.WEST;
-		gbc_lblNotAfter.insets = new Insets(0, 5, 5, 0);
-		gbc_lblNotAfter.gridx = 1;
-		gbc_lblNotAfter.gridy = 3;
-		add(lblConditionNotAfter, gbc_lblNotAfter);
-		
-		JLabel lblIssuerCaption = new JLabel("Issuer");
-		GridBagConstraints gbc_lblIssuerCaption = new GridBagConstraints();
-		gbc_lblIssuerCaption.anchor = GridBagConstraints.WEST;
-		gbc_lblIssuerCaption.insets = new Insets(0, 5, 5, 5);
-		gbc_lblIssuerCaption.gridx = 0;
-		gbc_lblIssuerCaption.gridy = 4;
-		add(lblIssuerCaption, gbc_lblIssuerCaption);
-		
-		lblIssuer = new JLabel("");
-		GridBagConstraints gbc_lblIssuer = new GridBagConstraints();
-		gbc_lblIssuer.insets = new Insets(0, 5, 5, 0);
-		gbc_lblIssuer.anchor = GridBagConstraints.WEST;
-		gbc_lblIssuer.gridx = 1;
-		gbc_lblIssuer.gridy = 4;
-		add(lblIssuer, gbc_lblIssuer);
-		
-		lblSignatureCaption = new JLabel("Signature");
-		GridBagConstraints gbc_lblSignatureCaption = new GridBagConstraints();
-		gbc_lblSignatureCaption.anchor = GridBagConstraints.WEST;
-		gbc_lblSignatureCaption.insets = new Insets(10, 5, 5, 5);
-		gbc_lblSignatureCaption.gridx = 0;
-		gbc_lblSignatureCaption.gridy = 5;
-		add(lblSignatureCaption, gbc_lblSignatureCaption);
-		
-		lblSignatureAlgorithmCaption = new JLabel("Signature Algorithm");
-		GridBagConstraints gbc_lblAlgorithmCaption = new GridBagConstraints();
-		gbc_lblAlgorithmCaption.anchor = GridBagConstraints.WEST;
-		gbc_lblAlgorithmCaption.insets = new Insets(0, 5, 5, 5);
-		gbc_lblAlgorithmCaption.gridx = 0;
-		gbc_lblAlgorithmCaption.gridy = 6;
-		add(lblSignatureAlgorithmCaption, gbc_lblAlgorithmCaption);
-		
-		lblSignatureAlgorithm = new JLabel("");
-		GridBagConstraints gbc_lblAlgorithm = new GridBagConstraints();
-		gbc_lblAlgorithm.anchor = GridBagConstraints.WEST;
-		gbc_lblAlgorithm.insets = new Insets(0, 5, 5, 0);
-		gbc_lblAlgorithm.gridx = 1;
-		gbc_lblAlgorithm.gridy = 6;
-		add(lblSignatureAlgorithm, gbc_lblAlgorithm);
-		
-		lblDigestAlgorithmCaption = new JLabel("Digest Algorithm");
-		GridBagConstraints gbc_lblDigestAlgorithmCaption = new GridBagConstraints();
-		gbc_lblDigestAlgorithmCaption.anchor = GridBagConstraints.WEST;
-		gbc_lblDigestAlgorithmCaption.insets = new Insets(0, 5, 5, 5);
-		gbc_lblDigestAlgorithmCaption.gridx = 0;
-		gbc_lblDigestAlgorithmCaption.gridy = 7;
-		add(lblDigestAlgorithmCaption, gbc_lblDigestAlgorithmCaption);
-		
-		lblDigestAlgorithm = new JLabel("");
-		GridBagConstraints gbc_lblDigestAlgorithm = new GridBagConstraints();
-		gbc_lblDigestAlgorithm.anchor = GridBagConstraints.WEST;
-		gbc_lblDigestAlgorithm.insets = new Insets(0, 5, 5, 0);
-		gbc_lblDigestAlgorithm.gridx = 1;
-		gbc_lblDigestAlgorithm.gridy = 7;
-		add(lblDigestAlgorithm, gbc_lblDigestAlgorithm);
-		
-		JLabel lblSubjectCaption = new JLabel("Subject");
-		GridBagConstraints gbc_lblSubjectCaption = new GridBagConstraints();
-		gbc_lblSubjectCaption.anchor = GridBagConstraints.WEST;
-		gbc_lblSubjectCaption.insets = new Insets(10, 5, 5, 5);
-		gbc_lblSubjectCaption.gridx = 0;
-		gbc_lblSubjectCaption.gridy = 8;
-		add(lblSubjectCaption, gbc_lblSubjectCaption);
-		
-		lblSubject = new JLabel("");
-		GridBagConstraints gbc_lblSubject = new GridBagConstraints();
-		gbc_lblSubject.anchor = GridBagConstraints.WEST;
-		gbc_lblSubject.insets = new Insets(0, 5, 5, 0);
-		gbc_lblSubject.gridx = 1;
-		gbc_lblSubject.gridy = 8;
-		add(lblSubject, gbc_lblSubject);
-		
-		JLabel lblSubjectConfNotBeforeCaption = new JLabel("Subject Conf. Not Before");
-		GridBagConstraints gbc_lblSubjectConfNotBeforeCaption = new GridBagConstraints();
-		gbc_lblSubjectConfNotBeforeCaption.anchor = GridBagConstraints.WEST;
-		gbc_lblSubjectConfNotBeforeCaption.insets = new Insets(0, 5, 5, 5);
-		gbc_lblSubjectConfNotBeforeCaption.gridx = 0;
-		gbc_lblSubjectConfNotBeforeCaption.gridy = 9;
-		add(lblSubjectConfNotBeforeCaption, gbc_lblSubjectConfNotBeforeCaption);
-		
-		lblSubjectConfNotBefore = new JLabel("");
-		GridBagConstraints gbc_lblSubjectConfNotBefore = new GridBagConstraints();
-		gbc_lblSubjectConfNotBefore.anchor = GridBagConstraints.WEST;
-		gbc_lblSubjectConfNotBefore.insets = new Insets(0, 5, 5, 0);
-		gbc_lblSubjectConfNotBefore.gridx = 1;
-		gbc_lblSubjectConfNotBefore.gridy = 9;
-		add(lblSubjectConfNotBefore, gbc_lblSubjectConfNotBefore);
-		
-		JLabel lblSubjectConfNotAfterCaption = new JLabel("Subject Conf. Not After");
-		GridBagConstraints gbc_lblSubjectConfNotAfterCaption = new GridBagConstraints();
-		gbc_lblSubjectConfNotAfterCaption.anchor = GridBagConstraints.WEST;
-		gbc_lblSubjectConfNotAfterCaption.insets = new Insets(0, 5, 5, 5);
-		gbc_lblSubjectConfNotAfterCaption.gridx = 0;
-		gbc_lblSubjectConfNotAfterCaption.gridy = 10;
-		add(lblSubjectConfNotAfterCaption, gbc_lblSubjectConfNotAfterCaption);
-		
-		lblSubjectConfNotAfter = new JLabel("");
-		GridBagConstraints gbc_lblSubjectConfNotAfter = new GridBagConstraints();
-		gbc_lblSubjectConfNotAfter.anchor = GridBagConstraints.WEST;
-		gbc_lblSubjectConfNotAfter.insets = new Insets(0, 5, 5, 0);
-		gbc_lblSubjectConfNotAfter.gridx = 1;
-		gbc_lblSubjectConfNotAfter.gridy = 10;
-		add(lblSubjectConfNotAfter, gbc_lblSubjectConfNotAfter);
+		var labelConstraints = "width 150!";
+		var valueConstraints = "width 200::, wrap";
 
-		lblEncryptionCaption = new JLabel("Encrypted with");
-		GridBagConstraints gbc_lblEncryptionCaption = new GridBagConstraints();
-		gbc_lblEncryptionCaption.anchor = GridBagConstraints.WEST;
-		gbc_lblEncryptionCaption.insets = new Insets(10, 5, 5, 5);
-		gbc_lblEncryptionCaption.gridx = 0;
-		gbc_lblEncryptionCaption.gridy = 11;
-		add(lblEncryptionCaption, gbc_lblEncryptionCaption);
-		
-		lblEncryption = new JLabel("");
-		GridBagConstraints gbc_lblEncryption = new GridBagConstraints();
-		gbc_lblEncryption.anchor = GridBagConstraints.WEST;
-		gbc_lblEncryption.insets = new Insets(0, 0, 5, 0);
-		gbc_lblEncryption.gridx = 1;
-		gbc_lblEncryption.gridy = 11;
-		add(lblEncryption, gbc_lblEncryption);
+		var assertionInformationPanel = new JPanel();
+		assertionInformationPanel.setBorder(BorderFactory.createTitledBorder("Assertion Information"));
+		assertionInformationPanel.setLayout(new MigLayout());
+		assertionInformationPanel.add(new JLabel("Condition Not Before:"), labelConstraints);
+		assertionInformationPanel.add(conditionNotBefore, valueConstraints);
+		assertionInformationPanel.add(new JLabel("Condition Not After:"), labelConstraints);
+		assertionInformationPanel.add(conditionNotAfter, valueConstraints);
+		assertionInformationPanel.add(new JLabel("Issuer:"), labelConstraints);
+		assertionInformationPanel.add(issuer, valueConstraints);
 
-		lblPrettifiedCaption = new JLabel("Parsed & Prettified:");
-		GridBagConstraints gbc_lblPrettifiedCaption = new GridBagConstraints();
-		gbc_lblPrettifiedCaption.anchor = GridBagConstraints.WEST;
-		gbc_lblPrettifiedCaption.insets = new Insets(10, 5, 5, 5);
-		gbc_lblPrettifiedCaption.gridx = 0;
-		gbc_lblPrettifiedCaption.gridy = 12;
-		add(lblPrettifiedCaption, gbc_lblPrettifiedCaption);
+		var signatureInformationPanel = new JPanel();
+		signatureInformationPanel.setBorder(BorderFactory.createTitledBorder("Signature Information"));
+		signatureInformationPanel.setLayout(new MigLayout());
+		signatureInformationPanel.add(new JLabel("Signature Algorithm:"), labelConstraints);
+		signatureInformationPanel.add(signatureAlgorithm, valueConstraints);
+		signatureInformationPanel.add(new JLabel("Digest Algorithm:"), labelConstraints);
+		signatureInformationPanel.add(digestAlgorithm, valueConstraints);
+
+
+		var subjectInformationPanel = new JPanel();
+		subjectInformationPanel.setBorder(BorderFactory.createTitledBorder("Subject Information"));
+		subjectInformationPanel.setLayout(new MigLayout());
+		subjectInformationPanel.add(new JLabel("Subject:"), labelConstraints);
+		subjectInformationPanel.add(subject, valueConstraints);
+		subjectInformationPanel.add(new JLabel("Subject Conf. Not Before:"), labelConstraints);
+		subjectInformationPanel.add(subjectConfNotBefore, valueConstraints);
+		subjectInformationPanel.add(new JLabel("Subject Conf. Not After:"), labelConstraints);
+		subjectInformationPanel.add(subjectConfNotAfter, valueConstraints);
+
+		var encryptionInformationPanel = new JPanel();
+		encryptionInformationPanel.setBorder(BorderFactory.createTitledBorder("Encryption Information"));
+		encryptionInformationPanel.setLayout(new MigLayout());
+		encryptionInformationPanel.add(new JLabel("Encrypted with:"), labelConstraints);
+		encryptionInformationPanel.add(encryptedWith, valueConstraints);
+
+		var informationPanelConstraints = "wrap";
+
+		var informationPanels = new JPanel();
+		informationPanels.setLayout(new MigLayout());
+		informationPanels.add(assertionInformationPanel, informationPanelConstraints);
+		informationPanels.add(signatureInformationPanel, informationPanelConstraints);
+		informationPanels.add(subjectInformationPanel, informationPanelConstraints);
+		informationPanels.add(encryptionInformationPanel, informationPanelConstraints);
+
+		var scrollPane = new JScrollPane(informationPanels);
+		scrollPane.setBorder(new EmptyBorder(0, 0, 0, 0));
+
+		setLayout(new BorderLayout());
+		add(scrollPane);
 	}
 
 	public void setIssuer(String string){
-		lblIssuer.setText(string);
+		issuer.setText(string);
 	}
 	
 	public void setSubject(String string){
-		lblSubject.setText(string);
+		subject.setText(string);
 	}
 	
 	public void setConditionNotBefore(String string){
-		lblConditionNotBefore.setText(string);
+		conditionNotBefore.setText(string);
 	}
 	
 	public void setConditionNotAfter(String string){
-		lblConditionNotAfter.setText(string);
+		conditionNotAfter.setText(string);
 	}
 	
 	public void setSubjectConfNotBefore(String string){
-		lblSubjectConfNotBefore.setText(string);
+		subjectConfNotBefore.setText(string);
 	}
 
 	public void setSubjectConfNotAfter(String string){
-		lblSubjectConfNotAfter.setText(string);
+		subjectConfNotAfter.setText(string);
 	}
 	
 	public void setSignatureAlgorithm(String string){
-		lblSignatureAlgorithm.setText(string);
+		signatureAlgorithm.setText(string);
 	}
 	
 	public void setDigestAlgorithm(String string){
-		lblDigestAlgorithm.setText(string);
+		digestAlgorithm.setText(string);
 	}
 	
 	public void setEncryptionAlgorithm(String string){
-		lblEncryption.setText(string);
+		encryptedWith.setText(string);
 	}
 
 	public void clearAll(){
