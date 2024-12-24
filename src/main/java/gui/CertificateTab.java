@@ -1,6 +1,7 @@
 package gui;
 
 import application.CertificateTabController;
+import com.formdev.flatlaf.ui.FlatTreeUI;
 import model.BurpCertificate;
 import model.BurpCertificateBuilder;
 import model.ObjectIdentifier;
@@ -146,6 +147,7 @@ public class CertificateTab extends JPanel {
 
         certificateTreeModel = new DefaultTreeModel(new DefaultMutableTreeNode("root"));
         certificateTree = new JTree(certificateTreeModel);
+        certificateTree.setUI(new FlatTreeUI());
         certificateTree.setRootVisible(false);
         certificateTree.setShowsRootHandles(true);
         certificateTree.setCellRenderer((tree, value, selected, expanded, leaf, row, hasFocus) -> {
