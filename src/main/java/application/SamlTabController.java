@@ -337,9 +337,7 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
     }
 
     public void resetMessage() {
-        if (isRawMode) {
-            samlMessage = orgSAMLMessage;
-        }
+        samlMessage = orgSAMLMessage;
         textArea.setContents(ByteArray.byteArray(samlMessage));
         isEdited = false;
     }
@@ -428,15 +426,15 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
     }
 
     private void setInfoMessageText(String infoMessage) {
-        samlGUI.getActionPanel().getInfoMessageLabel().setText(infoMessage);
+        samlGUI.getActionPanel().getStatusMessageLabel().setText(infoMessage);
     }
 
     public String getInfoMessageText() {
-        return samlGUI.getActionPanel().getInfoMessageLabel().getText();
+        return samlGUI.getActionPanel().getStatusMessageLabel().getText();
     }
 
     private void resetInfoMessageText() {
-        samlGUI.getActionPanel().getInfoMessageLabel().setText("");
+        samlGUI.getActionPanel().getStatusMessageLabel().setText("");
     }
 
     private void updateCertificateList() {
@@ -594,12 +592,14 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
     }
 
     public void showSignatureHelp() {
-        SignatureHelpWindow window = new SignatureHelpWindow();
+        var window = new SignatureHelpWindow();
+        window.setLocationRelativeTo(BurpExtender.api.userInterface().swingUtils().suiteFrame());
         window.setVisible(true);
     }
 
     public void showXSWHelp() {
         XSWHelpWindow window = new XSWHelpWindow();
+        window.setLocationRelativeTo(BurpExtender.api.userInterface().swingUtils().suiteFrame());
         window.setVisible(true);
     }
 

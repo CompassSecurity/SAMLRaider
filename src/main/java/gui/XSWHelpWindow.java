@@ -1,54 +1,44 @@
 package gui;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.border.EmptyBorder;
+import javax.swing.*;
+import java.awt.*;
+import java.io.Serial;
 
 public class XSWHelpWindow extends JFrame {
 
-	private static final long serialVersionUID = 1L;
-	private JPanel contentPane;
+    @Serial
+    private static final long serialVersionUID = 1L;
 
-	public XSWHelpWindow() {
-		setTitle("XML Signature Wrapping Help");
-		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 600, 400);
-		setMinimumSize(new Dimension(600, 400));
-		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-		setContentPane(contentPane);
-		contentPane.setLayout(new BorderLayout(0, 0));
+    public XSWHelpWindow() {
 
-		JLabel lblDescription = new JLabel("<html>With xml wrapping attacks you try to trick the xml signature validator into validating an "
-				+ "signature of an element while evaluating an other element. The XSWs in the image are supported." + "<br/>The blue element represents the signature."
-				+ "<br/>The green one represents the original element, which is correctly signed. "
-				+ "<br/>The red one represents the falsly evaluated element, if the validating is not correctly implemented."
-				+ "<br/>Mind that the first two XSWs can be used for signed responses only whereas the other ones can be used for signed assertions only."
-				+ "<br/> These XSW are taken from this paper: <br/> Somorovsky, Juraj, et al. \"On Breaking SAML: Be Whoever You Want to Be.\" USENIX Security Symposium. 2012."
-				+ "<br/> Please check out this paper for further information." + "</html>");
-		lblDescription.putClientProperty("html.disable", null);
-		contentPane.add(lblDescription, BorderLayout.NORTH);
+        var imageURL = this.getClass().getClassLoader().getResource("xswlist.png");
 
-		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-		contentPane.add(scrollPane, BorderLayout.CENTER);
+        var text = """
+                <p>With xml wrapping attacks you try to trick the xml signature validator into validating an signature
+                of an element while evaluating an other element. The XSWs in the image are supported.
+                The blue element represents the signature. The green one represents the original element, which is
+                correctly signed. The red one represents the falsly evaluated element, if the validating is not
+                correctly implemented. Mind that the first two XSWs can be used for signed responses only whereas
+                the other ones can be used for signed assertions only. These XSW are taken from this paper:
+                Somorovsky, Juraj, et al. "On Breaking SAML: Be Whoever You Want to Be." USENIX Security Symposium.
+                2012. Please check out this paper for further information.</p>
+                <p><img src="%s" alt="xswlist.png" width="1160"/></p>
+                """;
 
-		ImagePanel panel;
-		String className = getClass().getName().replace('.', '/');
-		String classJar = getClass().getResource("/" + className + ".class").toString();
-		if (classJar.startsWith("jar:")) {
-			panel = new ImagePanel("xswlist.png");
-		} else {
-			panel = new ImagePanel("src/main/resources/xswlist.png");
-		}
+        text = text.formatted(imageURL);
 
-		scrollPane.setViewportView(panel);
-	}
+        var textPane = new JTextPane();
+        textPane.setContentType("text/html");
+        textPane.setEditable(false);
+        textPane.setCaret(null);
+        textPane.setText(text);
+
+        var scrollPane = new JScrollPane(textPane);
+
+        setTitle("XML Signature Wrapping Help");
+        setSize(1200, 720);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setLayout(new BorderLayout());
+        add(scrollPane, BorderLayout.CENTER);
+    }
 }
