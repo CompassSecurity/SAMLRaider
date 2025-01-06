@@ -1,4 +1,5 @@
 [versions]
+com-formdev-flatlaf = "3.5.2"
 com-google-guava = "33.2.1-jre"
 com-miglayout = "3.7.4"
 com-sun-xml-security-xml-security-impl = "1.0"
@@ -9,6 +10,7 @@ org-junit-jupiter = "5.10.2"
 xerces-xercesimpl = "2.12.2"
 
 [libraries]
+com-formdev-flatlaf = { module = "com.formdev:flatlaf", version.ref = "com-formdev-flatlaf"}
 com-google-guava = { module = "com.google.guava:guava", version.ref = "com-google-guava"}
 com-miglayout =  { module = "com.miglayout:miglayout", version.ref = "com-miglayout" }
 com-sun-xml-security-xml-security-impl = { module = "com.sun.xml.security:xml-security-impl", version.ref = "com-sun-xml-security-xml-security-impl" }
