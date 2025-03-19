@@ -22,6 +22,10 @@ public class SamlMessageEncoder {
             }
         }
 
+        if(message == null) {
+            message = "";
+        }
+
         byte[] byteMessage = message.getBytes(StandardCharsets.UTF_8);
 
         if (isInflated) {
