@@ -607,4 +607,12 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
     public void update(Observable arg0, Object arg1) {
         updateCertificateList();
     }
+
+    public String getEditorContents() {
+        return this.textArea.getContents().toString();
+    }
+
+    public void setEditorContents(String text) {
+       this.textArea.setContents(ByteArray.byteArray(text));
+    }
 }
