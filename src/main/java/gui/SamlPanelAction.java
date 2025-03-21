@@ -1,11 +1,6 @@
 package gui;
 
 import application.SamlTabController;
-import model.BurpCertificate;
-import net.miginfocom.swing.MigLayout;
-
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -13,6 +8,10 @@ import java.io.Serial;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import model.BurpCertificate;
+import net.miginfocom.swing.MigLayout;
 
 public class SamlPanelAction extends JPanel {
 
@@ -22,7 +21,6 @@ public class SamlPanelAction extends JPanel {
     private SamlTabController controller;
 
     private final JButton btnMessageReset = new JButton("Reset Message");
-    private final JCheckBox chkRawMode = new JCheckBox("Raw Mode (don't parse XML before sending)");
 
     private final JButton btnXSWHelp = new JButton("Help");
     private final JComboBox<String> cmbboxXSW = new JComboBox<>();
@@ -57,13 +55,11 @@ public class SamlPanelAction extends JPanel {
             lblStatusMessage.setText("");
         });
 
-        chkRawMode.addActionListener(event -> controller.setRawMode(chkRawMode.isSelected()));
 
         var samlMessagePanel = new JPanel();
         samlMessagePanel.setBorder(BorderFactory.createTitledBorder("SAML Message"));
         samlMessagePanel.setLayout(new MigLayout());
         samlMessagePanel.add(btnMessageReset, "wrap");
-        samlMessagePanel.add(chkRawMode, "wrap");
 
         btnXSWHelp.addActionListener(event -> controller.showXSWHelp());
 
@@ -165,14 +161,6 @@ public class SamlPanelAction extends JPanel {
         return (String) cmbboxXSW.getSelectedItem();
     }
 
-    public boolean isRawModeEnabled() {
-        return chkRawMode.isSelected();
-    }
-
-    public void setRawModeEnabled(boolean rawModeEnabled) {
-        chkRawMode.setSelected(rawModeEnabled);
-    }
-
     public void disableControls() {
         cmbboxCertificate.setEnabled(false);
         cmbboxXSW.setEnabled(false);
@@ -188,7 +176,6 @@ public class SamlPanelAction extends JPanel {
         btnMatchAndReplace.setEnabled(false);
         btnTestXXE.setEnabled(false);
         btnTestXSLT.setEnabled(false);
-        chkRawMode.setEnabled(false);
         this.revalidate();
     }
 
@@ -207,7 +194,6 @@ public class SamlPanelAction extends JPanel {
         btnMatchAndReplace.setEnabled(true);
         btnTestXXE.setEnabled(true);
         btnTestXSLT.setEnabled(true);
-        chkRawMode.setEnabled(true);
         this.revalidate();
     }
 
