@@ -6,7 +6,7 @@ import java.util.Base64;
 import java.util.zip.DataFormatException;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 public class HTTPHelpersTest {
@@ -27,6 +27,20 @@ public class HTTPHelpersTest {
         String result = Base64.getEncoder().encodeToString(valueCompressed);
         result = result.replaceAll("\\r?\\n", "");
         assertEquals(compressed, result);
+    }
+
+    @Test
+    public void testEmptyInflate() {
+        assertThrows(DataFormatException.class, () -> {
+            helpers.decompress(new byte[]{}, true);
+        });
+    }
+    @Test
+    public void testEmptyDeflate() {
+        byte[] emptyInput = new byte[0];
+        byte[] compressed = helpers.compress(emptyInput, true);
+        assertNotNull(compressed, "Compressed output should not be null");
+        assertEquals(0, compressed.length, "Compressed output of empty input should be empty");
     }
 
 }

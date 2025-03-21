@@ -13,6 +13,9 @@ public class HTTPHelpers {
      * <a href="http://qupera.blogspot.ch/2013/02/howto-compress-and-uncompress-java-byte.html">Source</a>
      */
     public byte[] decompress(byte[] data, boolean gzip) throws DataFormatException {
+        if (data == null || data.length == 0) {
+            throw new DataFormatException("Cannot decompress empty input.");
+        }
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream(data.length)) {
             Inflater inflater = new Inflater(gzip);
             inflater.setInput(data);
@@ -33,6 +36,9 @@ public class HTTPHelpers {
      * <a href="http://qupera.blogspot.ch/2013/02/howto-compress-and-uncompress-java-byte.html">Source</a>
      */
     public byte[] compress(byte[] data, boolean gzip) {
+        if (data == null || data.length == 0) {
+            return new byte[0];
+        }
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream(data.length)) {
             Deflater deflater = new Deflater(5, gzip);
             deflater.setInput(data);
