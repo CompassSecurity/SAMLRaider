@@ -55,7 +55,7 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
     public static final String XML_NOT_SUITABLE_FOR_XSLT = "This XML Message is not suitable for this particular XSLT attack";
     public static final String XML_COULD_NOT_SIGN = "Could not sign XML";
     public static final String XML_COULD_NOT_SERIALIZE = "Could not serialize XML";
-    public static final String XML_NOT_WELL_FORMED = "XML isn't well formed or binding is not supported";
+    public static final String XML_NOT_WELL_FORMED = "XML isn't well formed or binding is not supported. Request was still sent.";
     public static final String XML_NOT_SUITABLE_FOR_XSW = "This XML Message is not suitable for this particular XSW, is there a signature?";
     public static final String NO_BROWSER = "Could not open diff in Browser. Path to file was copied to clipboard";
     public static final String NO_DIFF_TEMP_FILE = "Could not create diff temp file.";
@@ -72,7 +72,6 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
     private boolean editable;
     private XSWHelpers xswHelpers;
     private boolean isEdited = false;
-    private boolean isRawMode = false;
 
     public SamlTabController(boolean editable, CertificateTabController certificateTabController) {
         this.certificateTabController = requireNonNull(certificateTabController, "certificateTabController");
@@ -120,19 +119,20 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
                     setInfoMessageText(XML_NOT_WELL_FORMED);
                 }
             } else {
-                String textMessage = null;
+                String textMessage;
 
-                if (isRawMode) {
+                try {
+                    textMessage =
+                            xmlHelpers.getStringOfDocument(
+                                    xmlHelpers.getXMLDocumentOfSAMLMessage(textArea.getContents().toString()),
+                                    0,
+                                    true);
+                } catch (IOException e) {
+                    setInfoMessageText(XML_COULD_NOT_SERIALIZE);
                     textMessage = textArea.getContents().toString();
-                } else {
-                    try {
-                        textMessage = xmlHelpers
-                                .getStringOfDocument(xmlHelpers.getXMLDocumentOfSAMLMessage(textArea.getContents().toString()), 0, true);
-                    } catch (IOException e) {
-                        setInfoMessageText(XML_COULD_NOT_SERIALIZE);
-                    } catch (SAXException e) {
-                        setInfoMessageText(XML_NOT_WELL_FORMED);
-                    }
+                } catch (SAXException e) {
+                    setInfoMessageText(XML_NOT_WELL_FORMED);
+                    textMessage = textArea.getContents().toString();
                 }
 
                 String parameterToUpdate;
@@ -324,7 +324,6 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
                 samlMessage = xmlHelpers.getStringOfDocument(document, 2, true);
                 textArea.setContents(ByteArray.byteArray(samlMessage));
                 isEdited = true;
-                setRawMode(false);
                 setInfoMessageText("Message signature successful removed");
             } else {
                 setInfoMessageText("No Signatures available to remove");
@@ -340,12 +339,6 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
         samlMessage = orgSAMLMessage;
         textArea.setContents(ByteArray.byteArray(samlMessage));
         isEdited = false;
-    }
-
-    public void setRawMode(boolean rawModeEnabled) {
-        isRawMode = rawModeEnabled;
-        isEdited = true;
-        samlGUI.getActionPanel().setRawModeEnabled(rawModeEnabled);
     }
 
     public void resignAssertion() {
@@ -368,7 +361,6 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
                 samlMessage = xmlHelpers.getStringOfDocument(doc, 2, true);
                 textArea.setContents(ByteArray.byteArray(samlMessage));
                 isEdited = true;
-                setRawMode(false);
                 setInfoMessageText("Assertions successfully signed");
             } else {
                 setInfoMessageText("no certificate chosen to sign");
@@ -402,7 +394,6 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
                     samlMessage = xmlHelpers.getStringOfDocument(document, 2, true);
                     textArea.setContents(ByteArray.byteArray(samlMessage));
                     isEdited = true;
-                    setRawMode(false);
                     setInfoMessageText("Message successfully signed");
                 } else {
                     setInfoMessageText("no certificate chosen to sign");
@@ -507,7 +498,6 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
             samlMessage = xmlHelpers.getStringOfDocument(document, 2, true);
             textArea.setContents(ByteArray.byteArray(samlMessage));
             isEdited = true;
-            setRawMode(false);
             setInfoMessageText(XSW_ATTACK_APPLIED);
         } catch (SAXException e) {
             setInfoMessageText(XML_NOT_WELL_FORMED);
@@ -529,7 +519,6 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
         }
         textArea.setContents(ByteArray.byteArray(samlMessage));
         isEdited = true;
-        setRawMode(true);
         setInfoMessageText(XXE_CONTENT_APPLIED);
     }
 
@@ -571,7 +560,6 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
         samlMessage = firstPart + xslt + secondPart;
         textArea.setContents(ByteArray.byteArray(samlMessage));
         isEdited = true;
-        setRawMode(true);
         setInfoMessageText(XSLT_CONTENT_APPLIED);
     }
 
@@ -613,6 +601,6 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
     }
 
     public void setEditorContents(String text) {
-       this.textArea.setContents(ByteArray.byteArray(text));
+        this.textArea.setContents(ByteArray.byteArray(text));
     }
 }

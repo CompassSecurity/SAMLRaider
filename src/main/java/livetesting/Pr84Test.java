@@ -39,7 +39,6 @@ public class Pr84Test {
             var request = HttpRequest.httpRequest(rawRequest);
             var requestResponse = HttpRequestResponse.httpRequestResponse(request, null);
             samlTabController.setRequestResponse(requestResponse);
-            samlTabController.setRawMode(false);
             samlTabController.setEditorContents("invalidXmlString" + samlTabController.getEditorContents());
             samlTabController.getRequest();
         } catch (NullPointerException exc) {
