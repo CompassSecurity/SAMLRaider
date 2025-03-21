@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 
 public class HTTPHelpersTest {
+
     HTTPHelpers helpers = new HTTPHelpers();
 
     String compressed = "fVLLasMwEPwVo3siWXb8EI6hNJdAemlCDr0UPdaNwZaEV4J+fh2H0gRKTmJ3NLOzIzUox8GLg/tyMbwDemcRku9xsCgWaEviZIWT2KOwcgQUQYvjy9tB8DUTfnLBaTeQO8pzhkSEKfTOkmS/25LPQmpV6jwtOYNu0zGmc53xrmBpoVVWm7JLNatlVVUkOcOEM3NLZqGZjhhhbzFIG+YWSzcrVq7S+pRmIssF4x8k2QGG3sqwsC4heEHp1WOEAT3FfvQDXGs6OhMHWPuLX3CKt5OvhiWZBTDQyTiEFfp5uP0N6+TmLWpeVEqV3DCjeJ5DV9baZGxub8CAUgagLE2t6oq0zVVYLO6n9tFTb3xD7+Hm9jzHIEPEx+rVGUjOcqY9DxyX2+IYtQZEQtvbhD9R+t8XaH8A";
@@ -30,11 +31,13 @@ public class HTTPHelpersTest {
     }
 
     @Test
-    public void testEmptyInflate() {
-        assertThrows(DataFormatException.class, () -> {
-            helpers.decompress(new byte[]{}, true);
-        });
+    public void testEmptyInflate() throws Exception {
+        byte[] emptyInput = new byte[0];
+        byte[] decompressed = helpers.decompress(emptyInput, true);
+        assertNotNull(decompressed, "Decompressed output should not be null");
+        assertEquals(0, decompressed.length, "Deompressed output of empty input should be empty");
     }
+
     @Test
     public void testEmptyDeflate() {
         byte[] emptyInput = new byte[0];

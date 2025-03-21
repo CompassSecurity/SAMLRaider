@@ -14,7 +14,7 @@ public class HTTPHelpers {
      */
     public byte[] decompress(byte[] data, boolean gzip) throws DataFormatException {
         if (data == null || data.length == 0) {
-            throw new DataFormatException("Cannot decompress empty input.");
+            return new byte[0];
         }
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream(data.length)) {
             Inflater inflater = new Inflater(gzip);
