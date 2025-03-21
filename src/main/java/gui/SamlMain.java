@@ -4,10 +4,13 @@ import application.SamlTabController;
 import burp.BurpExtender;
 import burp.api.montoya.core.ByteArray;
 import burp.api.montoya.ui.editor.RawEditor;
-
-import javax.swing.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 import javax.swing.border.EmptyBorder;
-import java.awt.*;
 
 import static java.util.Objects.requireNonNull;
 
@@ -19,6 +22,7 @@ public class SamlMain extends JPanel {
     private RawEditor textEditorInformation;
     private SamlPanelAction panelAction;
     private SamlPanelInfo panelInformation;
+    private SamlPanelStatus panelStatus;
 
     public SamlMain(SamlTabController controller) {
         this.controller = requireNonNull(controller, "controller");
@@ -28,57 +32,60 @@ public class SamlMain extends JPanel {
     private void initializeUI() {
         panelAction = new SamlPanelAction(controller);
 
-        JPanel panelActionTop = new JPanel();
-        panelActionTop.setLayout(new BorderLayout());
-        panelActionTop.setPreferredSize(new Dimension(0, 460));
-        panelActionTop.add(panelAction);
+        JPanel splitPaneActionTop = new JPanel();
+        splitPaneActionTop.setLayout(new BorderLayout());
+        splitPaneActionTop.setPreferredSize(new Dimension(0, 460));
+        splitPaneActionTop.add(panelAction);
 
         textEditorAction = BurpExtender.api.userInterface().createRawEditor();
         textEditorAction.setContents(ByteArray.byteArray("<SAMLRaiderFailureInInitialization></SAMLRaiderFailureInInitialization>"));
         textEditorAction.setEditable(false);
 
-        JPanel panelActionBottom = new JPanel();
-        panelActionBottom.setLayout(new BorderLayout());
-        panelActionBottom.setPreferredSize(new Dimension(0, 100));
-        panelActionBottom.add(textEditorAction.uiComponent(), BorderLayout.CENTER);
+        JPanel splitPaneActionBottom = new JPanel();
+        splitPaneActionBottom.setLayout(new BorderLayout());
+        splitPaneActionBottom.setPreferredSize(new Dimension(0, 100));
+        splitPaneActionBottom.add(textEditorAction.uiComponent(), BorderLayout.CENTER);
 
         JSplitPane splitPaneAction = new JSplitPane();
         splitPaneAction.setOrientation(JSplitPane.VERTICAL_SPLIT);
-        splitPaneAction.setLeftComponent(panelActionTop);
-        splitPaneAction.setRightComponent(panelActionBottom);
+        splitPaneAction.setLeftComponent(splitPaneActionTop);
+        splitPaneAction.setRightComponent(splitPaneActionBottom);
         splitPaneAction.resetToPreferredSizes();
 
         panelInformation = new SamlPanelInfo();
 
-        JPanel panelInformationTop = new JPanel();
-        panelInformationTop.setLayout(new BorderLayout());
-        panelInformationTop.setPreferredSize(new Dimension(0, 375));
-        panelInformationTop.add(panelInformation);
+        JPanel splitPaneInformationTop = new JPanel();
+        splitPaneInformationTop.setLayout(new BorderLayout());
+        splitPaneInformationTop.setPreferredSize(new Dimension(0, 375));
+        splitPaneInformationTop.add(panelInformation);
 
         textEditorInformation = BurpExtender.api.userInterface().createRawEditor();
         textEditorInformation.setContents(ByteArray.byteArray(""));
 
-        var panelInformationBottomLabel = new JLabel("Parsed & Prettified");
-        panelInformationBottomLabel.setBorder(new EmptyBorder(5, 5, 5, 5));
+        var splitPaneInformationButtomLabel = new JLabel("Parsed & Prettified");
+        splitPaneInformationButtomLabel.setBorder(new EmptyBorder(5, 5, 5, 5));
 
-        JPanel panelInformationBottom = new JPanel();
-        panelInformationBottom.setLayout(new BorderLayout());
-        panelInformationBottom.setPreferredSize(new Dimension(0, 100));
-        panelInformationBottom.add(panelInformationBottomLabel, BorderLayout.NORTH);
-        panelInformationBottom.add(textEditorInformation.uiComponent(), BorderLayout.CENTER);
+        JPanel splitPaneInformationBottom = new JPanel();
+        splitPaneInformationBottom.setLayout(new BorderLayout());
+        splitPaneInformationBottom.setPreferredSize(new Dimension(0, 100));
+        splitPaneInformationBottom.add(splitPaneInformationButtomLabel, BorderLayout.NORTH);
+        splitPaneInformationBottom.add(textEditorInformation.uiComponent(), BorderLayout.CENTER);
 
         JSplitPane splitPaneInformation = new JSplitPane();
         splitPaneInformation.setOrientation(JSplitPane.VERTICAL_SPLIT);
-        splitPaneInformation.setLeftComponent((panelInformationTop));
-        splitPaneInformation.setRightComponent(panelInformationBottom);
+        splitPaneInformation.setLeftComponent((splitPaneInformationTop));
+        splitPaneInformation.setRightComponent(splitPaneInformationBottom);
         splitPaneInformation.resetToPreferredSizes();
 
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.addTab("SAML Attacks", null, splitPaneAction, "SAML Attacks");
         tabbedPane.addTab("SAML Message Info", null, splitPaneInformation, "SAML Message Info");
 
+        panelStatus = new SamlPanelStatus();
+
         setLayout(new BorderLayout());
-        add(tabbedPane);
+        add(tabbedPane, BorderLayout.CENTER);
+        add(panelStatus, BorderLayout.SOUTH);
 
         invalidate();
         updateUI();
@@ -98,6 +105,10 @@ public class SamlMain extends JPanel {
 
     public SamlPanelInfo getInfoPanel() {
         return panelInformation;
+    }
+
+    public SamlPanelStatus getStatusPanel() {
+        return panelStatus;
     }
 
 }

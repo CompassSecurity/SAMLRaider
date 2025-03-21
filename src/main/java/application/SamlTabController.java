@@ -338,6 +338,7 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
     public void resetMessage() {
         samlMessage = orgSAMLMessage;
         textArea.setContents(ByteArray.byteArray(samlMessage));
+        samlGUI.getStatusPanel().setText("");
         isEdited = false;
     }
 
@@ -417,15 +418,15 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
     }
 
     private void setInfoMessageText(String infoMessage) {
-        samlGUI.getActionPanel().getStatusMessageLabel().setText(infoMessage);
+        samlGUI.getStatusPanel().setText(infoMessage);
     }
 
     public String getInfoMessageText() {
-        return samlGUI.getActionPanel().getStatusMessageLabel().getText();
+        return samlGUI.getStatusPanel().getText();
     }
 
     private void resetInfoMessageText() {
-        samlGUI.getActionPanel().getStatusMessageLabel().setText("");
+        samlGUI.getStatusPanel().setText("");
     }
 
     private void updateCertificateList() {

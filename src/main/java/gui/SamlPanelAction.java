@@ -1,7 +1,10 @@
 package gui;
 
 import application.SamlTabController;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.Serial;
@@ -38,7 +41,6 @@ public class SamlPanelAction extends JPanel {
     private final JButton btnSendCertificate = new JButton("Send Certificate to SAML Raider Certificates");
     private final JButton btnResignMessage = new JButton("(Re-)Sign Message");
 
-    private final JLabel lblStatusMessage = new JLabel("");
 
     public SamlPanelAction() {
         initialize();
@@ -52,9 +54,7 @@ public class SamlPanelAction extends JPanel {
     private void initialize() {
         btnMessageReset.addActionListener(event -> {
             controller.resetMessage();
-            lblStatusMessage.setText("");
         });
-
 
         var samlMessagePanel = new JPanel();
         samlMessagePanel.setBorder(BorderFactory.createTitledBorder("SAML Message"));
@@ -112,13 +112,6 @@ public class SamlPanelAction extends JPanel {
         signatureAttacksPanel.add(btnResignAssertion);
         signatureAttacksPanel.add(btnResignMessage, "wrap");
 
-        lblStatusMessage.setForeground(new Color(255, 140, 0));
-
-        var statusMessagePanel = new JPanel();
-        statusMessagePanel.setBorder(BorderFactory.createTitledBorder("Status Message"));
-        statusMessagePanel.setLayout(new MigLayout());
-        statusMessagePanel.add(lblStatusMessage, "width 300::, height 20::");
-
         var actionPanels = new JPanel();
         var actionPanelConstraints = "wrap";
         actionPanels.setLayout(new MigLayout());
@@ -126,17 +119,12 @@ public class SamlPanelAction extends JPanel {
         actionPanels.add(xswAttacksPanel, actionPanelConstraints);
         actionPanels.add(xmlAttacksPanel, actionPanelConstraints);
         actionPanels.add(signatureAttacksPanel, actionPanelConstraints);
-        actionPanels.add(statusMessagePanel, actionPanelConstraints);
 
         var scrollPane = new JScrollPane(actionPanels);
         scrollPane.setBorder(new EmptyBorder(0, 0, 0, 0));
 
         setLayout(new BorderLayout());
         add(scrollPane, BorderLayout.CENTER);
-    }
-
-    public JLabel getStatusMessageLabel() {
-        return lblStatusMessage;
     }
 
     public void setCertificateList(List<BurpCertificate> list) {
