@@ -16,9 +16,14 @@ import gui.SignatureHelpWindow;
 import gui.XSWHelpWindow;
 import helpers.XMLHelpers;
 import helpers.XSWHelpers;
-import java.awt.Component;
-import java.awt.Desktop;
-import java.awt.Toolkit;
+import model.BurpCertificate;
+import org.w3c.dom.*;
+import org.xml.sax.SAXException;
+
+import javax.xml.crypto.MarshalException;
+import javax.xml.crypto.dsig.XMLSignatureException;
+import javax.xml.parsers.ParserConfigurationException;
+import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.io.File;
@@ -36,12 +41,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
-import javax.xml.crypto.MarshalException;
-import javax.xml.crypto.dsig.XMLSignatureException;
-import javax.xml.parsers.ParserConfigurationException;
-import model.BurpCertificate;
-import org.w3c.dom.*;
-import org.xml.sax.SAXException;
 
 import static java.util.Objects.requireNonNull;
 
@@ -55,7 +54,7 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
     public static final String XML_NOT_SUITABLE_FOR_XSLT = "This XML Message is not suitable for this particular XSLT attack";
     public static final String XML_COULD_NOT_SIGN = "Could not sign XML";
     public static final String XML_COULD_NOT_SERIALIZE = "Could not serialize XML";
-    public static final String XML_NOT_WELL_FORMED = "XML isn't well formed or binding is not supported. Request was still sent.";
+    public static final String XML_NOT_WELL_FORMED = "XML isn't well formed or binding is not supported.";
     public static final String XML_NOT_SUITABLE_FOR_XSW = "This XML Message is not suitable for this particular XSW, is there a signature?";
     public static final String NO_BROWSER = "Could not open diff in Browser. Path to file was copied to clipboard";
     public static final String NO_DIFF_TEMP_FILE = "Could not create diff temp file.";
@@ -119,31 +118,15 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
                     setInfoMessageText(XML_NOT_WELL_FORMED);
                 }
             } else {
-                String textMessage;
-
-                try {
-                    textMessage =
-                            xmlHelpers.getStringOfDocument(
-                                    xmlHelpers.getXMLDocumentOfSAMLMessage(textArea.getContents().toString()),
-                                    0,
-                                    true);
-                } catch (IOException e) {
-                    setInfoMessageText(XML_COULD_NOT_SERIALIZE);
-                    textMessage = textArea.getContents().toString();
-                } catch (SAXException e) {
-                    setInfoMessageText(XML_NOT_WELL_FORMED);
-                    textMessage = textArea.getContents().toString();
-                }
+                String textMessage = textArea.getContents().toString();
 
                 String parameterToUpdate;
-                if (this.samlMessageAnalysisResult.isSAMLRequest()) {
+                if (this.samlMessageAnalysisResult.isWSSMessage()) {
+                    parameterToUpdate = "wresult";
+                } else if (this.samlMessageAnalysisResult.isSAMLRequest()) {
                     parameterToUpdate = certificateTabController.getSamlRequestParameterName();
                 } else {
                     parameterToUpdate = certificateTabController.getSamlResponseParameterName();
-                }
-
-                if (this.samlMessageAnalysisResult.isWSSMessage()) {
-                    parameterToUpdate = "wresult";
                 }
 
                 HttpParameterType parameterType;
