@@ -149,7 +149,7 @@ SAML Raider is on the Internet :).
 
 ### Other
 
-- SANS Burp Suite Cheat Sheet recommends SAML Raider: https://www.sans.org/security-resources/posters/pen-testing/burp-suite-cheat-sheet-280?msc=Cheat+Sheet+Blog
+- SANS Burp Suite Cheat Sheet recommends SAML Raider: https://www.sans.org/posters/burp-suite-cheat-sheet/
 
 ## Authors
 
