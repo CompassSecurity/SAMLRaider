@@ -465,6 +465,7 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
             Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(orgSAMLMessage);
             xswHelpers.applyXSW(samlGUI.getActionPanel().getSelectedXSW(), document);
             String after = xmlHelpers.getStringOfDocument(document, 2, true);
+            after = xswHelpers.applyDOCTYPE(after);
             String diff = xswHelpers.diffLineMode(orgSAMLMessage, after);
 
             File file = File.createTempFile("tmp", ".html", null);
@@ -504,7 +505,10 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
         try {
             document = xmlHelpers.getXMLDocumentOfSAMLMessage(orgSAMLMessage);
             xswHelpers.applyXSW(samlGUI.getActionPanel().getSelectedXSW(), document);
-            samlMessage = xmlHelpers.getStringOfDocument(document, 2, true);
+//            Ruby requires 0 indent, planning to move it to the settings later
+//            String after = xmlHelpers.getStringOfDocument(document, 2, true);
+            String after = xmlHelpers.getString(document);
+            samlMessage = xswHelpers.applyDOCTYPE(after);
             textArea.setContents(ByteArray.byteArray(samlMessage));
             isEdited = true;
             setRawMode(false);
