@@ -82,14 +82,14 @@ public class XMLHelpers {
      * @throws IOException If an error in serialization occurred
      */
     public String getString(Document document) throws IOException {
-        return getString(document, false, 0);
+        return getString(document, 0);
     }
 
 
-    public String getString(Document document, boolean indenting, int indent) throws IOException {
+    public String getString(Document document, int indent) throws IOException {
         OutputFormat format = new OutputFormat(document);
         format.setLineWidth(200);
-        format.setIndenting(indenting);
+        format.setIndenting(indent > 0);
         format.setIndent(indent);
         format.setPreserveEmptyAttributes(true);
         format.setEncoding("UTF-8");
@@ -108,14 +108,13 @@ public class XMLHelpers {
      *
      * @param document   document which should be converted to a string
      * @param indent     amount of indent
-     * @param linebreaks if line breaks should be inserted
      * @return string of document, pretty or linearized
      * @throws IOException if an Serializer error occures
      */
-    public String getStringOfDocument(Document document, int indent, boolean linebreaks) throws IOException {
+    public String getStringOfDocument(Document document, int indent) throws IOException {
         document.normalize();
         removeEmptyTags(document);
-        return getString(document, linebreaks, indent);
+        return getString(document, indent);
     }
 
     /**

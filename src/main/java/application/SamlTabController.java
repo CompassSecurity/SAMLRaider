@@ -207,7 +207,7 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
                     String soapMessage = requestResponse.response().bodyToString();
                     Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(soapMessage);
                     Document documentSAML = xmlHelpers.getSAMLResponseOfSOAP(document);
-                    samlMessage = xmlHelpers.getStringOfDocument(documentSAML, 0, false);
+                    samlMessage = xmlHelpers.getStringOfDocument(documentSAML, 0);
                 } else if (this.samlMessageAnalysisResult.isWSSMessage()) {
                     var parameterValue = requestResponse.request().parameterValue("wresult", HttpParameterType.BODY);
                     var decodedSAMLMessage =
@@ -264,7 +264,7 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
 
         try {
             Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(samlMessage);
-            textEditorInformation.setContents(ByteArray.byteArray(xmlHelpers.getStringOfDocument(xmlHelpers.getXMLDocumentOfSAMLMessage(samlMessage), 2, true).getBytes()));
+            textEditorInformation.setContents(ByteArray.byteArray(xmlHelpers.getStringOfDocument(xmlHelpers.getXMLDocumentOfSAMLMessage(samlMessage), 2).getBytes()));
             NodeList assertions = xmlHelpers.getAssertions(document);
             if (assertions.getLength() > 0) {
                 Node assertion = assertions.item(0);
@@ -304,7 +304,7 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
         try {
             Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(textArea.getContents().toString());
             if (xmlHelpers.removeAllSignatures(document) > 0) {
-                samlMessage = xmlHelpers.getStringOfDocument(document, 2, true);
+                samlMessage = xmlHelpers.getStringOfDocument(document, 2);
                 textArea.setContents(ByteArray.byteArray(samlMessage));
                 isEdited = true;
                 setInfoMessageText("Message signature successful removed");
@@ -340,9 +340,8 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
                 String string = xmlHelpers.getString(document);
                 Document doc = xmlHelpers.getXMLDocumentOfSAMLMessage(string);
                 xmlHelpers.removeEmptyTags(doc);
-                xmlHelpers.signAssertion(doc, signAlgorithm, digestAlgorithm, cert.getCertificate(),
-                        cert.getPrivateKey());
-                samlMessage = xmlHelpers.getStringOfDocument(doc, 2, true);
+                xmlHelpers.signAssertion(doc, signAlgorithm, digestAlgorithm, cert.getCertificate(), cert.getPrivateKey());
+                samlMessage = xmlHelpers.getStringOfDocument(doc, 2);
                 textArea.setContents(ByteArray.byteArray(samlMessage));
                 isEdited = true;
                 setInfoMessageText("Assertions successfully signed");
@@ -375,7 +374,7 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
                     xmlHelpers.removeOnlyMessageSignature(document);
                     xmlHelpers.signMessage(document, signAlgorithm, digestAlgorithm, cert.getCertificate(),
                             cert.getPrivateKey());
-                    samlMessage = xmlHelpers.getStringOfDocument(document, 2, true);
+                    samlMessage = xmlHelpers.getStringOfDocument(document, 2);
                     textArea.setContents(ByteArray.byteArray(samlMessage));
                     isEdited = true;
                     setInfoMessageText("Message successfully signed");
@@ -439,7 +438,7 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
         try {
             Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(orgSAMLMessage);
             xswHelpers.applyXSW(samlGUI.getActionPanel().getSelectedXSW(), document);
-            String after = xmlHelpers.getStringOfDocument(document, 2, true);
+            String after = xmlHelpers.getStringOfDocument(document, 2);
             String diff = xswHelpers.diffLineMode(orgSAMLMessage, after);
 
             File file = File.createTempFile("tmp", ".html", null);
@@ -479,7 +478,7 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
         try {
             document = xmlHelpers.getXMLDocumentOfSAMLMessage(orgSAMLMessage);
             xswHelpers.applyXSW(samlGUI.getActionPanel().getSelectedXSW(), document);
-            samlMessage = xmlHelpers.getStringOfDocument(document, 2, true);
+            samlMessage = xmlHelpers.getStringOfDocument(document, 2);
             textArea.setContents(ByteArray.byteArray(samlMessage));
             isEdited = true;
             setInfoMessageText(XSW_ATTACK_APPLIED);
