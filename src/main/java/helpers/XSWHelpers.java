@@ -179,7 +179,7 @@ public class XSWHelpers {
             XMLHelpers xmlHelpers = new XMLHelpers();
 
             // Calculate new digest by signing the document
-            Document documentToSign = xmlHelpers.getXMLDocumentOfSAMLMessage(xmlHelpers.getStringOfDocument(document, 2));
+            Document documentToSign = xmlHelpers.getXMLDocumentOfSAMLMessage(xmlHelpers.getStringOfDocument(document));
             Element evilAssertion = (Element) documentToSign.getElementsByTagNameNS("*", "Assertion").item(0);
             evilAssertion.setAttribute("ID", "_evil_assertion_ID");
             applyMatchAndReplaceValues(evilAssertion);
