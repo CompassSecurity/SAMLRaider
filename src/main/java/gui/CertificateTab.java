@@ -200,7 +200,7 @@ public class CertificateTab extends JPanel {
                 int returnVal = fc.showOpenDialog(CertificateTab.this);
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     File file = fc.getSelectedFile();
-                    certificateTabController.importPKCS8(selectedBurpCertificate, file.getAbsolutePath());
+                    certificateTabController.importPrivateKeyPkcs8DerFormat(selectedBurpCertificate, file.getAbsolutePath());
                 } else {
                     System.out.println("Cancelled by user");
                 }
@@ -213,7 +213,7 @@ public class CertificateTab extends JPanel {
                 int returnVal = fc.showOpenDialog(CertificateTab.this);
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     File file = fc.getSelectedFile();
-                    certificateTabController.importPrivateKey(selectedBurpCertificate, file.getAbsolutePath());
+                    certificateTabController.importPrivateKeyPemFormat(selectedBurpCertificate, file.getAbsolutePath());
                 } else {
                     System.out.println("Cancelled by user");
                 }
