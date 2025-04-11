@@ -165,7 +165,7 @@ public class CVE_2025_23369 {
         doctypePayload.append("]>");
         doctypeEntities.clear();
 
-        samlMessage = xmlHelpers.getStringOfDocument(document);
+        samlMessage = xmlHelpers.getString(document);
         samlMessage = samlMessage.replace("&amp;", "&");
 
         int declarationEnd = samlMessage.indexOf("?>");
