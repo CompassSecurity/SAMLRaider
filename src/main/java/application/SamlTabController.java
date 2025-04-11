@@ -14,6 +14,7 @@ import gui.SamlMain;
 import gui.SamlPanelInfo;
 import gui.SignatureHelpWindow;
 import gui.XSWHelpWindow;
+import helpers.CVE_2025_23369;
 import helpers.XMLHelpers;
 import helpers.XSWHelpers;
 import model.BurpCertificate;
@@ -439,7 +440,6 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
             Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(orgSAMLMessage);
             xswHelpers.applyXSW(samlGUI.getActionPanel().getSelectedXSW(), document);
             String after = xmlHelpers.getStringOfDocument(document);
-            after = xswHelpers.applyDOCTYPE(after);
             String diff = xswHelpers.diffLineMode(orgSAMLMessage, after);
 
             File file = File.createTempFile("tmp", ".html", null);
@@ -474,13 +474,28 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
         }
     }
 
+    public void applyCVE() {
+        try {
+            var cve = samlGUI.getActionPanel().getSelectedCVE();
+            switch (cve) {
+                case CVE_2025_23369.CVE:
+                    samlMessage = CVE_2025_23369.apply(orgSAMLMessage);
+                    textArea.setContents(ByteArray.byteArray(samlMessage));
+                    isEdited = true;
+                    setInfoMessageText("%s applied".formatted(cve));
+            }
+        } catch (Exception exc) {
+            setInfoMessageText(exc.getMessage());
+            BurpExtender.api.logging().logToError(exc);
+        }
+    }
+
     public void applyXSW() {
         Document document;
         try {
             document = xmlHelpers.getXMLDocumentOfSAMLMessage(orgSAMLMessage);
             xswHelpers.applyXSW(samlGUI.getActionPanel().getSelectedXSW(), document);
             samlMessage = xmlHelpers.getStringOfDocument(document);
-            samlMessage = xswHelpers.applyDOCTYPE(samlMessage);
             textArea.setContents(ByteArray.byteArray(samlMessage));
             isEdited = true;
             setInfoMessageText(XSW_ATTACK_APPLIED);

