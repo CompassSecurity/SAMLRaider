@@ -1,18 +1,20 @@
 package gui;
 
 import application.SamlTabController;
-import model.BurpCertificate;
-import net.miginfocom.swing.MigLayout;
-
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.Serial;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import model.BurpCertificate;
+import net.miginfocom.swing.MigLayout;
 
 public class SamlPanelAction extends JPanel {
 
@@ -22,7 +24,6 @@ public class SamlPanelAction extends JPanel {
     private SamlTabController controller;
 
     private final JButton btnMessageReset = new JButton("Reset Message");
-    private final JCheckBox chkRawMode = new JCheckBox("Raw Mode (don't parse XML before sending)");
 
     private final JButton btnXSWHelp = new JButton("Help");
     private final JComboBox<String> cmbboxXSW = new JComboBox<>();
@@ -40,7 +41,6 @@ public class SamlPanelAction extends JPanel {
     private final JButton btnSendCertificate = new JButton("Send Certificate to SAML Raider Certificates");
     private final JButton btnResignMessage = new JButton("(Re-)Sign Message");
 
-    private final JLabel lblStatusMessage = new JLabel("");
 
     public SamlPanelAction() {
         initialize();
@@ -54,16 +54,12 @@ public class SamlPanelAction extends JPanel {
     private void initialize() {
         btnMessageReset.addActionListener(event -> {
             controller.resetMessage();
-            lblStatusMessage.setText("");
         });
-
-        chkRawMode.addActionListener(event -> controller.setRawMode(chkRawMode.isSelected()));
 
         var samlMessagePanel = new JPanel();
         samlMessagePanel.setBorder(BorderFactory.createTitledBorder("SAML Message"));
         samlMessagePanel.setLayout(new MigLayout());
         samlMessagePanel.add(btnMessageReset, "wrap");
-        samlMessagePanel.add(chkRawMode, "wrap");
 
         btnXSWHelp.addActionListener(event -> controller.showXSWHelp());
 
@@ -116,13 +112,6 @@ public class SamlPanelAction extends JPanel {
         signatureAttacksPanel.add(btnResignAssertion);
         signatureAttacksPanel.add(btnResignMessage, "wrap");
 
-        lblStatusMessage.setForeground(new Color(255, 140, 0));
-
-        var statusMessagePanel = new JPanel();
-        statusMessagePanel.setBorder(BorderFactory.createTitledBorder("Status Message"));
-        statusMessagePanel.setLayout(new MigLayout());
-        statusMessagePanel.add(lblStatusMessage, "width 300::, height 20::");
-
         var actionPanels = new JPanel();
         var actionPanelConstraints = "wrap";
         actionPanels.setLayout(new MigLayout());
@@ -130,17 +119,12 @@ public class SamlPanelAction extends JPanel {
         actionPanels.add(xswAttacksPanel, actionPanelConstraints);
         actionPanels.add(xmlAttacksPanel, actionPanelConstraints);
         actionPanels.add(signatureAttacksPanel, actionPanelConstraints);
-        actionPanels.add(statusMessagePanel, actionPanelConstraints);
 
         var scrollPane = new JScrollPane(actionPanels);
         scrollPane.setBorder(new EmptyBorder(0, 0, 0, 0));
 
         setLayout(new BorderLayout());
         add(scrollPane, BorderLayout.CENTER);
-    }
-
-    public JLabel getStatusMessageLabel() {
-        return lblStatusMessage;
     }
 
     public void setCertificateList(List<BurpCertificate> list) {
@@ -165,14 +149,6 @@ public class SamlPanelAction extends JPanel {
         return (String) cmbboxXSW.getSelectedItem();
     }
 
-    public boolean isRawModeEnabled() {
-        return chkRawMode.isSelected();
-    }
-
-    public void setRawModeEnabled(boolean rawModeEnabled) {
-        chkRawMode.setSelected(rawModeEnabled);
-    }
-
     public void disableControls() {
         cmbboxCertificate.setEnabled(false);
         cmbboxXSW.setEnabled(false);
@@ -188,7 +164,6 @@ public class SamlPanelAction extends JPanel {
         btnMatchAndReplace.setEnabled(false);
         btnTestXXE.setEnabled(false);
         btnTestXSLT.setEnabled(false);
-        chkRawMode.setEnabled(false);
         this.revalidate();
     }
 
@@ -207,7 +182,6 @@ public class SamlPanelAction extends JPanel {
         btnMatchAndReplace.setEnabled(true);
         btnTestXXE.setEnabled(true);
         btnTestXSLT.setEnabled(true);
-        chkRawMode.setEnabled(true);
         this.revalidate();
     }
 

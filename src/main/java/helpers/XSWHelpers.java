@@ -186,7 +186,7 @@ public class XSWHelpers {
             XMLHelpers xmlHelpers = new XMLHelpers();
 
             // Calculate new digest by signing the document
-            Document documentToSign = xmlHelpers.getXMLDocumentOfSAMLMessage(xmlHelpers.getStringOfDocument(document, 2, true));
+            Document documentToSign = xmlHelpers.getXMLDocumentOfSAMLMessage(xmlHelpers.getStringOfDocument(document));
             Element evilAssertion = (Element) documentToSign.getElementsByTagNameNS("*", "Assertion").item(0);
             evilAssertion.setAttribute("ID", "_evil_assertion_ID");
             applyMatchAndReplaceValues(evilAssertion);
@@ -218,7 +218,7 @@ public class XSWHelpers {
             wrapper.appendChild(documentNewDigest.adoptNode(originalAssertion.cloneNode(true)));
 
             // Print for testing...
-            System.out.println(xmlHelpers.getStringOfDocument(documentNewDigest, 2, true));
+            System.out.println(xmlHelpers.getStringOfDocument(documentNewDigest, 2));
 
         } catch (IOException | SAXException e) {
             BurpExtender.api.logging().logToError(e);
