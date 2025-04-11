@@ -28,7 +28,7 @@ public class FileHelper {
 	/**
 	 * Helper method for exporting PEM object.
 	 * 
-	 * @param object
+	 * @param pemObject
 	 *            to export in PEM format.
 	 * @param filename
 	 *            for the file to export.

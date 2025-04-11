@@ -3,8 +3,17 @@ package application;
 import burp.BurpExtender;
 import gui.CertificateTab;
 import helpers.FileHelper;
+import model.BurpCertificate;
+import model.BurpCertificateBuilder;
+import model.BurpCertificateExtension;
+import model.BurpCertificateStore;
+import model.ObjectIdentifier;
+import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
+import org.bouncycastle.openssl.PEMKeyPair;
+import org.bouncycastle.openssl.PEMParser;
+import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
+
 import java.awt.Component;
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.File;
@@ -13,7 +22,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
-import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
@@ -31,14 +39,6 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Observable;
-import model.BurpCertificate;
-import model.BurpCertificateBuilder;
-import model.BurpCertificateExtension;
-import model.BurpCertificateStore;
-import model.ObjectIdentifier;
-import org.bouncycastle.openssl.PEMKeyPair;
-import org.bouncycastle.openssl.PEMParser;
-import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 
 public class CertificateTabController extends Observable {
 
@@ -186,7 +186,7 @@ public class CertificateTabController extends Observable {
         if (fileHelper.startedFromJar()) {
             try {
                 BurpCertificate c1 = importCertificate(fileHelper.exportRessourceFromJar("examples/certificate.pem"));
-                importPrivateKey(c1, fileHelper.exportRessourceFromJar("examples/private_key_rsa.pem"));
+                importPrivateKeyPemFormat(c1, fileHelper.exportRessourceFromJar("examples/private_key_rsa.pem"));
                 importCertificateChain(fileHelper.exportRessourceFromJar("examples/example.org_chain.pem"));
                 setCertificateDetails(c1);
             } catch (IOException e) {
@@ -196,7 +196,7 @@ public class CertificateTabController extends Observable {
             }
         } else {
             BurpCertificate c1 = importCertificate("src/main/resources/examples/certificate.pem");
-            importPrivateKey(c1, "src/main/resources/examples/private_key_rsa.pem");
+            importPrivateKeyPemFormat(c1, "src/main/resources/examples/private_key_rsa.pem");
             importCertificateChain("src/main/resources/examples/example.org_chain.pem");
             setCertificateDetails(c1);
         }
@@ -311,29 +311,34 @@ public class CertificateTabController extends Observable {
     }
 
     /**
-     * Import a private RSA key in PEM format from a file and add it to the
+     * Import a private key in PEM format from a file and add it to the
      * selected certificate.
      *
      * @param certificate which the private key is for.
-     * @param filename    of the private RSA key in PEM format
+     * @param filename    of the private key in PEM format
      */
-    public void importPrivateKey(BurpCertificate certificate, String filename) {
+    public void importPrivateKeyPemFormat(BurpCertificate certificate, String filename) {
         setStatus("Importing private key...");
-        BufferedReader br;
-        try {
-            br = new BufferedReader(new FileReader(filename));
-            PEMParser pp = new PEMParser(br);
-            PEMKeyPair pemKeyPair = (PEMKeyPair) pp.readObject();
-            KeyPair kp = new JcaPEMKeyConverter().getKeyPair(pemKeyPair);
-            pp.close();
+        try (var pemParser = new PEMParser(new FileReader(filename))) {
+            PrivateKeyInfo privateKeyInfo = null;
+            var object = pemParser.readObject();
+            if (object instanceof PEMKeyPair pemKeyPair) {
+                privateKeyInfo = pemKeyPair.getPrivateKeyInfo();
+            } else if (object instanceof PrivateKeyInfo) {
+                privateKeyInfo = (PrivateKeyInfo) object;
+            }
+            if (privateKeyInfo == null) {
+                setStatus("Error importing private key.");
+                return;
+            }
+            var converter = new JcaPEMKeyConverter();
+            var privateKey = converter.getPrivateKey(privateKeyInfo);
+            certificate.setPrivateKey(privateKey);
             setCertificateTree();
             setStatus("Private Key imported.");
-            certificate.setPrivateKey(kp.getPrivate());
-        } catch (IOException e) {
-            setStatus("Error importing private key. (" + e.getMessage() + ")");
-            BurpExtender.api.logging().logToError(e);
         } catch (Exception e) {
-            setStatus("Error (" + e.getMessage() + ")");
+            setStatus("Error importing private Key. (" + e.getMessage() + ")");
+            BurpExtender.api.logging().logToError(e);
         }
     }
 
@@ -345,7 +350,7 @@ public class CertificateTabController extends Observable {
      *                    <code>openssl pkcs8 -topk8 -inform PEM -outform DER -in privatekey.pem -out private_key_pkcs8.pem -nocrypt</code>
      * @param filename    of the PKCS8 key
      */
-    public void importPKCS8(BurpCertificate certificate, String filename) {
+    public void importPrivateKeyPkcs8DerFormat(BurpCertificate certificate, String filename) {
         setStatus("Importing private key...");
         FileInputStream fis;
         File file = new File(filename);
@@ -363,11 +368,9 @@ public class CertificateTabController extends Observable {
             certificate.setPrivateKey(privateKey);
             setCertificateTree();
             setStatus("Private Key imported.");
-        } catch (IOException | NoSuchAlgorithmException | InvalidKeySpecException e) {
+        } catch (Exception e) {
             setStatus("Error importing private Key. (" + e.getMessage() + ")");
             BurpExtender.api.logging().logToError(e);
-        } catch (Exception e) {
-            setStatus("Error (" + e.getMessage() + ")");
         }
     }
 
@@ -394,12 +397,12 @@ public class CertificateTabController extends Observable {
     }
 
     /**
-     * Export Private RSA Key in PEM format.
+     * Export private key in PEM format.
      *
      * @param certificate to export
-     * @param filename    for the exported private RSA key
+     * @param filename    for the exported private key
      */
-    public void exportPrivateKey(BurpCertificate certificate, String filename) {
+    public void exportPrivateKeyPemFormat(BurpCertificate certificate, String filename) {
         setStatus("Exporting private key...");
         try {
             fileHelper.exportPEMObject(certificate.getPrivateKey(), filename);

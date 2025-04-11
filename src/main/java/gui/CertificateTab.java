@@ -7,11 +7,27 @@ import model.BurpCertificateBuilder;
 import model.ObjectIdentifier;
 import net.miginfocom.swing.MigLayout;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.JTextPane;
+import javax.swing.JTree;
+import javax.swing.UIManager;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -29,7 +45,7 @@ public class CertificateTab extends JPanel {
     private BurpCertificate selectedBurpCertificate;
     private JTextField txtSource;
     private JCheckBox chckbxPrivateKey;
-    private JButton btnExportPrivateKeyRSA;
+    private JButton btnExportPrivateKeyPemFormat;
     private JTextField txtSerialNumber;
     private JTextField txtIssuer;
     private JTextField txtSubject;
@@ -194,39 +210,39 @@ public class CertificateTab extends JPanel {
         chckbxPrivateKey = new JCheckBox("Private Key");
         chckbxPrivateKey.setEnabled(false);
 
-        JButton btnImportPrivateKeyPKCS8 = new JButton("Import PKCS#8 DER");
-        btnImportPrivateKeyPKCS8.addActionListener(new ActionListener() {
+        JButton btnImportPrivateKeyPKCS8DerFormat = new JButton("Import PKCS#8 DER");
+        btnImportPrivateKeyPKCS8DerFormat.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 int returnVal = fc.showOpenDialog(CertificateTab.this);
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     File file = fc.getSelectedFile();
-                    certificateTabController.importPKCS8(selectedBurpCertificate, file.getAbsolutePath());
+                    certificateTabController.importPrivateKeyPkcs8DerFormat(selectedBurpCertificate, file.getAbsolutePath());
                 } else {
                     System.out.println("Cancelled by user");
                 }
             }
         });
 
-        JButton btnImportPrivateKeyRSA = new JButton("Import RSA PEM");
-        btnImportPrivateKeyRSA.addActionListener(new ActionListener() {
+        JButton btnImportPrivateKeyPemFormat = new JButton("Import PEM");
+        btnImportPrivateKeyPemFormat.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 int returnVal = fc.showOpenDialog(CertificateTab.this);
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     File file = fc.getSelectedFile();
-                    certificateTabController.importPrivateKey(selectedBurpCertificate, file.getAbsolutePath());
+                    certificateTabController.importPrivateKeyPemFormat(selectedBurpCertificate, file.getAbsolutePath());
                 } else {
                     System.out.println("Cancelled by user");
                 }
             }
         });
 
-        btnExportPrivateKeyRSA = new JButton("Export RSA PEM");
-        btnExportPrivateKeyRSA.addActionListener(new ActionListener() {
+        btnExportPrivateKeyPemFormat = new JButton("Export PEM");
+        btnExportPrivateKeyPemFormat.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 int returnVal = fc.showOpenDialog(CertificateTab.this);
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     File file = fc.getSelectedFile();
-                    certificateTabController.exportPrivateKey(selectedBurpCertificate, file.getAbsolutePath());
+                    certificateTabController.exportPrivateKeyPemFormat(selectedBurpCertificate, file.getAbsolutePath());
                 } else {
                     System.out.println("Cancelled by user");
                 }
@@ -420,9 +436,9 @@ public class CertificateTab extends JPanel {
         pluginSpecificPanel.add(txtSource, "width 560!, wrap");
         pluginSpecificPanel.add(chckbxPrivateKey, "skip, wrap");
         pluginSpecificPanel.add(new JLabel("Actions"), "right");
-        pluginSpecificPanel.add(btnImportPrivateKeyPKCS8, "width 160!, wrap");
-        pluginSpecificPanel.add(btnImportPrivateKeyRSA, "width 160!, skip, wrap");
-        pluginSpecificPanel.add(btnExportPrivateKeyRSA, "width 160!, skip, wrap");
+        pluginSpecificPanel.add(btnImportPrivateKeyPKCS8DerFormat, "width 160!, wrap");
+        pluginSpecificPanel.add(btnImportPrivateKeyPemFormat, "width 160!, skip, wrap");
+        pluginSpecificPanel.add(btnExportPrivateKeyPemFormat, "width 160!, skip, wrap");
         pluginSpecificPanel.add(btnSaveAndSelfsign, "width 160!, skip");
 
         var generalPanel = new JPanel();
@@ -533,7 +549,7 @@ public class CertificateTab extends JPanel {
 
     public void setChckbxPrivateKey(boolean chckbxPrivateKey) {
         this.chckbxPrivateKey.setSelected(chckbxPrivateKey);
-        btnExportPrivateKeyRSA.setEnabled(chckbxPrivateKey);
+        btnExportPrivateKeyPemFormat.setEnabled(chckbxPrivateKey);
     }
 
     public void setSelectedBurpCertificate(BurpCertificate selectedBurpCertificate) {

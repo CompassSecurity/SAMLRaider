@@ -1,12 +1,13 @@
 package application;
 
 import gui.CertificateTab;
-import java.security.Security;
-import java.util.List;
 import model.BurpCertificate;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
+import java.security.Security;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
