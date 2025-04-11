@@ -375,12 +375,12 @@ public class CertificateTabController extends Observable {
     }
 
     /**
-     * Export Private RSA Key in PEM format.
+     * Export private key in PEM format.
      *
      * @param certificate to export
-     * @param filename    for the exported private RSA key
+     * @param filename    for the exported private key
      */
-    public void exportPrivateKey(BurpCertificate certificate, String filename) {
+    public void exportPrivateKeyPemFormat(BurpCertificate certificate, String filename) {
         setStatus("Exporting private key...");
         try {
             fileHelper.exportPEMObject(certificate.getPrivateKey(), filename);
