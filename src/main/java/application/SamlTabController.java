@@ -14,6 +14,7 @@ import gui.SamlMain;
 import gui.SamlPanelInfo;
 import gui.SignatureHelpWindow;
 import gui.XSWHelpWindow;
+import helpers.CVE_2025_23369;
 import helpers.XMLHelpers;
 import helpers.XSWHelpers;
 import model.BurpCertificate;
@@ -470,6 +471,22 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
             BurpExtender.api.logging().logToError(e);
         } catch (IOException e) {
             setInfoMessageText(NO_DIFF_TEMP_FILE);
+        }
+    }
+
+    public void applyCVE() {
+        try {
+            var cve = samlGUI.getActionPanel().getSelectedCVE();
+            switch (cve) {
+                case CVE_2025_23369.CVE:
+                    samlMessage = CVE_2025_23369.apply(orgSAMLMessage);
+                    textArea.setContents(ByteArray.byteArray(samlMessage));
+                    isEdited = true;
+                    setInfoMessageText("%s applied".formatted(cve));
+            }
+        } catch (Exception exc) {
+            setInfoMessageText(exc.getMessage());
+            BurpExtender.api.logging().logToError(exc);
         }
     }
 
