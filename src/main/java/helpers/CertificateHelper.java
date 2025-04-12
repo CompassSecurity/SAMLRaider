@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 
-public final class CertificateHelper {
+public class CertificateHelper {
 
 	public static String addHexColons(String input) {
 		return input.replaceAll("..(?!$)", "$0:");

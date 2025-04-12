@@ -10,7 +10,7 @@ import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.asn1.x509.KeyPurposeId;
 import org.bouncycastle.jce.X509KeyUsage;
 
-public final class ObjectIdentifier {
+public class ObjectIdentifier {
 
 	private static Map<String, String> extensionsMap;
 	private static Map<String, String> extendedKeyUsageMap;
