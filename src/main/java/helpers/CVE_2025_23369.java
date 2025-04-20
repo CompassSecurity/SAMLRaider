@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /// Links:
+/// * https://github.com/CompassSecurity/SAMLRaider/pull/89
 /// * https://repzret.blogspot.com/2025/02/abusing-libxml2-quirks-to-bypass-saml.html
 /// * https://github.com/hakivvi/CVE-2025-23369
 /// * https://github.com/d0ge/proof-of-concept-labs/tree/saml-libxml2/ruby-saml-libxml
