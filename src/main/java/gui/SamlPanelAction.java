@@ -2,9 +2,16 @@ package gui;
 
 import application.SamlTabController;
 import helpers.CVE_2025_23369;
-import model.BurpCertificate;
-import net.miginfocom.swing.MigLayout;
-
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.Serial;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -16,16 +23,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.Serial;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import model.BurpCertificate;
+import net.miginfocom.swing.MigLayout;
 
 public class SamlPanelAction extends JPanel {
 
