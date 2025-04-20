@@ -10,10 +10,7 @@ import burp.api.montoya.http.message.requests.HttpRequest;
 import burp.api.montoya.ui.Selection;
 import burp.api.montoya.ui.editor.RawEditor;
 import burp.api.montoya.ui.editor.extension.ExtensionProvidedHttpRequestEditor;
-import gui.SamlMain;
-import gui.SamlPanelInfo;
-import gui.SignatureHelpWindow;
-import gui.XSWHelpWindow;
+import gui.*;
 import helpers.CVE_2025_23369;
 import helpers.XMLHelpers;
 import helpers.XSWHelpers;
@@ -577,6 +574,13 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
         } else {
             samlGUI.getActionPanel().disableControls();
         }
+    }
+
+    public void showCVEHelp() {
+        var cve = samlGUI.getActionPanel().getSelectedCVE();
+        var window = new CVEHelpWindow(cve);
+        window.setLocationRelativeTo(BurpExtender.api.userInterface().swingUtils().suiteFrame());
+        window.setVisible(true);
     }
 
     public void showSignatureHelp() {

@@ -47,6 +47,7 @@ public class SamlPanelAction extends JPanel {
 
     private final JComboBox<String> cmbboxCVE = new JComboBox<>();
     private final JButton btnCVEApply = new JButton("Apply CVE");
+    private final JButton btnCVEHelp = new JButton("Help");
 
     private final JButton btnSignatureHelp = new JButton("Help");
     private final JComboBox<BurpCertificate> cmbboxCertificate = new JComboBox<>();
@@ -112,11 +113,14 @@ public class SamlPanelAction extends JPanel {
 
         btnCVEApply.addActionListener(event -> controller.applyCVE());
 
+        btnCVEHelp.addActionListener(event -> controller.showCVEHelp());
+
         var cvePanel = new JPanel();
         cvePanel.setBorder(BorderFactory.createTitledBorder("CVEs"));
         cvePanel.setLayout(new MigLayout());
         cvePanel.add(cmbboxCVE);
-        cvePanel.add(btnCVEApply, "wrap");
+        cvePanel.add(btnCVEApply);
+        cvePanel.add(btnCVEHelp, "wrap");
 
         btnSignatureHelp.addActionListener(event -> controller.showSignatureHelp());
 
