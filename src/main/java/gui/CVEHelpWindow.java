@@ -18,7 +18,7 @@ public class CVEHelpWindow extends JFrame {
             description = """
                    <ol>
                        <li>
-                           You need a SAMLResponse that is valid and accepted by the server.
+                           You need a SAMLResponse with Signed Message & Assertion that is valid and accepted by the server.
                        </li>
                        <li>
                            Apply the CVE to the SAMLResponse without any prior changes. See whether the
@@ -26,8 +26,9 @@ public class CVEHelpWindow extends JFrame {
                            vulnerable.
                        </li>
                        <li>
-                           After the CVE has been applied you can try to change one of the assertions attribute
-                           to bypass authentication.
+                           After the CVE has been applied you can try to change one of the fake assertions attribute
+                           to bypass authentication. The fake assertion ID is constructed by appending "ffff" 
+                           to the original assertion ID. This modified assertion can be found at the end of the XML document.
                        </li>
                    </ol>
                    """;
