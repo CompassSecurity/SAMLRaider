@@ -10,20 +10,17 @@ import burp.api.montoya.http.message.requests.HttpRequest;
 import burp.api.montoya.ui.Selection;
 import burp.api.montoya.ui.editor.RawEditor;
 import burp.api.montoya.ui.editor.extension.ExtensionProvidedHttpRequestEditor;
+import gui.CVEHelpWindow;
 import gui.SamlMain;
 import gui.SamlPanelInfo;
 import gui.SignatureHelpWindow;
 import gui.XSWHelpWindow;
+import helpers.CVE_2025_23369;
 import helpers.XMLHelpers;
 import helpers.XSWHelpers;
-import model.BurpCertificate;
-import org.w3c.dom.*;
-import org.xml.sax.SAXException;
-
-import javax.xml.crypto.MarshalException;
-import javax.xml.crypto.dsig.XMLSignatureException;
-import javax.xml.parsers.ParserConfigurationException;
-import java.awt.*;
+import java.awt.Component;
+import java.awt.Desktop;
+import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.io.File;
@@ -41,6 +38,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
+import javax.xml.crypto.MarshalException;
+import javax.xml.crypto.dsig.XMLSignatureException;
+import javax.xml.parsers.ParserConfigurationException;
+import model.BurpCertificate;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import static java.util.Objects.requireNonNull;
 
@@ -473,6 +480,22 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
         }
     }
 
+    public void applyCVE() {
+        try {
+            var cve = samlGUI.getActionPanel().getSelectedCVE();
+            switch (cve) {
+                case CVE_2025_23369.CVE:
+                    samlMessage = CVE_2025_23369.apply(orgSAMLMessage);
+                    textArea.setContents(ByteArray.byteArray(samlMessage));
+                    isEdited = true;
+                    setInfoMessageText("%s applied".formatted(cve));
+            }
+        } catch (Exception exc) {
+            setInfoMessageText(exc.getMessage());
+            BurpExtender.api.logging().logToError(exc);
+        }
+    }
+
     public void applyXSW() {
         Document document;
         try {
@@ -560,6 +583,13 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
         } else {
             samlGUI.getActionPanel().disableControls();
         }
+    }
+
+    public void showCVEHelp() {
+        var cve = samlGUI.getActionPanel().getSelectedCVE();
+        var window = new CVEHelpWindow(cve);
+        window.setLocationRelativeTo(BurpExtender.api.userInterface().swingUtils().suiteFrame());
+        window.setVisible(true);
     }
 
     public void showSignatureHelp() {

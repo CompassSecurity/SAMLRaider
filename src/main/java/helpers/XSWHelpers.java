@@ -1,18 +1,10 @@
 package helpers;
 
-import model.BurpCertificateBuilder;
 import burp.BurpExtender;
 import helpers.DiffMatchPatch.Diff;
 import helpers.DiffMatchPatch.LinesToCharsResult;
-
-import java.io.IOException;
-import java.security.*;
-import java.security.cert.CertificateException;
-import java.security.spec.InvalidKeySpecException;
-import java.util.HashMap;
-import java.util.LinkedList;
-
 import model.BurpCertificate;
+import model.BurpCertificateBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -21,12 +13,22 @@ import org.xml.sax.SAXException;
 
 import javax.xml.crypto.MarshalException;
 import javax.xml.crypto.dsig.XMLSignatureException;
+import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.SignatureException;
+import java.security.cert.CertificateException;
+import java.security.spec.InvalidKeySpecException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 public class XSWHelpers {
 
     // XSW9 was removed b/c it does not work. Code is still there if you want to have a look :)
     public final static String[] xswTypes = {"XSW1", "XSW2", "XSW3", "XSW4", "XSW5", "XSW6", "XSW7", "XSW8"};
-
     public static final HashMap<String, String> MATCH_AND_REPLACE_MAP = new HashMap<>();
 
     /*
@@ -34,9 +36,7 @@ public class XSWHelpers {
      * were found in a paper called "On Breaking SAML: Be Whoever You Want to Be" We
      * have also documented these attacks in our product documentation for further
      * information
-     *
      */
-
     public void applyXSW(String xswType, Document document) {
         switch (xswType) {
             case "XSW1":
@@ -220,7 +220,6 @@ public class XSWHelpers {
 
     // Used for XSW9
     private Document selfSignAssertion(Document document) {
-
         try {
             BurpCertificateBuilder burpCertificateBuilder = new BurpCertificateBuilder("CN=samlraider-temporary-cert.example.net");
             BurpCertificate burpCertificate = burpCertificateBuilder.generateSelfSignedCertificate();

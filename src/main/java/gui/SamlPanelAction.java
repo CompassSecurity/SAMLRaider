@@ -1,6 +1,7 @@
 package gui;
 
 import application.SamlTabController;
+import helpers.CVE_2025_23369;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
@@ -11,7 +12,16 @@ import java.io.Serial;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import model.BurpCertificate;
 import net.miginfocom.swing.MigLayout;
@@ -33,6 +43,10 @@ public class SamlPanelAction extends JPanel {
 
     private final JButton btnTestXXE = new JButton("Test XXE");
     private final JButton btnTestXSLT = new JButton("Test XSLT");
+
+    private final JComboBox<String> cmbboxCVE = new JComboBox<>();
+    private final JButton btnCVEApply = new JButton("Apply CVE");
+    private final JButton btnCVEHelp = new JButton("Help");
 
     private final JButton btnSignatureHelp = new JButton("Help");
     private final JComboBox<BurpCertificate> cmbboxCertificate = new JComboBox<>();
@@ -92,6 +106,21 @@ public class SamlPanelAction extends JPanel {
         xmlAttacksPanel.add(btnTestXXE, "split 2");
         xmlAttacksPanel.add(btnTestXSLT, "wrap");
 
+        cmbboxCVE.setModel(new DefaultComboBoxModel<>(new String[]{
+                CVE_2025_23369.CVE
+        }));
+
+        btnCVEApply.addActionListener(event -> controller.applyCVE());
+
+        btnCVEHelp.addActionListener(event -> controller.showCVEHelp());
+
+        var cvePanel = new JPanel();
+        cvePanel.setBorder(BorderFactory.createTitledBorder("CVEs"));
+        cvePanel.setLayout(new MigLayout());
+        cvePanel.add(cmbboxCVE);
+        cvePanel.add(btnCVEApply);
+        cvePanel.add(btnCVEHelp, "wrap");
+
         btnSignatureHelp.addActionListener(event -> controller.showSignatureHelp());
 
         btnSignatureRemove.addActionListener(event -> controller.removeSignature());
@@ -117,6 +146,7 @@ public class SamlPanelAction extends JPanel {
         actionPanels.setLayout(new MigLayout());
         actionPanels.add(samlMessagePanel, actionPanelConstraints);
         actionPanels.add(xswAttacksPanel, actionPanelConstraints);
+        actionPanels.add(cvePanel, actionPanelConstraints);
         actionPanels.add(xmlAttacksPanel, actionPanelConstraints);
         actionPanels.add(signatureAttacksPanel, actionPanelConstraints);
 
@@ -149,6 +179,10 @@ public class SamlPanelAction extends JPanel {
         return (String) cmbboxXSW.getSelectedItem();
     }
 
+    public String getSelectedCVE() {
+        return (String) cmbboxCVE.getSelectedItem();
+    }
+
     public void disableControls() {
         cmbboxCertificate.setEnabled(false);
         cmbboxXSW.setEnabled(false);
@@ -164,6 +198,8 @@ public class SamlPanelAction extends JPanel {
         btnMatchAndReplace.setEnabled(false);
         btnTestXXE.setEnabled(false);
         btnTestXSLT.setEnabled(false);
+        cmbboxCVE.setEnabled(false);
+        btnCVEApply.setEnabled(false);
         this.revalidate();
     }
 
@@ -182,6 +218,8 @@ public class SamlPanelAction extends JPanel {
         btnMatchAndReplace.setEnabled(true);
         btnTestXXE.setEnabled(true);
         btnTestXSLT.setEnabled(true);
+        cmbboxCVE.setEnabled(true);
+        btnCVEApply.setEnabled(true);
         this.revalidate();
     }
 
