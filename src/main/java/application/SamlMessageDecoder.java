@@ -32,20 +32,23 @@ public class SamlMessageDecoder {
         boolean isInflated = true;
         boolean isGZip = true;
 
-       var httpHelpers = new HTTPHelpers();
-
-        try {
-            byte[] inflated = httpHelpers.decompress(base64Decoded, true);
-            return new DecodedSAMLMessage(new String(inflated, StandardCharsets.UTF_8), isInflated, isGZip);
-        } catch (DataFormatException e) {
-            isGZip = false;
-        }
-
-        try {
-            byte[] inflated = httpHelpers.decompress(base64Decoded, false);
-            return new DecodedSAMLMessage(new String(inflated, StandardCharsets.UTF_8), isInflated, isGZip);
-        } catch (DataFormatException e) {
+        if (base64Decoded.length == 0) {
             isInflated = false;
+            isGZip = false;
+        } else {
+            var httpHelpers = new HTTPHelpers();
+            try {
+                byte[] inflated = httpHelpers.decompress(base64Decoded, true);
+                return new DecodedSAMLMessage(new String(inflated, StandardCharsets.UTF_8), isInflated, isGZip);
+            } catch (DataFormatException e) {
+                isGZip = false;
+            }
+            try {
+                byte[] inflated = httpHelpers.decompress(base64Decoded, false);
+                return new DecodedSAMLMessage(new String(inflated, StandardCharsets.UTF_8), isInflated, isGZip);
+            } catch (DataFormatException e) {
+                isInflated = false;
+            }
         }
 
         return new DecodedSAMLMessage(new String(base64Decoded, StandardCharsets.UTF_8), isInflated, isGZip);

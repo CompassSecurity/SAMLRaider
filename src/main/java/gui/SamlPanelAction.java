@@ -1,18 +1,30 @@
 package gui;
 
 import application.SamlTabController;
-import model.BurpCertificate;
-import net.miginfocom.swing.MigLayout;
-
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import java.awt.*;
+import helpers.CVE_2025_23369;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.Serial;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import javax.swing.BorderFactory;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+import javax.swing.border.EmptyBorder;
+import model.BurpCertificate;
+import net.miginfocom.swing.MigLayout;
 
 public class SamlPanelAction extends JPanel {
 
@@ -22,7 +34,6 @@ public class SamlPanelAction extends JPanel {
     private SamlTabController controller;
 
     private final JButton btnMessageReset = new JButton("Reset Message");
-    private final JCheckBox chkRawMode = new JCheckBox("Raw Mode (don't parse XML before sending)");
 
     private final JButton btnXSWHelp = new JButton("Help");
     private final JComboBox<String> cmbboxXSW = new JComboBox<>();
@@ -33,6 +44,10 @@ public class SamlPanelAction extends JPanel {
     private final JButton btnTestXXE = new JButton("Test XXE");
     private final JButton btnTestXSLT = new JButton("Test XSLT");
 
+    private final JComboBox<String> cmbboxCVE = new JComboBox<>();
+    private final JButton btnCVEApply = new JButton("Apply CVE");
+    private final JButton btnCVEHelp = new JButton("Help");
+
     private final JButton btnSignatureHelp = new JButton("Help");
     private final JComboBox<BurpCertificate> cmbboxCertificate = new JComboBox<>();
     private final JButton btnSignatureRemove = new JButton("Remove Signatures");
@@ -40,7 +55,6 @@ public class SamlPanelAction extends JPanel {
     private final JButton btnSendCertificate = new JButton("Send Certificate to SAML Raider Certificates");
     private final JButton btnResignMessage = new JButton("(Re-)Sign Message");
 
-    private final JLabel lblStatusMessage = new JLabel("");
 
     public SamlPanelAction() {
         initialize();
@@ -54,16 +68,12 @@ public class SamlPanelAction extends JPanel {
     private void initialize() {
         btnMessageReset.addActionListener(event -> {
             controller.resetMessage();
-            lblStatusMessage.setText("");
         });
-
-        chkRawMode.addActionListener(event -> controller.setRawMode(chkRawMode.isSelected()));
 
         var samlMessagePanel = new JPanel();
         samlMessagePanel.setBorder(BorderFactory.createTitledBorder("SAML Message"));
         samlMessagePanel.setLayout(new MigLayout());
         samlMessagePanel.add(btnMessageReset, "wrap");
-        samlMessagePanel.add(chkRawMode, "wrap");
 
         btnXSWHelp.addActionListener(event -> controller.showXSWHelp());
 
@@ -96,6 +106,21 @@ public class SamlPanelAction extends JPanel {
         xmlAttacksPanel.add(btnTestXXE, "split 2");
         xmlAttacksPanel.add(btnTestXSLT, "wrap");
 
+        cmbboxCVE.setModel(new DefaultComboBoxModel<>(new String[]{
+                CVE_2025_23369.CVE
+        }));
+
+        btnCVEApply.addActionListener(event -> controller.applyCVE());
+
+        btnCVEHelp.addActionListener(event -> controller.showCVEHelp());
+
+        var cvePanel = new JPanel();
+        cvePanel.setBorder(BorderFactory.createTitledBorder("CVEs"));
+        cvePanel.setLayout(new MigLayout());
+        cvePanel.add(cmbboxCVE);
+        cvePanel.add(btnCVEApply);
+        cvePanel.add(btnCVEHelp, "wrap");
+
         btnSignatureHelp.addActionListener(event -> controller.showSignatureHelp());
 
         btnSignatureRemove.addActionListener(event -> controller.removeSignature());
@@ -116,31 +141,20 @@ public class SamlPanelAction extends JPanel {
         signatureAttacksPanel.add(btnResignAssertion);
         signatureAttacksPanel.add(btnResignMessage, "wrap");
 
-        lblStatusMessage.setForeground(new Color(255, 140, 0));
-
-        var statusMessagePanel = new JPanel();
-        statusMessagePanel.setBorder(BorderFactory.createTitledBorder("Status Message"));
-        statusMessagePanel.setLayout(new MigLayout());
-        statusMessagePanel.add(lblStatusMessage, "width 300::, height 20::");
-
         var actionPanels = new JPanel();
         var actionPanelConstraints = "wrap";
         actionPanels.setLayout(new MigLayout());
         actionPanels.add(samlMessagePanel, actionPanelConstraints);
         actionPanels.add(xswAttacksPanel, actionPanelConstraints);
+        actionPanels.add(cvePanel, actionPanelConstraints);
         actionPanels.add(xmlAttacksPanel, actionPanelConstraints);
         actionPanels.add(signatureAttacksPanel, actionPanelConstraints);
-        actionPanels.add(statusMessagePanel, actionPanelConstraints);
 
         var scrollPane = new JScrollPane(actionPanels);
         scrollPane.setBorder(new EmptyBorder(0, 0, 0, 0));
 
         setLayout(new BorderLayout());
         add(scrollPane, BorderLayout.CENTER);
-    }
-
-    public JLabel getStatusMessageLabel() {
-        return lblStatusMessage;
     }
 
     public void setCertificateList(List<BurpCertificate> list) {
@@ -165,12 +179,8 @@ public class SamlPanelAction extends JPanel {
         return (String) cmbboxXSW.getSelectedItem();
     }
 
-    public boolean isRawModeEnabled() {
-        return chkRawMode.isSelected();
-    }
-
-    public void setRawModeEnabled(boolean rawModeEnabled) {
-        chkRawMode.setSelected(rawModeEnabled);
+    public String getSelectedCVE() {
+        return (String) cmbboxCVE.getSelectedItem();
     }
 
     public void disableControls() {
@@ -188,7 +198,8 @@ public class SamlPanelAction extends JPanel {
         btnMatchAndReplace.setEnabled(false);
         btnTestXXE.setEnabled(false);
         btnTestXSLT.setEnabled(false);
-        chkRawMode.setEnabled(false);
+        cmbboxCVE.setEnabled(false);
+        btnCVEApply.setEnabled(false);
         this.revalidate();
     }
 
@@ -207,7 +218,8 @@ public class SamlPanelAction extends JPanel {
         btnMatchAndReplace.setEnabled(true);
         btnTestXXE.setEnabled(true);
         btnTestXSLT.setEnabled(true);
-        chkRawMode.setEnabled(true);
+        cmbboxCVE.setEnabled(true);
+        btnCVEApply.setEnabled(true);
         this.revalidate();
     }
 

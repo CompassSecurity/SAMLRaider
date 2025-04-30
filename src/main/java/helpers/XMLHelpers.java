@@ -17,13 +17,7 @@ import java.util.Iterator;
 import java.util.List;
 import javax.xml.crypto.MarshalException;
 import javax.xml.crypto.XMLStructure;
-import javax.xml.crypto.dsig.CanonicalizationMethod;
-import javax.xml.crypto.dsig.DigestMethod;
-import javax.xml.crypto.dsig.Reference;
-import javax.xml.crypto.dsig.SignedInfo;
-import javax.xml.crypto.dsig.Transform;
-import javax.xml.crypto.dsig.XMLSignatureException;
-import javax.xml.crypto.dsig.XMLSignatureFactory;
+import javax.xml.crypto.dsig.*;
 import javax.xml.crypto.dsig.dom.DOMSignContext;
 import javax.xml.crypto.dsig.dom.DOMValidateContext;
 import javax.xml.crypto.dsig.keyinfo.KeyInfo;
@@ -33,21 +27,13 @@ import javax.xml.crypto.dsig.spec.C14NMethodParameterSpec;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
+import javax.xml.xpath.*;
 import org.apache.xml.security.Init;
 import org.apache.xml.security.signature.XMLSignature;
 import org.apache.xml.security.transforms.Transforms;
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
-import org.w3c.dom.Attr;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.*;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -82,14 +68,14 @@ public class XMLHelpers {
      * @throws IOException If an error in serialization occurred
      */
     public String getString(Document document) throws IOException {
-        return getString(document, false, 0);
+        return getString(document, 0);
     }
 
 
-    public String getString(Document document, boolean indenting, int indent) throws IOException {
+    public String getString(Document document, int indent) throws IOException {
         OutputFormat format = new OutputFormat(document);
         format.setLineWidth(200);
-        format.setIndenting(indenting);
+        format.setIndenting(indent > 0);
         format.setIndent(indent);
         format.setPreserveEmptyAttributes(true);
         format.setEncoding("UTF-8");
@@ -103,19 +89,28 @@ public class XMLHelpers {
     }
 
     /**
-     * Returns a string serialization of a string, use indent and linebreaks =
-     * true to pretty print a document
+     * Returns a string serialization of a document with no indentation.
      *
-     * @param document   document which should be converted to a string
-     * @param indent     amount of indent
-     * @param linebreaks if line breaks should be inserted
+     * @param document document which should be converted to a string
      * @return string of document, pretty or linearized
      * @throws IOException if an Serializer error occures
      */
-    public String getStringOfDocument(Document document, int indent, boolean linebreaks) throws IOException {
+    public String getStringOfDocument(Document document) throws IOException {
+        return getStringOfDocument(document, 0);
+    }
+
+    /**
+     * Returns a string serialization of a document, use indent > 0 to pretty print a document
+     *
+     * @param document document which should be converted to a string
+     * @param indent   amount of indent
+     * @return string of document, pretty or linearized
+     * @throws IOException if an Serializer error occures
+     */
+    public String getStringOfDocument(Document document, int indent) throws IOException {
         document.normalize();
         removeEmptyTags(document);
-        return getString(document, linebreaks, indent);
+        return getString(document, indent);
     }
 
     /**

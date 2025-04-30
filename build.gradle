@@ -2,7 +2,7 @@ plugins {
 	id "java-library"
 }
 
-version = "2.1.0"
+version = "2.3.0"
 
 repositories {
 	mavenCentral()
@@ -24,6 +24,7 @@ dependencies {
 	implementation libs.org.apache.santuario.xmlsec
 	implementation libs.xerces.xercesimpl
 
+	testImplementation libs.com.formdev.flatlaf
 	testImplementation libs.net.portswigger.burp.extensions.montoya.api
 	testImplementation libs.org.bouncycastle.bcpkix.jdk15on
 	testImplementation libs.org.junit.jupiter

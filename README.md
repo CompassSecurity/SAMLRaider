@@ -79,7 +79,7 @@ Don't forget to rate our extension with as many stars you like :smile:.
 ### Manual Installation
 
 First, download the latest SAML Raider version:
-[saml-raider-2.1.0.jar](https://github.com/SAMLRaider/SAMLRaider/releases/download/v2.1.0/saml-raider-2.1.0.jar).
+[saml-raider-2.3.0.jar](https://github.com/SAMLRaider/SAMLRaider/releases/download/v2.3.0/saml-raider-2.3.0.jar).
 Then, start Burp Suite and click in the `Extensions` tab on `Add`. Choose the
 SAML Raider JAR file to install it and you are ready to go.
 
@@ -149,7 +149,7 @@ SAML Raider is on the Internet :).
 
 ### Other
 
-- SANS Burp Suite Cheat Sheet recommends SAML Raider: https://www.sans.org/security-resources/posters/pen-testing/burp-suite-cheat-sheet-280?msc=Cheat+Sheet+Blog
+- SANS Burp Suite Cheat Sheet recommends SAML Raider: https://www.sans.org/posters/burp-suite-cheat-sheet/
 
 ## Authors
 

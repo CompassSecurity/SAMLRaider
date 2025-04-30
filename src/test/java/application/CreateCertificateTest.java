@@ -79,7 +79,7 @@ public class CreateCertificateTest {
 
         certificateController = new CertificateTabController(new CertificateTab());
         certificateController.exportCertificate(certificate, outputFileCertificate);
-        certificateController.exportPrivateKey(certificate, outputFilePrivateKey);
+        certificateController.exportPrivateKeyPemFormat(certificate, outputFilePrivateKey);
 
         assertEquals(subject, certificate.getIssuer());
     }
