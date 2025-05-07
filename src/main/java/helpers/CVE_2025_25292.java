@@ -53,7 +53,7 @@ public class CVE_2025_25292 {
             if (referenceNodes.getLength() == 0) continue;
 
             Element reference = (Element) referenceNodes.item(0);
-            String refURI = reference.getAttribute("URI").replaceFirst("^#", "");
+            String refURI = reference.getAttribute("URI").substring(1);
 
             Element target = null;
             NodeList allElements = document.getElementsByTagName("*");
