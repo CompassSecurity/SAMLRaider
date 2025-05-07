@@ -23,6 +23,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
+
+import helpers.CVE_2025_25291;
+import helpers.CVE_2025_25292;
 import model.BurpCertificate;
 import net.miginfocom.swing.MigLayout;
 
@@ -107,7 +110,9 @@ public class SamlPanelAction extends JPanel {
         xmlAttacksPanel.add(btnTestXSLT, "wrap");
 
         cmbboxCVE.setModel(new DefaultComboBoxModel<>(new String[]{
-                CVE_2025_23369.CVE
+                CVE_2025_23369.CVE,
+                CVE_2025_25291.CVE,
+                CVE_2025_25292.CVE
         }));
 
         btnCVEApply.addActionListener(event -> controller.applyCVE());
