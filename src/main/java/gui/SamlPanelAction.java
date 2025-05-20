@@ -2,6 +2,8 @@ package gui;
 
 import application.SamlTabController;
 import helpers.CVE_2025_23369;
+import helpers.CVE_2025_25291;
+import helpers.CVE_2025_25292;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
@@ -23,9 +25,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
-
-import helpers.CVE_2025_25291;
-import helpers.CVE_2025_25292;
 import model.BurpCertificate;
 import net.miginfocom.swing.MigLayout;
 

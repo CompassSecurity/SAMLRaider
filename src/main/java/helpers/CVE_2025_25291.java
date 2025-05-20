@@ -1,14 +1,13 @@
 package helpers;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 /// Links:
 /// * https://github.com/CompassSecurity/SAMLRaider/issues/93
@@ -51,7 +50,7 @@ public class CVE_2025_25291 {
                 ? "</" + root.getPrefix() + ":" + root.getLocalName() + ">"
                 : "</" + root.getTagName() + ">";
 
-        String xmlContent = xmlHelpers.getString(document,4).trim().replaceFirst("^<\\?xml[^>]*\\?>\\s*", "");
+        String xmlContent = xmlHelpers.getString(document, 4).trim().replaceFirst("^<\\?xml[^>]*\\?>\\s*", "");
         String[] parts = xmlContent.split(endTag);
 
         String originalXML = samlMessage.replaceFirst("^<\\?xml[^>]*\\?>\\s*", "");

@@ -15,8 +15,11 @@ import gui.SamlMain;
 import gui.SamlPanelInfo;
 import gui.SignatureHelpWindow;
 import gui.XSWHelpWindow;
-import helpers.*;
-
+import helpers.CVE_2025_23369;
+import helpers.CVE_2025_25291;
+import helpers.CVE_2025_25292;
+import helpers.XMLHelpers;
+import helpers.XSWHelpers;
 import java.awt.Component;
 import java.awt.Desktop;
 import java.awt.Toolkit;
