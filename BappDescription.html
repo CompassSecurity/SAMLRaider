@@ -1,27 +1,37 @@
-<p>SAML Raider is a Burp Suite extension for testing SAML infrastructures. It contains two core features - a SAML message editor and an X.509 certificate manager.</p>
+<p>SAML Raider is a Burp Suite extension designed for testing SAML infrastructures. It offers two core functionalities: manipulating SAML messages and managing X.509 certificates.</p>
 
-<p>The message editor provides the following capabilities:</p>
+<h2>Features</h2>
+<p>The extension is divided into two main parts: the SAML message editor and the certificate management tool.</p>
+
+<h3>Message Editor</h3>
 <ul>
-    <li>Sign SAML messages & assertions (signature spoofing attack)</li>
-    <li>Remove signatures (signature exclusion attack)</li>
-    <li>Edit SAML messages (SAMLRequest, SAMLResponse & custom parameter names)</li>
-    <li>Perform eight common XSW attacks</li>
-    <li>Insert XXE and XSLT attack payloads</li>
-    <li>Supported Profiles: SAML Webbrowser Single Sign-on Profile, Web Services Security SAML Token Profile</li>
-    <li>Supported Bindings: POST Binding, Redirect Binding, SOAP Binding, URI Binding</li>
+  <li>Sign SAML messages &amp; assertions (signature spoofing attack)</li>
+  <li>Remove signatures (signature exclusion attack)</li>
+  <li>Edit SAML messages (SAMLRequest, SAMLResponse &amp; custom parameter names)</li>
+  <li>Perform eight common XSW attacks</li>
+  <li>Insert XXE and XSLT attack payloads</li>
+  <li>Supported Profiles: SAML Webbrowser Single Sign-on Profile, Web Services Security SAML Token Profile</li>
+  <li>Supported Bindings: POST Binding, Redirect Binding, SOAP Binding, URI Binding</li>
 </ul>
 
-<p>The certificate manager provides the following capabilities:</p>
+<h3>Certificate Management</h3>
 <ul>
-    <li>Import X.509 certificates (PEM and DER format)</li>
-    <li>Import X.509 certificate chains</li>
-    <li>Export X.509 certificates (PEM format)</li>
-    <li>Delete imported X.509 certificates</li>
-    <li>Display informations of X.509 certificates</li>
-    <li>Import private keys (PKCD#8 in DER format and traditional RSA in PEM Format)</li>
-    <li>Export private keys (traditional RSA Key PEM Format)</li>
-    <li>Cloning X.509 certificates</li>
-    <li>Cloning X.509 certificate chains</li>
-    <li>Create new X.509 certificates</li>
-    <li> Editing and self-sign existing X.509 certificates</li>
+  <li>Import X.509 certificates (PEM and DER format)</li>
+  <li>Import X.509 certificate chains</li>
+  <li>Export X.509 certificates (PEM format)</li>
+  <li>Delete imported X.509 certificates</li>
+  <li>Display information of X.509 certificates</li>
+  <li>Import private keys (PKCS#8 in DER format and traditional RSA in PEM format)</li>
+  <li>Export private keys (traditional RSA Key PEM format)</li>
+  <li>Clone X.509 certificates and certificate chains</li>
+  <li>Create new X.509 certificates</li>
+  <li>Edit and self-sign existing X.509 certificates</li>
 </ul>
+
+<h2>Usage</h2>
+
+<p>To test SAML environments more comfortably, you can add an intercept rule in the proxy settings. Add a new rule that checks for the parameter name <code class="InlineCode">SAMLResponse</code> in the request.</p>
+
+<p>If you are working with a custom parameter name for a SAML message, this can be configured in the SAML Raider Certificates tab.</p>
+
+<p>If you do not want SAML Raider to parse your SAML message before sending it to the server (for example, when performing XXE attacks), you can use the raw mode.</p>
