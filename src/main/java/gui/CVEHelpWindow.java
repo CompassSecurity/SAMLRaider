@@ -15,9 +15,8 @@ public class CVEHelpWindow extends JFrame {
     private static final long serialVersionUID = 1L;
 
     public CVEHelpWindow(String cve) {
-        String description;
-        if (cve.equals(CVE_2025_23369.CVE)) {
-            description = """
+        var description = switch (cve) {
+            case CVE_2025_23369.CVE -> """
                     <ol>
                         <li>
                             You need a SAMLResponse with Signed Message & Assertion that is valid and accepted by the server.
@@ -34,9 +33,7 @@ public class CVEHelpWindow extends JFrame {
                         </li>
                     </ol>
                     """;
-        }
-        if (cve.equals(CVE_2025_25291.CVE)) {
-            description = """
+            case CVE_2025_25291.CVE -> """
                     <ol>
                         <li>
                             You need a SAMLResponse that is valid and accepted by the server.
@@ -54,9 +51,7 @@ public class CVEHelpWindow extends JFrame {
                         </li>
                     </ol>
                     """;
-        }
-        if (cve.equals(CVE_2025_25292.CVE)) {
-            description = """
+            case CVE_2025_25292.CVE -> """
                     <ol>
                         <li>
                             You need a SAMLResponse that is valid and accepted by the server.
@@ -72,9 +67,8 @@ public class CVEHelpWindow extends JFrame {
                         </li>
                     </ol>
                     """;
-        } else {
-            description = "no description";
-        }
+            default -> "No description";
+        };
 
         var text = """
                 <h1>%s</h1>
