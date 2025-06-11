@@ -2,6 +2,8 @@ package gui;
 
 import application.SamlTabController;
 import helpers.CVE_2025_23369;
+import helpers.CVE_2025_25291;
+import helpers.CVE_2025_25292;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
@@ -107,7 +109,9 @@ public class SamlPanelAction extends JPanel {
         xmlAttacksPanel.add(btnTestXSLT, "wrap");
 
         cmbboxCVE.setModel(new DefaultComboBoxModel<>(new String[]{
-                CVE_2025_23369.CVE
+                CVE_2025_23369.CVE,
+                CVE_2025_25291.CVE,
+                CVE_2025_25292.CVE
         }));
 
         btnCVEApply.addActionListener(event -> controller.applyCVE());
