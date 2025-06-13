@@ -3,7 +3,7 @@ ExtensionType: 1
 Name: SAML Raider
 RepoName: saml-raider
 ScreenVersion: 2.4.0
-SerialVersion: 22
+SerialVersion: 23
 MinPlatformVersion: 16
 ProOnly: False
 Author: Roland Bischofberger / Emanuel Duss / Tobias Hort-Giess
