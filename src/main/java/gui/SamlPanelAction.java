@@ -1,6 +1,7 @@
 package gui;
 
 import application.SamlTabController;
+import helpers.CVE_2022_41912;
 import helpers.CVE_2025_23369;
 import helpers.CVE_2025_25291;
 import helpers.CVE_2025_25292;
@@ -111,7 +112,8 @@ public class SamlPanelAction extends JPanel {
         cmbboxCVE.setModel(new DefaultComboBoxModel<>(new String[]{
                 CVE_2025_23369.CVE,
                 CVE_2025_25291.CVE,
-                CVE_2025_25292.CVE
+                CVE_2025_25292.CVE,
+                CVE_2022_41912.CVE
         }));
 
         btnCVEApply.addActionListener(event -> controller.applyCVE());
