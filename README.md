@@ -116,7 +116,7 @@ SAML Raider is on the Internet :).
 ### Bachelor Thesis
 
 - Our bachelor thesis where SAML Raider was born:
-[eprints_BA_SAML2_Burp_Plugin_SAML_Raider_eduss_rbischof.pdf](https://eprints.hsr.ch/464/1/eprints_BA_SAML2_Burp_Plugin_SAML_Raider_eduss_rbischof.pdf).
+[eprints_BA_SAML2_Burp_Plugin_SAML_Raider_eduss_rbischof.pdf](https://eprints.ost.ch/464/1/eprints_BA_SAML2_Burp_Plugin_SAML_Raider_eduss_rbischof.pdf).
 
 ### General
 
