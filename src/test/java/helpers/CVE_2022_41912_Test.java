@@ -1,7 +1,6 @@
 package helpers;
 
 import org.junit.jupiter.api.Test;
-import org.w3c.dom.Document;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
