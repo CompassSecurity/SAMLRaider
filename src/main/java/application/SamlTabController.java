@@ -497,6 +497,12 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
         try {
             var cve = samlGUI.getActionPanel().getSelectedCVE();
             switch (cve) {
+                case CVE_2022_41912.CVE:
+                    samlMessage = CVE_2022_41912.apply(orgSAMLMessage);
+                    textArea.setContents(ByteArray.byteArray(samlMessage));
+                    isEdited = true;
+                    setInfoMessageText("%s applied".formatted(cve));
+                    break;
                 case CVE_2025_23369.CVE:
                     samlMessage = CVE_2025_23369.apply(orgSAMLMessage);
                     textArea.setContents(ByteArray.byteArray(samlMessage));
@@ -511,12 +517,6 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
                     break;
                 case CVE_2025_25292.CVE:
                     samlMessage = CVE_2025_25292.apply(orgSAMLMessage);
-                    textArea.setContents(ByteArray.byteArray(samlMessage));
-                    isEdited = true;
-                    setInfoMessageText("%s applied".formatted(cve));
-                    break;
-                case CVE_2022_41912.CVE:
-                    samlMessage = CVE_2022_41912.apply(orgSAMLMessage);
                     textArea.setContents(ByteArray.byteArray(samlMessage));
                     isEdited = true;
                     setInfoMessageText("%s applied".formatted(cve));

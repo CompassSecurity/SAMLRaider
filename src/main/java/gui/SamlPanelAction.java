@@ -110,10 +110,10 @@ public class SamlPanelAction extends JPanel {
         xmlAttacksPanel.add(btnTestXSLT, "wrap");
 
         cmbboxCVE.setModel(new DefaultComboBoxModel<>(new String[]{
+                CVE_2022_41912.CVE,
                 CVE_2025_23369.CVE,
                 CVE_2025_25291.CVE,
-                CVE_2025_25292.CVE,
-                CVE_2022_41912.CVE
+                CVE_2025_25292.CVE
         }));
 
         btnCVEApply.addActionListener(event -> controller.applyCVE());

@@ -17,6 +17,21 @@ public class CVEHelpWindow extends JFrame {
 
     public CVEHelpWindow(String cve) {
         var description = switch (cve) {
+            case CVE_2022_41912.CVE -> """
+                    <ol>
+                        <li>
+                            You need a SAMLResponse that is valid and accepted by the server. The assertion must not be encrypted and the SAMLResponse must not be signed.
+                        </li>
+                        <li>
+                            Apply the CVE-2022-41912 attack. This will duplicate the existing Assertion, resulting in a Response containing <b>two Assertions</b>.
+                        </li>
+                        <li>
+                            The first Assertion is left untouched to pass the signature verification.
+                            <b>Modify the second Assertion</b> (the injected one) to impersonate the victim (e.g., change the NameID or Attributes).
+                            The vulnerable library validates the first one but consumes identity data from the second one.
+                        </li>
+                    </ol>
+                    """;
             case CVE_2025_23369.CVE -> """
                     <ol>
                         <li>
@@ -65,21 +80,6 @@ public class CVEHelpWindow extends JFrame {
                         <li>
                             After applying the CVE-2025-25292 transformation,
                             You can try to change one of the assertions attribute to bypass authentication.
-                        </li>
-                    </ol>
-                    """;
-            case CVE_2022_41912.CVE -> """
-                    <ol>
-                        <li>
-                            You need a SAMLResponse that is valid and accepted by the server. The assertion must not be encrypted and the SAMLResponse must not be signed.
-                        </li>
-                        <li>
-                            Apply the CVE-2022-41912 attack. This will duplicate the existing Assertion, resulting in a Response containing <b>two Assertions</b>.
-                        </li>
-                        <li>
-                            The first Assertion is left untouched to pass the signature verification.
-                            <b>Modify the second Assertion</b> (the injected one) to impersonate the victim (e.g., change the NameID or Attributes).
-                            The vulnerable library validates the first one but consumes identity data from the second one.
                         </li>
                     </ol>
                     """;
