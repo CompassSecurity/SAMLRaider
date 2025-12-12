@@ -37,7 +37,7 @@ public class CVE_2022_41912 {
 
         // I think it's better to change the ID of the fake assertion
         String originalID = maliciousAssertion.getAttribute("ID");
-        if (originalID != null && !originalID.isEmpty()) {
+        if (!originalID.isEmpty()) {
             maliciousAssertion.setAttribute("ID", originalID + "_attack");
         } else {
             maliciousAssertion.setAttribute("ID", "attack_assertion_" + System.currentTimeMillis());
