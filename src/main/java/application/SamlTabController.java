@@ -15,6 +15,7 @@ import gui.SamlMain;
 import gui.SamlPanelInfo;
 import gui.SignatureHelpWindow;
 import gui.XSWHelpWindow;
+import helpers.CVE_2022_41912;
 import helpers.CVE_2025_23369;
 import helpers.CVE_2025_25291;
 import helpers.CVE_2025_25292;
@@ -360,10 +361,13 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
             }
         } catch (SAXException e) {
             setInfoMessageText(XML_NOT_WELL_FORMED);
+            BurpExtender.api.logging().logToError(e);
         } catch (IOException e) {
             setInfoMessageText(XML_COULD_NOT_SERIALIZE);
+            BurpExtender.api.logging().logToError(e);
         } catch (Exception e) {
             setInfoMessageText(XML_COULD_NOT_SIGN);
+            BurpExtender.api.logging().logToError(e);
         }
     }
 
@@ -393,18 +397,25 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
             }
         } catch (IOException e) {
             setInfoMessageText(XML_COULD_NOT_SERIALIZE);
+            BurpExtender.api.logging().logToError(e);
         } catch (SAXException e) {
             setInfoMessageText(XML_NOT_WELL_FORMED);
+            BurpExtender.api.logging().logToError(e);
         } catch (CertificateException e) {
             setInfoMessageText(XML_COULD_NOT_SIGN);
+            BurpExtender.api.logging().logToError(e);
         } catch (NoSuchAlgorithmException e) {
             setInfoMessageText(XML_COULD_NOT_SIGN + ", no such algorithm");
+            BurpExtender.api.logging().logToError(e);
         } catch (InvalidKeySpecException e) {
             setInfoMessageText(XML_COULD_NOT_SIGN + ", invalid private key");
+            BurpExtender.api.logging().logToError(e);
         } catch (MarshalException e) {
             setInfoMessageText(XML_COULD_NOT_SERIALIZE);
+            BurpExtender.api.logging().logToError(e);
         } catch (XMLSignatureException e) {
             setInfoMessageText(XML_COULD_NOT_SIGN);
+            BurpExtender.api.logging().logToError(e);
         }
     }
 
@@ -486,6 +497,12 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
         try {
             var cve = samlGUI.getActionPanel().getSelectedCVE();
             switch (cve) {
+                case CVE_2022_41912.CVE:
+                    samlMessage = CVE_2022_41912.apply(orgSAMLMessage);
+                    textArea.setContents(ByteArray.byteArray(samlMessage));
+                    isEdited = true;
+                    setInfoMessageText("%s applied".formatted(cve));
+                    break;
                 case CVE_2025_23369.CVE:
                     samlMessage = CVE_2025_23369.apply(orgSAMLMessage);
                     textArea.setContents(ByteArray.byteArray(samlMessage));

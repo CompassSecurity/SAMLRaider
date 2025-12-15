@@ -79,7 +79,7 @@ Don't forget to rate our extension with as many stars you like :smile:.
 ### Manual Installation
 
 First, download the latest SAML Raider version:
-[saml-raider-2.4.0.jar](https://github.com/SAMLRaider/SAMLRaider/releases/download/v2.4.0/saml-raider-2.4.0.jar).
+[saml-raider-2.5.0.jar](https://github.com/SAMLRaider/SAMLRaider/releases/download/v2.5.0/saml-raider-2.5.0.jar).
 Then, start Burp Suite and click in the `Extensions` tab on `Add`. Choose the
 SAML Raider JAR file to install it and you are ready to go.
 
@@ -116,7 +116,7 @@ SAML Raider is on the Internet :).
 ### Bachelor Thesis
 
 - Our bachelor thesis where SAML Raider was born:
-[eprints_BA_SAML2_Burp_Plugin_SAML_Raider_eduss_rbischof.pdf](https://eprints.hsr.ch/464/1/eprints_BA_SAML2_Burp_Plugin_SAML_Raider_eduss_rbischof.pdf).
+[eprints_BA_SAML2_Burp_Plugin_SAML_Raider_eduss_rbischof.pdf](https://eprints.ost.ch/464/1/eprints_BA_SAML2_Burp_Plugin_SAML_Raider_eduss_rbischof.pdf).
 
 ### General
 
