@@ -4,7 +4,7 @@ Name: SAML Raider
 RepoName: saml-raider
 ScreenVersion: 2.5.0
 SerialVersion: 25
-MinPlatformVersion: 2
+MinPlatformVersion: 16
 ProOnly: False
 Author: Roland Bischofberger / Emanuel Duss / Tobias Hort-Giess
 ShortDescription: Provides a SAML message editor and a certificate management tool to help with testing SAML infrastructures.
