@@ -7,7 +7,7 @@ import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
-public class HTTPHelpers {
+public class Compression {
 
     public byte[] decompress(byte[] data, boolean gzip) throws DataFormatException {
         if (data.length == 0) {

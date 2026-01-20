@@ -646,6 +646,7 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
     }
 
     public void setEditorContents(String text) {
+        this.isEdited = true;
         this.textArea.setContents(ByteArray.byteArray(text));
     }
 }

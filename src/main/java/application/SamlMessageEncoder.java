@@ -1,6 +1,6 @@
 package application;
 
-import helpers.HTTPHelpers;
+import helpers.Compression;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -25,8 +25,8 @@ public class SamlMessageEncoder {
         byte[] byteMessage = message.getBytes(StandardCharsets.UTF_8);
 
         if (isInflated) {
-            var httpHelpers = new HTTPHelpers();
-            byteMessage = httpHelpers.compress(byteMessage, isGZip);
+            var compression = new Compression();
+            byteMessage = compression.compress(byteMessage, isGZip);
         }
 
         String base64Encoded = Base64.getEncoder().encodeToString(byteMessage);
