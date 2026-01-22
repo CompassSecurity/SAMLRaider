@@ -466,7 +466,7 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
             fileOutputStream.flush();
             fileOutputStream.close();
 
-            URI uri = new URL("file://" + file.getAbsolutePath()).toURI();
+            URI uri = file.toURI();
 
             Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
             if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
@@ -483,8 +483,6 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
         } catch (DOMException e) {
             setInfoMessageText(XML_NOT_SUITABLE_FOR_XSW);
         } catch (MalformedURLException e) {
-            BurpExtender.api.logging().logToError(e);
-        } catch (URISyntaxException e) {
             BurpExtender.api.logging().logToError(e);
         } catch (IOException e) {
             setInfoMessageText(NO_DIFF_TEMP_FILE);
