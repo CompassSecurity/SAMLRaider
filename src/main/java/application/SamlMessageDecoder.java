@@ -1,7 +1,7 @@
 package application;
 
 import burp.BurpExtender;
-import helpers.HTTPHelpers;
+import helpers.Compression;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.zip.DataFormatException;
@@ -36,15 +36,15 @@ public class SamlMessageDecoder {
             isInflated = false;
             isGZip = false;
         } else {
-            var httpHelpers = new HTTPHelpers();
+            var compression = new Compression();
             try {
-                byte[] inflated = httpHelpers.decompress(base64Decoded, true);
+                byte[] inflated = compression.decompress(base64Decoded, true);
                 return new DecodedSAMLMessage(new String(inflated, StandardCharsets.UTF_8), isInflated, isGZip);
             } catch (DataFormatException e) {
                 isGZip = false;
             }
             try {
-                byte[] inflated = httpHelpers.decompress(base64Decoded, false);
+                byte[] inflated = compression.decompress(base64Decoded, false);
                 return new DecodedSAMLMessage(new String(inflated, StandardCharsets.UTF_8), isInflated, isGZip);
             } catch (DataFormatException e) {
                 isInflated = false;

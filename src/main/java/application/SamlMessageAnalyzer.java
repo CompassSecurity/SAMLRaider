@@ -5,6 +5,9 @@ import burp.api.montoya.http.message.ContentType;
 import burp.api.montoya.http.message.params.HttpParameterType;
 import burp.api.montoya.http.message.requests.HttpRequest;
 import helpers.XMLHelpers;
+
+import java.util.stream.Stream;
+
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -72,8 +75,20 @@ public class SamlMessageAnalyzer {
                             || samlRequestInBody != null
                             || samlRequestInUrl != null;
 
-            isSAMLRequest = samlRequestInBody != null || samlRequestInUrl != null;
-            isURLParam = samlResponseInUrl != null || samlRequestInUrl != null;
+            if (isSAMLMessage) {
+                isSAMLRequest = samlRequestInBody != null || samlRequestInUrl != null;
+                isURLParam = samlResponseInUrl != null || samlRequestInUrl != null;
+
+                String message =
+                    Stream.of(samlResponseInBody, samlResponseInUrl, samlRequestInBody, samlRequestInUrl)
+                        .filter(str -> str != null)
+                        .findFirst()
+                        .orElseThrow();
+
+                var decodedSAMLMessage = SamlMessageDecoder.getDecodedSAMLMessage(message, isWSSMessage, isWSSUrlEncoded);
+                isInflated = decodedSAMLMessage.isInflated();
+                isGZip = decodedSAMLMessage.isGZip();
+            }
         }
 
         return new SamlMessageAnalysisResult(
@@ -90,5 +105,4 @@ public class SamlMessageAnalyzer {
     private SamlMessageAnalyzer() {
         // static class
     }
-
 }
