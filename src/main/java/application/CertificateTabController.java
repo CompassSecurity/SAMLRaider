@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
@@ -38,16 +39,19 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Observable;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
-public class CertificateTabController extends Observable {
+public class CertificateTabController implements Observable {
 
     private CertificateTab certificateTab;
+    private Set<WeakReference<Observer>> observers;
     private BurpCertificateStore burpCertificateStore;
     private FileHelper fileHelper;
 
     public CertificateTabController(CertificateTab certificateTab) {
         this.certificateTab = certificateTab;
+        observers = Collections.newSetFromMap(new ConcurrentHashMap<WeakReference<Observer>, Boolean>());
         burpCertificateStore = new BurpCertificateStore();
         fileHelper = new FileHelper();
         if (BurpExtender.isDebugOn) {
@@ -65,7 +69,6 @@ public class CertificateTabController extends Observable {
      */
     public void setCertificateTree() {
         certificateTab.setCertificateRootNode(burpCertificateStore.getRootNode());
-        setChanged();
         notifyObservers();
     }
 
@@ -729,5 +732,22 @@ public class CertificateTabController extends Observable {
 
     public String getSamlResponseParameterName() {
         return certificateTab.getSamlResponseParameterName();
+    }
+
+    @Override
+    public void addObserver(Observer observer) {
+        this.observers.add(new WeakReference<Observer>(observer));
+    }
+
+    @Override
+    public void notifyObservers() {
+        for (var ref : observers) {
+            var observer = ref.get();
+            if (observer == null) {
+                observers.remove(ref);
+            } else {
+                observer.update();
+            }
+        }
     }
 }
