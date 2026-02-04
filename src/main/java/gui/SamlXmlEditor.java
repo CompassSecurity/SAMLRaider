@@ -13,6 +13,8 @@ import java.io.Serial;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -45,6 +47,7 @@ public class SamlXmlEditor extends JPanel {
     private final Timer highlightTimer;
     private final AtomicBoolean modified = new AtomicBoolean(false);
     private volatile boolean suppressEvents = false;
+    private boolean softWrap = false;
 
     // Search
     private final JTextField searchField;
@@ -68,12 +71,15 @@ public class SamlXmlEditor extends JPanel {
 
         doc = new DefaultStyledDocument();
 
-        // Override to disable word-wrapping (XML reads better with horiz scroll)
+        // Override to control word-wrapping via softWrap flag.
+        // When softWrap=false, long lines scroll horizontally.
+        // When softWrap=true, content wraps at viewport edge.
         textPane = new JTextPane(doc) {
             @Serial
             private static final long serialVersionUID = 1L;
             @Override
             public boolean getScrollableTracksViewportWidth() {
+                if (softWrap) return true;
                 Component parent = getParent();
                 if (parent == null) return true;
                 return getUI().getPreferredSize(this).width <= parent.getWidth();
@@ -145,13 +151,54 @@ public class SamlXmlEditor extends JPanel {
             }
         });
 
+        // Nav arrows: ▲ previous, ▼ next
+        var btnPrev = new JButton("▲");
+        btnPrev.setFont(font.deriveFont(Font.PLAIN, 10f));
+        btnPrev.setToolTipText("Previous match (Shift+Enter)");
+        btnPrev.setFocusable(false);
+        btnPrev.setMargin(new java.awt.Insets(1, 4, 1, 4));
+        btnPrev.addActionListener(e -> jumpToMatch(-1));
+
+        var btnNext = new JButton("▼");
+        btnNext.setFont(font.deriveFont(Font.PLAIN, 10f));
+        btnNext.setToolTipText("Next match (Enter)");
+        btnNext.setFocusable(false);
+        btnNext.setMargin(new java.awt.Insets(1, 4, 1, 4));
+        btnNext.addActionListener(e -> jumpToMatch(1));
+
+        var navPanel = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 2, 0));
+        navPanel.add(btnPrev);
+        navPanel.add(btnNext);
+        navPanel.add(searchStatus);
+
+        // Soft wrap checkbox
+        var wrapCheck = new JCheckBox("Wrap");
+        wrapCheck.setFont(font.deriveFont(Font.PLAIN, 11f));
+        wrapCheck.setFocusable(false);
+        wrapCheck.setToolTipText("Soft wrap long lines");
+        wrapCheck.setSelected(softWrap);
+        wrapCheck.addActionListener(e -> {
+            softWrap = wrapCheck.isSelected();
+            textPane.getParent().invalidate();
+            textPane.revalidate();
+            textPane.repaint();
+        });
+
+        var rightPanel = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT, 4, 0));
+        rightPanel.add(wrapCheck);
+
         var searchBar = new JPanel(new BorderLayout(6, 0));
         searchBar.setBorder(BorderFactory.createEmptyBorder(3, 6, 3, 6));
         var searchLabel = new JLabel("Find:");
         searchLabel.setFont(font.deriveFont(Font.PLAIN, 12f));
         searchBar.add(searchLabel, BorderLayout.WEST);
         searchBar.add(searchField, BorderLayout.CENTER);
-        searchBar.add(searchStatus, BorderLayout.EAST);
+
+        var eastPanel = new JPanel(new BorderLayout(4, 0));
+        eastPanel.add(navPanel, BorderLayout.WEST);
+        eastPanel.add(rightPanel, BorderLayout.EAST);
+        searchBar.add(eastPanel, BorderLayout.EAST);
+
         add(searchBar, BorderLayout.SOUTH);
     }
 
