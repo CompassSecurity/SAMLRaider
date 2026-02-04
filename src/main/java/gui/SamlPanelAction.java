@@ -37,6 +37,7 @@ public class SamlPanelAction extends JPanel {
     private SamlTabController controller;
 
     private final JButton btnMessageReset = new JButton("Reset Message");
+    private final JButton btnFormatXml = new JButton("Format XML");
 
     private final JButton btnXSWHelp = new JButton("Help");
     private final JComboBox<String> cmbboxXSW = new JComboBox<>();
@@ -73,10 +74,13 @@ public class SamlPanelAction extends JPanel {
             controller.resetMessage();
         });
 
+        btnFormatXml.addActionListener(event -> controller.formatXml());
+
         var samlMessagePanel = new JPanel();
         samlMessagePanel.setBorder(BorderFactory.createTitledBorder("SAML Message"));
         samlMessagePanel.setLayout(new MigLayout());
-        samlMessagePanel.add(btnMessageReset, "wrap");
+        samlMessagePanel.add(btnMessageReset, "split 2");
+        samlMessagePanel.add(btnFormatXml, "wrap");
 
         btnXSWHelp.addActionListener(event -> controller.showXSWHelp());
 
@@ -202,6 +206,7 @@ public class SamlPanelAction extends JPanel {
         btnSendCertificate.setEnabled(false);
         btnResignMessage.setEnabled(false);
         btnMatchAndReplace.setEnabled(false);
+        btnFormatXml.setEnabled(false);
         btnTestXXE.setEnabled(false);
         btnTestXSLT.setEnabled(false);
         cmbboxCVE.setEnabled(false);
@@ -222,6 +227,7 @@ public class SamlPanelAction extends JPanel {
         btnSendCertificate.setEnabled(true);
         btnResignMessage.setEnabled(true);
         btnMatchAndReplace.setEnabled(true);
+        btnFormatXml.setEnabled(true);
         btnTestXXE.setEnabled(true);
         btnTestXSLT.setEnabled(true);
         cmbboxCVE.setEnabled(true);

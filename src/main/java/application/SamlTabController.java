@@ -341,6 +341,18 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
         }
     }
 
+    public void formatXml() {
+        resetInfoMessageText();
+        String current = textArea.getText();
+        String formatted = prettifyXmlOrFallback(current);
+        if (formatted.equals(current)) {
+            setInfoMessageText("XML is already formatted (or not well-formed)");
+        } else {
+            textArea.setText(formatted);
+            setInfoMessageText("XML formatted");
+        }
+    }
+
     public void resetMessage() {
         samlMessage = orgSAMLMessage;
         textArea.setText(prettifyXmlOrFallback(samlMessage));
