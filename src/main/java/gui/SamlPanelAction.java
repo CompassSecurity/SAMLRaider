@@ -56,7 +56,7 @@ public class SamlPanelAction extends JPanel {
     private final JComboBox<BurpCertificate> cmbboxCertificate = new JComboBox<>();
     private final JButton btnSignatureRemove = new JButton("Remove Signatures");
     private final JButton btnResignAssertion = new JButton("(Re-)Sign Assertion");
-    private final JButton btnSendCertificate = new JButton("Send Certificate to SAML Raider Certificates");
+    private final JButton btnSendCertificate = new JButton("Store Certificate");
     private final JButton btnResignMessage = new JButton("(Re-)Sign Message");
 
 
@@ -102,7 +102,7 @@ public class SamlPanelAction extends JPanel {
         btnResignMessage.addActionListener(event -> controller.resignMessage());
 
         // --- Compact layout: one row per category ---
-        var panel = new JPanel(new MigLayout("insets 4 6 4 6, gap 4 2", "", ""));
+        var panel = new JPanel(new MigLayout("insets 6 8 6 8, gap 4 6", "", ""));
 
         // Row 1: Message actions
         panel.add(new JLabel("Message"), "split");
