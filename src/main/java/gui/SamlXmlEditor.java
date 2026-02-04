@@ -1,145 +1,56 @@
 package gui;
 
 import burp.BurpExtender;
-import burp.api.montoya.ui.Theme;
+import burp.api.montoya.core.ByteArray;
+import burp.api.montoya.ui.editor.EditorOptions;
+import burp.api.montoya.ui.editor.RawEditor;
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Font;
 import java.io.Serial;
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
-import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
-import org.fife.ui.rtextarea.RTextScrollPane;
 
 /**
- * XML editor with syntax highlighting + Burp theme-aware colors.
+ * Thin wrapper around Burp's native RawEditor that exposes a simple
+ * String-based API.  Burp's editor handles theming, editability, and
+ * basic syntax colouring automatically.
  */
 public class SamlXmlEditor extends JPanel {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private final RSyntaxTextArea textArea;
-    private final AtomicBoolean modified = new AtomicBoolean(false);
-    private volatile boolean suppressModifiedFlag = false;
+    private final RawEditor rawEditor;
 
     public SamlXmlEditor() {
         super(new BorderLayout());
-
-        textArea = new RSyntaxTextArea(20, 80);
-        textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_XML);
-        textArea.setCodeFoldingEnabled(true);
-        textArea.setAntiAliasingEnabled(true);
-        textArea.setBracketMatchingEnabled(true);
-        textArea.setAutoIndentEnabled(true);
-        textArea.setMarkOccurrences(true);
-        textArea.setTabsEmulated(true);
-        textArea.setTabSize(2);
-
-        // Font: match Burp editor font if available
-        Font burpFont = BurpExtender.api.userInterface().currentEditorFont();
-        if (burpFont != null) {
-            textArea.setFont(burpFont);
-        }
-
-        applyBurpTheme();
-
-        textArea.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                onChange();
-            }
-
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                onChange();
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-                onChange();
-            }
-
-            private void onChange() {
-                if (!suppressModifiedFlag) {
-                    modified.set(true);
-                }
-            }
-        });
-
-        var scroll = new RTextScrollPane(textArea);
-        scroll.setBorder(null);
-
-        add(scroll, BorderLayout.CENTER);
-
-        // NOTE: do NOT call applyThemeToComponent() here — it recurses into
-        // RSyntaxTextArea's internal components and can break editability / key bindings.
-        // We handle theming manually via applyBurpTheme().
-    }
-
-    public void applyBurpTheme() {
-        Theme theme = BurpExtender.api.userInterface().currentTheme();
-
-        // Conservative palette: readable, high contrast, but not blinding.
-        if (theme == Theme.DARK) {
-            textArea.setBackground(new Color(0x1E1F22));
-            textArea.setForeground(new Color(0xD6D6D6));
-            textArea.setCaretColor(new Color(0xEDEDED));
-            textArea.setSelectionColor(new Color(0x264F78));
-            textArea.setCurrentLineHighlightColor(new Color(0x2A2D2E));
-            textArea.setFadeCurrentLineHighlight(true);
-            textArea.setLineWrap(false);
-            textArea.setMarginLineEnabled(false);
-        } else {
-            textArea.setBackground(Color.WHITE);
-            textArea.setForeground(new Color(0x1F2328));
-            textArea.setCaretColor(Color.BLACK);
-            textArea.setSelectionColor(new Color(0xBBDDFF));
-            textArea.setCurrentLineHighlightColor(new Color(0xF2F6FF));
-            textArea.setFadeCurrentLineHighlight(true);
-            textArea.setLineWrap(false);
-            textArea.setMarginLineEnabled(false);
-        }
-
-        // Repaint on EDT
-        SwingUtilities.invokeLater(textArea::repaint);
+        rawEditor = BurpExtender.api.userInterface().createRawEditor();
+        add(rawEditor.uiComponent(), BorderLayout.CENTER);
     }
 
     public void setText(String text) {
-        suppressModifiedFlag = true;
-        try {
-            textArea.setText(Objects.requireNonNullElse(text, ""));
-            textArea.setCaretPosition(0);
-            modified.set(false);
-        } finally {
-            suppressModifiedFlag = false;
-        }
+        rawEditor.setContents(ByteArray.byteArray(text != null ? text : ""));
     }
 
     public String getText() {
-        return textArea.getText();
+        return rawEditor.getContents().toString();
     }
 
     public void setEditable(boolean editable) {
-        textArea.setEditable(editable);
-        textArea.setEnabled(true);
-        textArea.setFocusable(true);
+        rawEditor.setEditable(editable);
     }
 
     public boolean isModified() {
-        return modified.get();
+        return rawEditor.isModified();
     }
 
     public void resetModified() {
-        modified.set(false);
+        // RawEditor resets its modified flag when setContents is called,
+        // so re-set the current contents to clear it.
+        rawEditor.setContents(rawEditor.getContents());
     }
 
     public String selectedText() {
-        return textArea.getSelectedText();
+        return rawEditor.selection()
+                .map(sel -> sel.contents().toString())
+                .orElse(null);
     }
 }

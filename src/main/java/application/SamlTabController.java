@@ -160,7 +160,10 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
 
     @Override
     public Selection selectedData() {
-        // Our custom XML editor isn't a Montoya Editor, so we don't currently expose selection.
+        String sel = textArea.selectedText();
+        if (sel != null && !sel.isEmpty()) {
+            return Selection.selection(ByteArray.byteArray(sel));
+        }
         return null;
     }
 
