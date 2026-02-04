@@ -25,7 +25,6 @@ dependencies {
 	implementation libs.com.sun.xml.security.xml.security.impl
 	implementation libs.org.apache.santuario.xmlsec
 	implementation libs.xerces.xercesimpl
-	implementation libs.rsyntaxtextarea
 
 	testImplementation libs.com.formdev.flatlaf
 	testImplementation libs.net.portswigger.burp.extensions.montoya.api
