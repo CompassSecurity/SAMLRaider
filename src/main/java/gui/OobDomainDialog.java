@@ -1,6 +1,7 @@
 package gui;
 
 import burp.BurpExtender;
+import burp.api.montoya.core.BurpSuiteEdition;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.FlowLayout;
@@ -24,11 +25,18 @@ public class OobDomainDialog {
      * Show the dialog and return the chosen OOB URL, or empty if cancelled.
      */
     public static Optional<String> prompt(Component parent, String title) {
-        var useCollab = new JCheckBox("Use Burp Collaborator", true);
+        boolean isPro = BurpExtender.api.burpSuite().version().edition() == BurpSuiteEdition.PROFESSIONAL;
+
+        var useCollab = new JCheckBox("Use Burp Collaborator", isPro);
+        useCollab.setEnabled(isPro);
+        if (!isPro) {
+            useCollab.setToolTipText("Burp Collaborator is only available in Burp Suite Professional");
+        }
+
         var domainField = new JTextField(30);
-        domainField.setEnabled(false);
+        domainField.setEnabled(!isPro);
         var domainLabel = new JLabel("OOB Domain:");
-        domainLabel.setEnabled(false);
+        domainLabel.setEnabled(!isPro);
 
         useCollab.addActionListener(e -> {
             boolean custom = !useCollab.isSelected();
