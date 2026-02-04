@@ -8,7 +8,6 @@ import burp.api.montoya.http.message.params.HttpParameter;
 import burp.api.montoya.http.message.params.HttpParameterType;
 import burp.api.montoya.http.message.requests.HttpRequest;
 import burp.api.montoya.ui.Selection;
-import burp.api.montoya.ui.editor.RawEditor;
 import burp.api.montoya.ui.editor.extension.ExtensionProvidedHttpRequestEditor;
 import gui.CVEHelpWindow;
 import gui.SamlMain;
@@ -75,7 +74,6 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
     private String orgSAMLMessage;
     private String samlMessage;
     private SamlXmlEditor textArea;
-    private RawEditor textEditorInformation;
     private SamlMain samlGUI;
     private boolean editable;
     private XSWHelpers xswHelpers;
@@ -87,8 +85,6 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
         samlGUI = new SamlMain(this);
         textArea = samlGUI.getXmlEditorAction();
         textArea.setEditable(editable);
-        textEditorInformation = samlGUI.getTextEditorInformation();
-        textEditorInformation.setEditable(false);
         xmlHelpers = new XMLHelpers();
         xswHelpers = new XSWHelpers();
         this.certificateTabController.addObserver(this);
@@ -280,14 +276,11 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
     }
 
     private void setInformationDisplay() {
-        samlGUI.getTextEditorInformation().setContents(ByteArray.byteArray(""));
         SamlPanelInfo infoPanel = samlGUI.getInfoPanel();
         infoPanel.clearAll();
 
         try {
             Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(samlMessage);
-            String formattedDocumentWithIndentation = xmlHelpers.getStringOfDocument(xmlHelpers.getXMLDocumentOfSAMLMessage(samlMessage), 2);
-            textEditorInformation.setContents(ByteArray.byteArray(formattedDocumentWithIndentation.getBytes()));
             NodeList assertions = xmlHelpers.getAssertions(document);
             if (assertions.getLength() > 0) {
                 Node assertion = assertions.item(0);
@@ -303,7 +296,7 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
                 Node assertion = assertions.item(0);
                 infoPanel.setEncryptionAlgorithm(xmlHelpers.getEncryptionMethod(assertion));
             }
-        } catch (SAXException | IOException e) {
+        } catch (SAXException e) {
             setInfoMessageText(XML_NOT_WELL_FORMED);
         }
     }
@@ -318,7 +311,6 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
         infoPanel.setSignatureAlgorithm("");
         infoPanel.setDigestAlgorithm("");
         infoPanel.setEncryptionAlgorithm("");
-        textEditorInformation.setContents(ByteArray.byteArray(""));
     }
 
 

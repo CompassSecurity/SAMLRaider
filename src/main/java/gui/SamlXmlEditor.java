@@ -77,8 +77,9 @@ public class SamlXmlEditor extends JPanel {
 
         add(scroll, BorderLayout.CENTER);
 
-        // Let Burp apply spacing/colors to swing container bits (scrollbars, etc.)
-        BurpExtender.api.userInterface().applyThemeToComponent(this);
+        // NOTE: do NOT call applyThemeToComponent() here — it recurses into
+        // RSyntaxTextArea's internal components and can break editability / key bindings.
+        // We handle theming manually via applyBurpTheme().
     }
 
     public void applyBurpTheme() {
@@ -126,6 +127,8 @@ public class SamlXmlEditor extends JPanel {
 
     public void setEditable(boolean editable) {
         textArea.setEditable(editable);
+        textArea.setEnabled(true);
+        textArea.setFocusable(true);
     }
 
     public boolean isModified() {
