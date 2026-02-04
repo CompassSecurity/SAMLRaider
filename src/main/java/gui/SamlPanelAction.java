@@ -39,7 +39,7 @@ public class SamlPanelAction extends JPanel {
     private final JButton btnMessageReset = new JButton("Reset Message");
     private final JButton btnFormatXml = new JButton("Format XML");
 
-    private final JButton btnXSWHelp = new JButton("Help");
+    private final JButton btnXSWHelp = new JButton("?");
     private final JComboBox<String> cmbboxXSW = new JComboBox<>();
     private final JButton btnXSWPreview = new JButton("Preview in Browser...");
     private final JButton btnMatchAndReplace = new JButton("Match and Replace");
@@ -50,9 +50,9 @@ public class SamlPanelAction extends JPanel {
 
     private final JComboBox<String> cmbboxCVE = new JComboBox<>();
     private final JButton btnCVEApply = new JButton("Apply CVE");
-    private final JButton btnCVEHelp = new JButton("Help");
+    private final JButton btnCVEHelp = new JButton("?");
 
-    private final JButton btnSignatureHelp = new JButton("Help");
+    private final JButton btnSignatureHelp = new JButton("?");
     private final JComboBox<BurpCertificate> cmbboxCertificate = new JComboBox<>();
     private final JButton btnSignatureRemove = new JButton("Remove Signatures");
     private final JButton btnResignAssertion = new JButton("(Re-)Sign Assertion");
@@ -76,95 +76,67 @@ public class SamlPanelAction extends JPanel {
 
         btnFormatXml.addActionListener(event -> controller.formatXml());
 
-        var samlMessagePanel = new JPanel();
-        samlMessagePanel.setBorder(BorderFactory.createTitledBorder("SAML Message"));
-        samlMessagePanel.setLayout(new MigLayout());
-        samlMessagePanel.add(btnMessageReset, "split 2");
-        samlMessagePanel.add(btnFormatXml, "wrap");
-
+        // --- Wire listeners ---
         btnXSWHelp.addActionListener(event -> controller.showXSWHelp());
-
         btnXSWPreview.addActionListener(event -> controller.showXSWPreview());
-
         btnMatchAndReplace.addActionListener(event -> showMatchAndReplaceDialog());
-
         btnXSWApply.addActionListener(event -> controller.applyXSW());
-
-        var xswAttacksPanel = new JPanel();
-        xswAttacksPanel.setBorder(BorderFactory.createTitledBorder("XSW Attacks"));
-        xswAttacksPanel.setLayout(new MigLayout());
-        xswAttacksPanel.add(btnXSWHelp, "wrap");
-        xswAttacksPanel.add(cmbboxXSW, "split 4");
-        xswAttacksPanel.add(btnMatchAndReplace);
-        xswAttacksPanel.add(btnXSWPreview);
-        xswAttacksPanel.add(btnXSWApply, "wrap");
 
         btnTestXXE.addActionListener(event ->
                 Optional.ofNullable(JOptionPane.showInputDialog(btnXSWApply, "Enter Burp Collaborator URL (e.g. https://xyz.burpcollaborator.net)"))
                         .ifPresent(controller::applyXXE));
-
         btnTestXSLT.addActionListener(event ->
                 Optional.ofNullable(JOptionPane.showInputDialog(btnXSWApply, "Enter Burp Collaborator URL (e.g. https://xyz.burpcollaborator.net)"))
                         .ifPresent(controller::applyXSLT));
 
-        var xmlAttacksPanel = new JPanel();
-        xmlAttacksPanel.setBorder(BorderFactory.createTitledBorder("XML Attacks"));
-        xmlAttacksPanel.setLayout(new MigLayout());
-        xmlAttacksPanel.add(btnTestXXE, "split 2");
-        xmlAttacksPanel.add(btnTestXSLT, "wrap");
-
         cmbboxCVE.setModel(new DefaultComboBoxModel<>(new String[]{
-                CVE_2022_41912.CVE,
-                CVE_2025_23369.CVE,
-                CVE_2025_25291.CVE,
-                CVE_2025_25292.CVE
-        }));
-
+                CVE_2022_41912.CVE, CVE_2025_23369.CVE,
+                CVE_2025_25291.CVE, CVE_2025_25292.CVE }));
         btnCVEApply.addActionListener(event -> controller.applyCVE());
-
         btnCVEHelp.addActionListener(event -> controller.showCVEHelp());
 
-        var cvePanel = new JPanel();
-        cvePanel.setBorder(BorderFactory.createTitledBorder("CVEs"));
-        cvePanel.setLayout(new MigLayout());
-        cvePanel.add(cmbboxCVE);
-        cvePanel.add(btnCVEApply);
-        cvePanel.add(btnCVEHelp, "wrap");
-
         btnSignatureHelp.addActionListener(event -> controller.showSignatureHelp());
-
         btnSignatureRemove.addActionListener(event -> controller.removeSignature());
-
         btnResignAssertion.addActionListener(event -> controller.resignAssertion());
-
         btnSendCertificate.addActionListener(event -> controller.sendToCertificatesTab());
-
         btnResignMessage.addActionListener(event -> controller.resignMessage());
 
-        var signatureAttacksPanel = new JPanel();
-        signatureAttacksPanel.setBorder(BorderFactory.createTitledBorder("Signature Attacks"));
-        signatureAttacksPanel.setLayout(new MigLayout());
-        signatureAttacksPanel.add(btnSignatureHelp, "wrap");
-        signatureAttacksPanel.add(btnSignatureRemove, "split 2");
-        signatureAttacksPanel.add(btnSendCertificate, "wrap");
-        signatureAttacksPanel.add(cmbboxCertificate, "split 3");
-        signatureAttacksPanel.add(btnResignAssertion);
-        signatureAttacksPanel.add(btnResignMessage, "wrap");
+        // --- Compact layout: one row per category ---
+        var panel = new JPanel(new MigLayout("insets 4 6 4 6, gap 4 2", "", ""));
 
-        var actionPanels = new JPanel();
-        var actionPanelConstraints = "wrap";
-        actionPanels.setLayout(new MigLayout());
-        actionPanels.add(samlMessagePanel, actionPanelConstraints);
-        actionPanels.add(xswAttacksPanel, actionPanelConstraints);
-        actionPanels.add(cvePanel, actionPanelConstraints);
-        actionPanels.add(xmlAttacksPanel, actionPanelConstraints);
-        actionPanels.add(signatureAttacksPanel, actionPanelConstraints);
+        // Row 1: Message actions
+        panel.add(new JLabel("Message"), "split");
+        panel.add(btnMessageReset);
+        panel.add(btnFormatXml, "wrap");
 
-        var scrollPane = new JScrollPane(actionPanels);
-        scrollPane.setBorder(new EmptyBorder(0, 0, 0, 0));
+        // Row 2: XSW
+        panel.add(new JLabel("XSW"), "split");
+        panel.add(cmbboxXSW);
+        panel.add(btnXSWApply);
+        panel.add(btnMatchAndReplace);
+        panel.add(btnXSWPreview);
+        panel.add(btnXSWHelp, "wrap");
+
+        // Row 3: CVE + XML attacks
+        panel.add(new JLabel("CVE"), "split");
+        panel.add(cmbboxCVE);
+        panel.add(btnCVEApply);
+        panel.add(btnCVEHelp);
+        panel.add(new JLabel("  XML"), "gapleft 12");
+        panel.add(btnTestXXE);
+        panel.add(btnTestXSLT, "wrap");
+
+        // Row 4: Signatures
+        panel.add(new JLabel("Signing"), "split");
+        panel.add(cmbboxCertificate);
+        panel.add(btnResignAssertion);
+        panel.add(btnResignMessage);
+        panel.add(btnSignatureRemove);
+        panel.add(btnSendCertificate);
+        panel.add(btnSignatureHelp, "wrap");
 
         setLayout(new BorderLayout());
-        add(scrollPane, BorderLayout.CENTER);
+        add(panel, BorderLayout.NORTH);
     }
 
     public void setCertificateList(List<BurpCertificate> list) {
