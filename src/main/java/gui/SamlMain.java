@@ -1,16 +1,11 @@
 package gui;
 
 import application.SamlTabController;
-import burp.BurpExtender;
-import burp.api.montoya.core.ByteArray;
-import burp.api.montoya.ui.editor.RawEditor;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
-import javax.swing.border.EmptyBorder;
 
 import static java.util.Objects.requireNonNull;
 
@@ -18,8 +13,7 @@ public class SamlMain extends JPanel {
 
     private final SamlTabController controller;
 
-    private RawEditor textEditorAction;
-    private RawEditor textEditorInformation;
+    private SamlXmlEditor xmlEditorAction;
     private SamlPanelAction panelAction;
     private SamlPanelInfo panelInformation;
     private SamlPanelStatus panelStatus;
@@ -34,17 +28,17 @@ public class SamlMain extends JPanel {
 
         JPanel splitPaneActionTop = new JPanel();
         splitPaneActionTop.setLayout(new BorderLayout());
-        splitPaneActionTop.setPreferredSize(new Dimension(0, 460));
+        splitPaneActionTop.setPreferredSize(new Dimension(0, 195));
         splitPaneActionTop.add(panelAction);
 
-        textEditorAction = BurpExtender.api.userInterface().createRawEditor();
-        textEditorAction.setContents(ByteArray.byteArray("<SAMLRaiderFailureInInitialization></SAMLRaiderFailureInInitialization>"));
-        textEditorAction.setEditable(false);
+        xmlEditorAction = new SamlXmlEditor();
+        xmlEditorAction.setText("<SAMLRaiderFailureInInitialization></SAMLRaiderFailureInInitialization>");
+        xmlEditorAction.setEditable(false);
 
         JPanel splitPaneActionBottom = new JPanel();
         splitPaneActionBottom.setLayout(new BorderLayout());
         splitPaneActionBottom.setPreferredSize(new Dimension(0, 100));
-        splitPaneActionBottom.add(textEditorAction.uiComponent(), BorderLayout.CENTER);
+        splitPaneActionBottom.add(xmlEditorAction, BorderLayout.CENTER);
 
         JSplitPane splitPaneAction = new JSplitPane();
         splitPaneAction.setOrientation(JSplitPane.VERTICAL_SPLIT);
@@ -59,27 +53,9 @@ public class SamlMain extends JPanel {
         splitPaneInformationTop.setPreferredSize(new Dimension(0, 375));
         splitPaneInformationTop.add(panelInformation);
 
-        textEditorInformation = BurpExtender.api.userInterface().createRawEditor();
-        textEditorInformation.setContents(ByteArray.byteArray(""));
-
-        var splitPaneInformationButtomLabel = new JLabel("Parsed & Prettified");
-        splitPaneInformationButtomLabel.setBorder(new EmptyBorder(5, 5, 5, 5));
-
-        JPanel splitPaneInformationBottom = new JPanel();
-        splitPaneInformationBottom.setLayout(new BorderLayout());
-        splitPaneInformationBottom.setPreferredSize(new Dimension(0, 100));
-        splitPaneInformationBottom.add(splitPaneInformationButtomLabel, BorderLayout.NORTH);
-        splitPaneInformationBottom.add(textEditorInformation.uiComponent(), BorderLayout.CENTER);
-
-        JSplitPane splitPaneInformation = new JSplitPane();
-        splitPaneInformation.setOrientation(JSplitPane.VERTICAL_SPLIT);
-        splitPaneInformation.setLeftComponent((splitPaneInformationTop));
-        splitPaneInformation.setRightComponent(splitPaneInformationBottom);
-        splitPaneInformation.resetToPreferredSizes();
-
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.addTab("SAML Attacks", null, splitPaneAction, "SAML Attacks");
-        tabbedPane.addTab("SAML Message Info", null, splitPaneInformation, "SAML Message Info");
+        tabbedPane.addTab("SAML Message Info", null, splitPaneInformationTop, "SAML Message Info");
 
         panelStatus = new SamlPanelStatus();
 
@@ -91,12 +67,8 @@ public class SamlMain extends JPanel {
         updateUI();
     }
 
-    public RawEditor getTextEditorAction() {
-        return textEditorAction;
-    }
-
-    public RawEditor getTextEditorInformation() {
-        return textEditorInformation;
+    public SamlXmlEditor getXmlEditorAction() {
+        return xmlEditorAction;
     }
 
     public SamlPanelAction getActionPanel() {

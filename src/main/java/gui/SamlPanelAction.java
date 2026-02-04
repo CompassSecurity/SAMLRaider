@@ -7,6 +7,7 @@ import helpers.CVE_2025_25291;
 import helpers.CVE_2025_25292;
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -37,8 +38,9 @@ public class SamlPanelAction extends JPanel {
     private SamlTabController controller;
 
     private final JButton btnMessageReset = new JButton("Reset Message");
+    private final JButton btnFormatXml = new JButton("Format XML");
 
-    private final JButton btnXSWHelp = new JButton("Help");
+    private final JButton btnXSWHelp = new JButton("?");
     private final JComboBox<String> cmbboxXSW = new JComboBox<>();
     private final JButton btnXSWPreview = new JButton("Preview in Browser...");
     private final JButton btnMatchAndReplace = new JButton("Match and Replace");
@@ -49,13 +51,13 @@ public class SamlPanelAction extends JPanel {
 
     private final JComboBox<String> cmbboxCVE = new JComboBox<>();
     private final JButton btnCVEApply = new JButton("Apply CVE");
-    private final JButton btnCVEHelp = new JButton("Help");
+    private final JButton btnCVEHelp = new JButton("?");
 
-    private final JButton btnSignatureHelp = new JButton("Help");
+    private final JButton btnSignatureHelp = new JButton("?");
     private final JComboBox<BurpCertificate> cmbboxCertificate = new JComboBox<>();
     private final JButton btnSignatureRemove = new JButton("Remove Signatures");
     private final JButton btnResignAssertion = new JButton("(Re-)Sign Assertion");
-    private final JButton btnSendCertificate = new JButton("Send Certificate to SAML Raider Certificates");
+    private final JButton btnSendCertificate = new JButton("Store Certificate");
     private final JButton btnResignMessage = new JButton("(Re-)Sign Message");
 
 
@@ -73,94 +75,88 @@ public class SamlPanelAction extends JPanel {
             controller.resetMessage();
         });
 
-        var samlMessagePanel = new JPanel();
-        samlMessagePanel.setBorder(BorderFactory.createTitledBorder("SAML Message"));
-        samlMessagePanel.setLayout(new MigLayout());
-        samlMessagePanel.add(btnMessageReset, "wrap");
+        btnFormatXml.addActionListener(event -> controller.formatXml());
 
+        // --- Wire listeners ---
         btnXSWHelp.addActionListener(event -> controller.showXSWHelp());
-
         btnXSWPreview.addActionListener(event -> controller.showXSWPreview());
-
         btnMatchAndReplace.addActionListener(event -> showMatchAndReplaceDialog());
-
         btnXSWApply.addActionListener(event -> controller.applyXSW());
 
-        var xswAttacksPanel = new JPanel();
-        xswAttacksPanel.setBorder(BorderFactory.createTitledBorder("XSW Attacks"));
-        xswAttacksPanel.setLayout(new MigLayout());
-        xswAttacksPanel.add(btnXSWHelp, "wrap");
-        xswAttacksPanel.add(cmbboxXSW, "split 4");
-        xswAttacksPanel.add(btnMatchAndReplace);
-        xswAttacksPanel.add(btnXSWPreview);
-        xswAttacksPanel.add(btnXSWApply, "wrap");
-
         btnTestXXE.addActionListener(event ->
-                Optional.ofNullable(JOptionPane.showInputDialog(btnXSWApply, "Enter Burp Collaborator URL (e.g. https://xyz.burpcollaborator.net)"))
+                OobDomainDialog.prompt(this, "XXE — OOB Domain")
                         .ifPresent(controller::applyXXE));
-
         btnTestXSLT.addActionListener(event ->
-                Optional.ofNullable(JOptionPane.showInputDialog(btnXSWApply, "Enter Burp Collaborator URL (e.g. https://xyz.burpcollaborator.net)"))
+                OobDomainDialog.prompt(this, "XSLT — OOB Domain")
                         .ifPresent(controller::applyXSLT));
 
-        var xmlAttacksPanel = new JPanel();
-        xmlAttacksPanel.setBorder(BorderFactory.createTitledBorder("XML Attacks"));
-        xmlAttacksPanel.setLayout(new MigLayout());
-        xmlAttacksPanel.add(btnTestXXE, "split 2");
-        xmlAttacksPanel.add(btnTestXSLT, "wrap");
-
         cmbboxCVE.setModel(new DefaultComboBoxModel<>(new String[]{
-                CVE_2022_41912.CVE,
-                CVE_2025_23369.CVE,
-                CVE_2025_25291.CVE,
-                CVE_2025_25292.CVE
-        }));
-
+                CVE_2022_41912.CVE, CVE_2025_23369.CVE,
+                CVE_2025_25291.CVE, CVE_2025_25292.CVE }));
         btnCVEApply.addActionListener(event -> controller.applyCVE());
-
         btnCVEHelp.addActionListener(event -> controller.showCVEHelp());
 
-        var cvePanel = new JPanel();
-        cvePanel.setBorder(BorderFactory.createTitledBorder("CVEs"));
-        cvePanel.setLayout(new MigLayout());
-        cvePanel.add(cmbboxCVE);
-        cvePanel.add(btnCVEApply);
-        cvePanel.add(btnCVEHelp, "wrap");
-
         btnSignatureHelp.addActionListener(event -> controller.showSignatureHelp());
-
         btnSignatureRemove.addActionListener(event -> controller.removeSignature());
-
         btnResignAssertion.addActionListener(event -> controller.resignAssertion());
-
         btnSendCertificate.addActionListener(event -> controller.sendToCertificatesTab());
-
         btnResignMessage.addActionListener(event -> controller.resignMessage());
 
-        var signatureAttacksPanel = new JPanel();
-        signatureAttacksPanel.setBorder(BorderFactory.createTitledBorder("Signature Attacks"));
-        signatureAttacksPanel.setLayout(new MigLayout());
-        signatureAttacksPanel.add(btnSignatureHelp, "wrap");
-        signatureAttacksPanel.add(btnSignatureRemove, "split 2");
-        signatureAttacksPanel.add(btnSendCertificate, "wrap");
-        signatureAttacksPanel.add(cmbboxCertificate, "split 3");
-        signatureAttacksPanel.add(btnResignAssertion);
-        signatureAttacksPanel.add(btnResignMessage, "wrap");
+        // --- Compact layout: labeled sections with separators ---
+        var panel = new JPanel(new MigLayout("insets 6 8 6 8, gap 4 6, fillx", "[grow]", ""));
 
-        var actionPanels = new JPanel();
-        var actionPanelConstraints = "wrap";
-        actionPanels.setLayout(new MigLayout());
-        actionPanels.add(samlMessagePanel, actionPanelConstraints);
-        actionPanels.add(xswAttacksPanel, actionPanelConstraints);
-        actionPanels.add(cvePanel, actionPanelConstraints);
-        actionPanels.add(xmlAttacksPanel, actionPanelConstraints);
-        actionPanels.add(signatureAttacksPanel, actionPanelConstraints);
+        // Row 1: Message
+        panel.add(sectionLabel("Message"), "split");
+        panel.add(btnMessageReset);
+        panel.add(btnFormatXml, "wrap");
 
-        var scrollPane = new JScrollPane(actionPanels);
-        scrollPane.setBorder(new EmptyBorder(0, 0, 0, 0));
+        panel.add(separator(), "growx, wrap");
+
+        // Row 2: XSW
+        panel.add(sectionLabel("XSW"), "split");
+        panel.add(cmbboxXSW);
+        panel.add(btnXSWApply);
+        panel.add(btnMatchAndReplace);
+        panel.add(btnXSWPreview);
+        panel.add(btnXSWHelp, "wrap");
+
+        // Row 3: CVE
+        panel.add(sectionLabel("CVE"), "split");
+        panel.add(cmbboxCVE);
+        panel.add(btnCVEApply);
+        panel.add(btnCVEHelp, "wrap");
+
+        // Row 4: XML
+        panel.add(sectionLabel("XML"), "split");
+        panel.add(btnTestXXE);
+        panel.add(btnTestXSLT, "wrap");
+
+        panel.add(separator(), "growx, wrap");
+
+        // Row 5: Signing
+        panel.add(sectionLabel("Signing"), "split");
+        panel.add(cmbboxCertificate);
+        panel.add(btnResignAssertion);
+        panel.add(btnResignMessage);
+        panel.add(btnSignatureRemove);
+        panel.add(btnSignatureHelp, "wrap");
+
+        // Row 6: Store Certificate (under Signing)
+        panel.add(new JLabel(""), "split"); // indent to align
+        panel.add(btnSendCertificate, "wrap");
 
         setLayout(new BorderLayout());
-        add(scrollPane, BorderLayout.CENTER);
+        add(panel, BorderLayout.NORTH);
+    }
+
+    private static JLabel sectionLabel(String text) {
+        var label = new JLabel(text);
+        label.setFont(label.getFont().deriveFont(Font.BOLD, 11f));
+        return label;
+    }
+
+    private static javax.swing.JSeparator separator() {
+        return new javax.swing.JSeparator(javax.swing.SwingConstants.HORIZONTAL);
     }
 
     public void setCertificateList(List<BurpCertificate> list) {
@@ -202,6 +198,7 @@ public class SamlPanelAction extends JPanel {
         btnSendCertificate.setEnabled(false);
         btnResignMessage.setEnabled(false);
         btnMatchAndReplace.setEnabled(false);
+        btnFormatXml.setEnabled(false);
         btnTestXXE.setEnabled(false);
         btnTestXSLT.setEnabled(false);
         cmbboxCVE.setEnabled(false);
@@ -222,6 +219,7 @@ public class SamlPanelAction extends JPanel {
         btnSendCertificate.setEnabled(true);
         btnResignMessage.setEnabled(true);
         btnMatchAndReplace.setEnabled(true);
+        btnFormatXml.setEnabled(true);
         btnTestXXE.setEnabled(true);
         btnTestXSLT.setEnabled(true);
         cmbboxCVE.setEnabled(true);

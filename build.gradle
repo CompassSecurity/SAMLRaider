@@ -8,9 +8,11 @@ repositories {
 	mavenCentral()
 }
 
-compileJava {
-	targetCompatibility "21"
-	sourceCompatibility "21"
+// Build/compile against Java 21 regardless of system default Java
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
 }
 
 dependencies {
@@ -30,7 +32,7 @@ dependencies {
 	testImplementation libs.org.junit.jupiter
 }
 
-compileJava {
+tasks.withType(JavaCompile).configureEach {
 	options.compilerArgs << "-Xlint:deprecation"
 }
 

@@ -8,11 +8,11 @@ import burp.api.montoya.http.message.params.HttpParameter;
 import burp.api.montoya.http.message.params.HttpParameterType;
 import burp.api.montoya.http.message.requests.HttpRequest;
 import burp.api.montoya.ui.Selection;
-import burp.api.montoya.ui.editor.RawEditor;
 import burp.api.montoya.ui.editor.extension.ExtensionProvidedHttpRequestEditor;
 import gui.CVEHelpWindow;
 import gui.SamlMain;
 import gui.SamlPanelInfo;
+import gui.SamlXmlEditor;
 import gui.SignatureHelpWindow;
 import gui.XSWHelpWindow;
 import helpers.CVE_2022_41912;
@@ -73,8 +73,7 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
     private SamlMessageAnalysisResult samlMessageAnalysisResult;
     private String orgSAMLMessage;
     private String samlMessage;
-    private RawEditor textArea;
-    private RawEditor textEditorInformation;
+    private SamlXmlEditor textArea;
     private SamlMain samlGUI;
     private boolean editable;
     private XSWHelpers xswHelpers;
@@ -84,10 +83,8 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
         this.certificateTabController = requireNonNull(certificateTabController, "certificateTabController");
         this.editable = editable;
         samlGUI = new SamlMain(this);
-        textArea = samlGUI.getTextEditorAction();
+        textArea = samlGUI.getXmlEditorAction();
         textArea.setEditable(editable);
-        textEditorInformation = samlGUI.getTextEditorInformation();
-        textEditorInformation.setEditable(false);
         xmlHelpers = new XMLHelpers();
         xswHelpers = new XSWHelpers();
         this.certificateTabController.addObserver(this);
@@ -126,7 +123,7 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
                     setInfoMessageText(XML_NOT_WELL_FORMED);
                 }
             } else {
-                String textMessage = textArea.getContents().toString();
+                String textMessage = textArea.getText();
 
                 String parameterToUpdate;
                 if (this.samlMessageAnalysisResult.isWSSMessage()) {
@@ -163,7 +160,11 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
 
     @Override
     public Selection selectedData() {
-        return textArea.selection().orElse(null);
+        String sel = textArea.selectedText();
+        if (sel != null && !sel.isEmpty()) {
+            return Selection.selection(ByteArray.byteArray(sel));
+        }
+        return null;
     }
 
     @Override
@@ -199,8 +200,9 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
         resetInfoMessageText();
         isEdited = false;
         if (requestResponse == null) {
-            textArea.setContents(null);
+            textArea.setText("");
             textArea.setEditable(false);
+            textArea.resetModified();
             setGUIEditable(false);
             resetInformationDisplay();
         } else {
@@ -258,22 +260,30 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
             updateCertificateList();
             updateXSWList();
             orgSAMLMessage = samlMessage;
-            textArea.setContents(ByteArray.byteArray(samlMessage));
+
+            // Show prettified XML (editable) for sanity when working with big SAML blobs.
+            textArea.setText(prettifyXmlOrFallback(samlMessage));
             textArea.setEditable(editable);
 
             setGUIEditable(editable);
         }
     }
 
+    private String prettifyXmlOrFallback(String xml) {
+        try {
+            Document doc = xmlHelpers.getXMLDocumentOfSAMLMessage(xml);
+            return xmlHelpers.getStringOfDocument(doc, 2);
+        } catch (Exception ignored) {
+            return xml;
+        }
+    }
+
     private void setInformationDisplay() {
-        samlGUI.getTextEditorInformation().setContents(ByteArray.byteArray(""));
         SamlPanelInfo infoPanel = samlGUI.getInfoPanel();
         infoPanel.clearAll();
 
         try {
             Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(samlMessage);
-            String formattedDocumentWithIndentation = xmlHelpers.getStringOfDocument(xmlHelpers.getXMLDocumentOfSAMLMessage(samlMessage), 2);
-            textEditorInformation.setContents(ByteArray.byteArray(formattedDocumentWithIndentation.getBytes()));
             NodeList assertions = xmlHelpers.getAssertions(document);
             if (assertions.getLength() > 0) {
                 Node assertion = assertions.item(0);
@@ -289,7 +299,7 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
                 Node assertion = assertions.item(0);
                 infoPanel.setEncryptionAlgorithm(xmlHelpers.getEncryptionMethod(assertion));
             }
-        } catch (SAXException | IOException e) {
+        } catch (SAXException e) {
             setInfoMessageText(XML_NOT_WELL_FORMED);
         }
     }
@@ -304,17 +314,16 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
         infoPanel.setSignatureAlgorithm("");
         infoPanel.setDigestAlgorithm("");
         infoPanel.setEncryptionAlgorithm("");
-        textEditorInformation.setContents(ByteArray.byteArray(""));
     }
 
 
     public void removeSignature() {
         resetInfoMessageText();
         try {
-            Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(textArea.getContents().toString());
+            Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(textArea.getText());
             if (xmlHelpers.removeAllSignatures(document) > 0) {
                 samlMessage = xmlHelpers.getStringOfDocument(document);
-                textArea.setContents(ByteArray.byteArray(samlMessage));
+                textArea.setText(prettifyXmlOrFallback(samlMessage));
                 isEdited = true;
                 setInfoMessageText("Message signature successful removed");
             } else {
@@ -327,9 +336,22 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
         }
     }
 
+    public void formatXml() {
+        resetInfoMessageText();
+        String current = textArea.getText();
+        String formatted = prettifyXmlOrFallback(current);
+        if (formatted.equals(current)) {
+            setInfoMessageText("XML is already formatted (or not well-formed)");
+        } else {
+            textArea.setText(formatted);
+            setInfoMessageText("XML formatted");
+        }
+    }
+
     public void resetMessage() {
         samlMessage = orgSAMLMessage;
-        textArea.setContents(ByteArray.byteArray(samlMessage));
+        textArea.setText(prettifyXmlOrFallback(samlMessage));
+        textArea.resetModified();
         samlGUI.getStatusPanel().setText("");
         isEdited = false;
     }
@@ -340,7 +362,7 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
             BurpCertificate cert = samlGUI.getActionPanel().getSelectedCertificate();
             if (cert != null) {
                 setInfoMessageText("Signing...");
-                Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(textArea.getContents().toString());
+                Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(textArea.getText());
                 NodeList assertions = xmlHelpers.getAssertions(document);
                 String signAlgorithm = xmlHelpers.getSignatureAlgorithm(assertions.item(0));
                 String digestAlgorithm = xmlHelpers.getDigestAlgorithm(assertions.item(0));
@@ -351,7 +373,7 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
                 xmlHelpers.removeEmptyTags(doc);
                 xmlHelpers.signAssertion(doc, signAlgorithm, digestAlgorithm, cert.getCertificate(), cert.getPrivateKey());
                 samlMessage = xmlHelpers.getStringOfDocument(doc);
-                textArea.setContents(ByteArray.byteArray(samlMessage));
+                textArea.setText(prettifyXmlOrFallback(samlMessage));
                 isEdited = true;
                 setInfoMessageText("Assertions successfully signed");
             } else {
@@ -378,7 +400,7 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
                 setInfoMessageText("Signing...");
                 BurpCertificate cert = samlGUI.getActionPanel().getSelectedCertificate();
                 if (cert != null) {
-                    Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(textArea.getContents().toString());
+                    Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(textArea.getText());
                     NodeList responses = xmlHelpers.getResponse(document);
                     String signAlgorithm = xmlHelpers.getSignatureAlgorithm(responses.item(0));
                     String digestAlgorithm = xmlHelpers.getDigestAlgorithm(responses.item(0));
@@ -386,7 +408,7 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
                     xmlHelpers.removeOnlyMessageSignature(document);
                     xmlHelpers.signMessage(document, signAlgorithm, digestAlgorithm, cert.getCertificate(), cert.getPrivateKey());
                     samlMessage = xmlHelpers.getStringOfDocument(document);
-                    textArea.setContents(ByteArray.byteArray(samlMessage));
+                    textArea.setText(prettifyXmlOrFallback(samlMessage));
                     isEdited = true;
                     setInfoMessageText("Message successfully signed");
                 } else {
@@ -440,7 +462,7 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
 
     public void sendToCertificatesTab() {
         try {
-            Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(textArea.getContents().toString());
+            Document document = xmlHelpers.getXMLDocumentOfSAMLMessage(textArea.getText());
             String cert = xmlHelpers.getCertificate(document.getDocumentElement());
             if (cert != null) {
                 certificateTabController.importCertificateFromString(cert);
@@ -495,25 +517,25 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
             switch (cve) {
                 case CVE_2022_41912.CVE:
                     samlMessage = CVE_2022_41912.apply(orgSAMLMessage);
-                    textArea.setContents(ByteArray.byteArray(samlMessage));
+                    textArea.setText(prettifyXmlOrFallback(samlMessage));
                     isEdited = true;
                     setInfoMessageText("%s applied".formatted(cve));
                     break;
                 case CVE_2025_23369.CVE:
                     samlMessage = CVE_2025_23369.apply(orgSAMLMessage);
-                    textArea.setContents(ByteArray.byteArray(samlMessage));
+                    textArea.setText(prettifyXmlOrFallback(samlMessage));
                     isEdited = true;
                     setInfoMessageText("%s applied".formatted(cve));
                     break;
                 case CVE_2025_25291.CVE:
                     samlMessage = CVE_2025_25291.apply(orgSAMLMessage);
-                    textArea.setContents(ByteArray.byteArray(samlMessage));
+                    textArea.setText(prettifyXmlOrFallback(samlMessage));
                     isEdited = true;
                     setInfoMessageText("%s applied".formatted(cve));
                     break;
                 case CVE_2025_25292.CVE:
                     samlMessage = CVE_2025_25292.apply(orgSAMLMessage);
-                    textArea.setContents(ByteArray.byteArray(samlMessage));
+                    textArea.setText(prettifyXmlOrFallback(samlMessage));
                     isEdited = true;
                     setInfoMessageText("%s applied".formatted(cve));
                     break;
@@ -530,7 +552,7 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
             document = xmlHelpers.getXMLDocumentOfSAMLMessage(orgSAMLMessage);
             xswHelpers.applyXSW(samlGUI.getActionPanel().getSelectedXSW(), document);
             samlMessage = xmlHelpers.getStringOfDocument(document);
-            textArea.setContents(ByteArray.byteArray(samlMessage));
+            textArea.setText(prettifyXmlOrFallback(samlMessage));
             isEdited = true;
             setInfoMessageText(XSW_ATTACK_APPLIED);
         } catch (SAXException e) {
@@ -551,7 +573,7 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
             String xmlDeclaration = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
             samlMessage = xmlDeclaration + xxePayload + orgSAMLMessage;
         }
-        textArea.setContents(ByteArray.byteArray(samlMessage));
+        textArea.setText(prettifyXmlOrFallback(samlMessage));
         isEdited = true;
         setInfoMessageText(XXE_CONTENT_APPLIED);
     }
@@ -592,7 +614,7 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
         String firstPart = orgSAMLMessage.substring(0, substringIndex);
         String secondPart = orgSAMLMessage.substring(substringIndex);
         samlMessage = firstPart + xslt + secondPart;
-        textArea.setContents(ByteArray.byteArray(samlMessage));
+        textArea.setText(prettifyXmlOrFallback(samlMessage));
         isEdited = true;
         setInfoMessageText(XSLT_CONTENT_APPLIED);
     }
@@ -638,11 +660,11 @@ public class SamlTabController implements ExtensionProvidedHttpRequestEditor, Ob
     }
 
     public String getEditorContents() {
-        return this.textArea.getContents().toString();
+        return this.textArea.getText();
     }
 
     public void setEditorContents(String text) {
         this.isEdited = true;
-        this.textArea.setContents(ByteArray.byteArray(text));
+        this.textArea.setText(prettifyXmlOrFallback(text));
     }
 }
