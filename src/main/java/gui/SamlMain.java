@@ -18,7 +18,7 @@ public class SamlMain extends JPanel {
 
     private final SamlTabController controller;
 
-    private RawEditor textEditorAction;
+    private SamlXmlEditor xmlEditorAction;
     private RawEditor textEditorInformation;
     private SamlPanelAction panelAction;
     private SamlPanelInfo panelInformation;
@@ -37,14 +37,14 @@ public class SamlMain extends JPanel {
         splitPaneActionTop.setPreferredSize(new Dimension(0, 460));
         splitPaneActionTop.add(panelAction);
 
-        textEditorAction = BurpExtender.api.userInterface().createRawEditor();
-        textEditorAction.setContents(ByteArray.byteArray("<SAMLRaiderFailureInInitialization></SAMLRaiderFailureInInitialization>"));
-        textEditorAction.setEditable(false);
+        xmlEditorAction = new SamlXmlEditor();
+        xmlEditorAction.setText("<SAMLRaiderFailureInInitialization></SAMLRaiderFailureInInitialization>");
+        xmlEditorAction.setEditable(false);
 
         JPanel splitPaneActionBottom = new JPanel();
         splitPaneActionBottom.setLayout(new BorderLayout());
         splitPaneActionBottom.setPreferredSize(new Dimension(0, 100));
-        splitPaneActionBottom.add(textEditorAction.uiComponent(), BorderLayout.CENTER);
+        splitPaneActionBottom.add(xmlEditorAction, BorderLayout.CENTER);
 
         JSplitPane splitPaneAction = new JSplitPane();
         splitPaneAction.setOrientation(JSplitPane.VERTICAL_SPLIT);
@@ -91,8 +91,8 @@ public class SamlMain extends JPanel {
         updateUI();
     }
 
-    public RawEditor getTextEditorAction() {
-        return textEditorAction;
+    public SamlXmlEditor getXmlEditorAction() {
+        return xmlEditorAction;
     }
 
     public RawEditor getTextEditorInformation() {

@@ -8,6 +8,7 @@ org-apache-santuario-xmlsec = "2.1.7"
 org-bouncycastle-bcpkix-jdk15on = "1.52"
 org-junit-jupiter = "5.10.2"
 xerces-xercesimpl = "2.12.2"
+rsyntaxtextarea = "3.5.4"
 
 [libraries]
 com-formdev-flatlaf = { module = "com.formdev:flatlaf", version.ref = "com-formdev-flatlaf"}
@@ -19,3 +20,4 @@ org-apache-santuario-xmlsec = { module = "org.apache.santuario:xmlsec", version.
 org-bouncycastle-bcpkix-jdk15on = { module = "org.bouncycastle:bcpkix-jdk15on", version.ref = "org-bouncycastle-bcpkix-jdk15on" }
 org-junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "org-junit-jupiter" }
 xerces-xercesimpl = { module = "xerces:xercesImpl", version.ref = "xerces-xercesimpl" }
+rsyntaxtextarea = { module = "com.fifesoft:rsyntaxtextarea", version.ref = "rsyntaxtextarea" }
