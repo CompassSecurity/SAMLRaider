@@ -84,10 +84,10 @@ public class SamlPanelAction extends JPanel {
         btnXSWApply.addActionListener(event -> controller.applyXSW());
 
         btnTestXXE.addActionListener(event ->
-                Optional.ofNullable(JOptionPane.showInputDialog(btnXSWApply, "Enter Burp Collaborator URL (e.g. https://xyz.burpcollaborator.net)"))
+                OobDomainDialog.prompt(this, "XXE — OOB Domain")
                         .ifPresent(controller::applyXXE));
         btnTestXSLT.addActionListener(event ->
-                Optional.ofNullable(JOptionPane.showInputDialog(btnXSWApply, "Enter Burp Collaborator URL (e.g. https://xyz.burpcollaborator.net)"))
+                OobDomainDialog.prompt(this, "XSLT — OOB Domain")
                         .ifPresent(controller::applyXSLT));
 
         cmbboxCVE.setModel(new DefaultComboBoxModel<>(new String[]{
