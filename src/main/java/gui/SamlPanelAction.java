@@ -7,6 +7,7 @@ import helpers.CVE_2025_25291;
 import helpers.CVE_2025_25292;
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -101,42 +102,61 @@ public class SamlPanelAction extends JPanel {
         btnSendCertificate.addActionListener(event -> controller.sendToCertificatesTab());
         btnResignMessage.addActionListener(event -> controller.resignMessage());
 
-        // --- Compact layout: one row per category ---
-        var panel = new JPanel(new MigLayout("insets 6 8 6 8, gap 4 6", "", ""));
+        // --- Compact layout: labeled sections with separators ---
+        var panel = new JPanel(new MigLayout("insets 6 8 6 8, gap 4 6, fillx", "[grow]", ""));
 
-        // Row 1: Message actions
-        panel.add(new JLabel("Message"), "split");
+        // Row 1: Message
+        panel.add(sectionLabel("Message"), "split");
         panel.add(btnMessageReset);
         panel.add(btnFormatXml, "wrap");
 
+        panel.add(separator(), "growx, wrap");
+
         // Row 2: XSW
-        panel.add(new JLabel("XSW"), "split");
+        panel.add(sectionLabel("XSW"), "split");
         panel.add(cmbboxXSW);
         panel.add(btnXSWApply);
         panel.add(btnMatchAndReplace);
         panel.add(btnXSWPreview);
         panel.add(btnXSWHelp, "wrap");
 
-        // Row 3: CVE + XML attacks
-        panel.add(new JLabel("CVE"), "split");
+        // Row 3: CVE
+        panel.add(sectionLabel("CVE"), "split");
         panel.add(cmbboxCVE);
         panel.add(btnCVEApply);
-        panel.add(btnCVEHelp);
-        panel.add(new JLabel("  XML"), "gapleft 12");
+        panel.add(btnCVEHelp, "wrap");
+
+        // Row 4: XML
+        panel.add(sectionLabel("XML"), "split");
         panel.add(btnTestXXE);
         panel.add(btnTestXSLT, "wrap");
 
-        // Row 4: Signatures
-        panel.add(new JLabel("Signing"), "split");
+        panel.add(separator(), "growx, wrap");
+
+        // Row 5: Signing
+        panel.add(sectionLabel("Signing"), "split");
         panel.add(cmbboxCertificate);
         panel.add(btnResignAssertion);
         panel.add(btnResignMessage);
         panel.add(btnSignatureRemove);
-        panel.add(btnSendCertificate);
         panel.add(btnSignatureHelp, "wrap");
+
+        // Row 6: Store Certificate (under Signing)
+        panel.add(new JLabel(""), "split"); // indent to align
+        panel.add(btnSendCertificate, "wrap");
 
         setLayout(new BorderLayout());
         add(panel, BorderLayout.NORTH);
+    }
+
+    private static JLabel sectionLabel(String text) {
+        var label = new JLabel(text);
+        label.setFont(label.getFont().deriveFont(Font.BOLD, 11f));
+        return label;
+    }
+
+    private static javax.swing.JSeparator separator() {
+        return new javax.swing.JSeparator(javax.swing.SwingConstants.HORIZONTAL);
     }
 
     public void setCertificateList(List<BurpCertificate> list) {

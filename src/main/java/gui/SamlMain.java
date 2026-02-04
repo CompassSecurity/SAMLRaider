@@ -28,7 +28,7 @@ public class SamlMain extends JPanel {
 
         JPanel splitPaneActionTop = new JPanel();
         splitPaneActionTop.setLayout(new BorderLayout());
-        splitPaneActionTop.setPreferredSize(new Dimension(0, 130));
+        splitPaneActionTop.setPreferredSize(new Dimension(0, 195));
         splitPaneActionTop.add(panelAction);
 
         xmlEditorAction = new SamlXmlEditor();
