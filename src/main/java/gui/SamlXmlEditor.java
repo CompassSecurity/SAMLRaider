@@ -5,18 +5,26 @@ import burp.api.montoya.ui.Theme;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.io.Serial;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.Timer;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.DefaultStyledDocument;
+import javax.swing.text.Highlighter;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 
@@ -37,6 +45,13 @@ public class SamlXmlEditor extends JPanel {
     private final Timer highlightTimer;
     private final AtomicBoolean modified = new AtomicBoolean(false);
     private volatile boolean suppressEvents = false;
+
+    // Search
+    private final JTextField searchField;
+    private final JLabel searchStatus;
+    private final Highlighter.HighlightPainter searchPainter;
+    private int currentMatchIndex = -1;
+    private int[] matchPositions = new int[0]; // start positions of all matches
 
     // Attribute sets for each token type
     private final SimpleAttributeSet aDefault   = new SimpleAttributeSet();
@@ -95,6 +110,49 @@ public class SamlXmlEditor extends JPanel {
         var scroll = new JScrollPane(textPane);
         scroll.setBorder(null);
         add(scroll, BorderLayout.CENTER);
+
+        // --- Search bar ---
+        boolean dark = BurpExtender.api.userInterface().currentTheme() == Theme.DARK;
+        searchPainter = new DefaultHighlighter.DefaultHighlightPainter(
+                dark ? new Color(0x806030) : new Color(0xFFE08A));
+
+        searchField = new JTextField();
+        searchField.setFont(font.deriveFont(Font.PLAIN, 12f));
+        searchField.setPreferredSize(new Dimension(220, 26));
+        searchField.setToolTipText("Search XML (Enter = next, Shift+Enter = previous, Esc = close)");
+
+        searchStatus = new JLabel("");
+        searchStatus.setFont(font.deriveFont(Font.PLAIN, 11f));
+        searchStatus.setForeground(dark ? new Color(0x999999) : new Color(0x666666));
+
+        // Live search as you type
+        searchField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override public void insertUpdate(DocumentEvent e)  { doSearch(); }
+            @Override public void removeUpdate(DocumentEvent e)  { doSearch(); }
+            @Override public void changedUpdate(DocumentEvent e) { doSearch(); }
+        });
+
+        // Enter = next match, Shift+Enter = prev, Escape = hide
+        searchField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    if (e.isShiftDown()) jumpToMatch(-1); else jumpToMatch(1);
+                } else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                    clearSearch();
+                    textPane.requestFocusInWindow();
+                }
+            }
+        });
+
+        var searchBar = new JPanel(new BorderLayout(6, 0));
+        searchBar.setBorder(BorderFactory.createEmptyBorder(3, 6, 3, 6));
+        var searchLabel = new JLabel("Find:");
+        searchLabel.setFont(font.deriveFont(Font.PLAIN, 12f));
+        searchBar.add(searchLabel, BorderLayout.WEST);
+        searchBar.add(searchField, BorderLayout.CENTER);
+        searchBar.add(searchStatus, BorderLayout.EAST);
+        add(searchBar, BorderLayout.SOUTH);
     }
 
     /* ------------------------------------------------------------------ */
@@ -248,6 +306,89 @@ public class SamlXmlEditor extends JPanel {
 
     private static boolean isNameChar(char c) {
         return Character.isLetterOrDigit(c) || c == ':' || c == '-' || c == '.' || c == '_';
+    }
+
+    /* ------------------------------------------------------------------ */
+    /*  Public API                                                        */
+    /* ------------------------------------------------------------------ */
+
+    /* ------------------------------------------------------------------ */
+    /*  Search                                                            */
+    /* ------------------------------------------------------------------ */
+
+    private void doSearch() {
+        textPane.getHighlighter().removeAllHighlights();
+        String query = searchField.getText();
+        if (query == null || query.isEmpty()) {
+            searchStatus.setText("");
+            matchPositions = new int[0];
+            currentMatchIndex = -1;
+            return;
+        }
+
+        String text;
+        try { text = doc.getText(0, doc.getLength()); }
+        catch (BadLocationException e) { return; }
+
+        String lowerText = text.toLowerCase();
+        String lowerQuery = query.toLowerCase();
+
+        // Find all matches
+        java.util.List<Integer> positions = new java.util.ArrayList<>();
+        int idx = 0;
+        while ((idx = lowerText.indexOf(lowerQuery, idx)) != -1) {
+            positions.add(idx);
+            try {
+                textPane.getHighlighter().addHighlight(idx, idx + query.length(), searchPainter);
+            } catch (BadLocationException ignored) {}
+            idx += query.length();
+        }
+
+        matchPositions = positions.stream().mapToInt(Integer::intValue).toArray();
+
+        if (matchPositions.length == 0) {
+            searchStatus.setText("No matches");
+            currentMatchIndex = -1;
+        } else {
+            currentMatchIndex = 0;
+            scrollToMatch(0);
+            updateSearchStatus();
+        }
+    }
+
+    private void jumpToMatch(int direction) {
+        if (matchPositions.length == 0) return;
+        currentMatchIndex = (currentMatchIndex + direction + matchPositions.length) % matchPositions.length;
+        scrollToMatch(currentMatchIndex);
+        updateSearchStatus();
+    }
+
+    private void scrollToMatch(int index) {
+        if (index < 0 || index >= matchPositions.length) return;
+        int pos = matchPositions[index];
+        textPane.setCaretPosition(pos);
+        // Select the match so it's visually obvious
+        textPane.setSelectionStart(pos);
+        textPane.setSelectionEnd(pos + searchField.getText().length());
+        try {
+            textPane.scrollRectToVisible(textPane.modelToView2D(pos).getBounds());
+        } catch (BadLocationException ignored) {}
+    }
+
+    private void updateSearchStatus() {
+        if (matchPositions.length == 0) {
+            searchStatus.setText("No matches");
+        } else {
+            searchStatus.setText((currentMatchIndex + 1) + " / " + matchPositions.length);
+        }
+    }
+
+    private void clearSearch() {
+        searchField.setText("");
+        textPane.getHighlighter().removeAllHighlights();
+        matchPositions = new int[0];
+        currentMatchIndex = -1;
+        searchStatus.setText("");
     }
 
     /* ------------------------------------------------------------------ */
