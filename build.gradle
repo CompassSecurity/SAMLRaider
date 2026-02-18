@@ -14,15 +14,15 @@ compileJava {
 }
 
 dependencies {
-	compileOnly libs.com.formdev.flatlaf
 	compileOnly libs.net.portswigger.burp.extensions.montoya.api
-	compileOnly libs.org.bouncycastle.bcpkix.jdk15on
 
 	implementation libs.com.google.guava
 	implementation libs.com.miglayout
 	implementation libs.com.sun.xml.security.xml.security.impl
 	implementation libs.org.apache.santuario.xmlsec
 	implementation libs.xerces.xercesimpl
+	implementation libs.com.formdev.flatlaf
+	implementation libs.org.bouncycastle.bcpkix.jdk15on
 
 	testImplementation libs.com.formdev.flatlaf
 	testImplementation libs.net.portswigger.burp.extensions.montoya.api
