@@ -76,6 +76,13 @@ public class BurpCertificateStore {
 	 */
 	public List<BurpCertificate> getBurpCertificates() {
 		List<BurpCertificate> certificates = new LinkedList<>();
+		Enumeration<TreeNode> en = rootNode.depthFirstEnumeration();
+		while (en.hasMoreElements()) {
+			DefaultMutableTreeNode foundNode = (DefaultMutableTreeNode) en.nextElement();
+			if (foundNode.getUserObject() instanceof BurpCertificate) {
+				certificates.add((BurpCertificate) foundNode.getUserObject());
+			}
+		}
 		return certificates;
 	}
 

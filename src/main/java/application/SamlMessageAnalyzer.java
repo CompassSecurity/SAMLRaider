@@ -64,10 +64,17 @@ public class SamlMessageAnalyzer {
                 BurpExtender.api.logging().logToError(e);
             }
         } else {
-            var samlResponseInBody = request.parameterValue(samlResponseParameterName, HttpParameterType.BODY);
-            var samlResponseInUrl = request.parameterValue(samlResponseParameterName, HttpParameterType.URL);
-            var samlRequestInBody = request.parameterValue(samlRequestParameterName, HttpParameterType.BODY);
-            var samlRequestInUrl = request.parameterValue(samlRequestParameterName, HttpParameterType.URL);
+            var log = BurpExtender.api.logging();
+            log.logToOutput("[SAML Raider] analyze() — contentType=" + request.contentType()
+                    + " body[0..80]=" + request.bodyToString().replace("\n","").replace("\r","").substring(0, Math.min(80, request.bodyToString().length())));
+
+            var samlResponseInBody = extractParameterValue(request, samlResponseParameterName, HttpParameterType.BODY);
+            var samlResponseInUrl  = request.parameterValue(samlResponseParameterName, HttpParameterType.URL);
+            var samlRequestInBody  = extractParameterValue(request, samlRequestParameterName, HttpParameterType.BODY);
+            var samlRequestInUrl   = request.parameterValue(samlRequestParameterName, HttpParameterType.URL);
+
+            log.logToOutput("[SAML Raider] responseInBody=" + (samlResponseInBody != null ? samlResponseInBody.substring(0, Math.min(40, samlResponseInBody.length())) : "null")
+                    + " requestInBody=" + (samlRequestInBody != null ? samlRequestInBody.substring(0, Math.min(40, samlRequestInBody.length())) : "null"));
 
             isSAMLMessage =
                     samlResponseInBody != null
@@ -75,19 +82,26 @@ public class SamlMessageAnalyzer {
                             || samlRequestInBody != null
                             || samlRequestInUrl != null;
 
+            log.logToOutput("[SAML Raider] isSAMLMessage=" + isSAMLMessage);
+
             if (isSAMLMessage) {
                 isSAMLRequest = samlRequestInBody != null || samlRequestInUrl != null;
                 isURLParam = samlResponseInUrl != null || samlRequestInUrl != null;
 
                 String message =
-                    Stream.of(samlResponseInBody, samlResponseInUrl, samlRequestInBody, samlRequestInUrl)
+                    Stream.<String>of(samlResponseInBody, samlResponseInUrl, samlRequestInBody, samlRequestInUrl)
                         .filter(str -> str != null)
                         .findFirst()
                         .orElseThrow();
 
-                var decodedSAMLMessage = SamlMessageDecoder.getDecodedSAMLMessage(message, isWSSMessage, isWSSUrlEncoded);
-                isInflated = decodedSAMLMessage.isInflated();
-                isGZip = decodedSAMLMessage.isGZip();
+                try {
+                    var decodedSAMLMessage = SamlMessageDecoder.getDecodedSAMLMessage(message, isWSSMessage, isWSSUrlEncoded);
+                    isInflated = decodedSAMLMessage.isInflated();
+                    isGZip = decodedSAMLMessage.isGZip();
+                } catch (Exception e) {
+                    // Decode failure doesn't hide the tab
+                    BurpExtender.api.logging().logToError(e);
+                }
             }
         }
 
@@ -100,6 +114,27 @@ public class SamlMessageAnalyzer {
                 isInflated,
                 isGZip,
                 isURLParam);
+    }
+
+    /**
+     * Returns the value of a body parameter, falling back to a raw-body scan when Burp's
+     * URL-param parser returns null (e.g. because Hackvertor tags containing literal '<' chars
+     * are present in the body and break standard URL-encoded parsing).
+     */
+    public static String extractParameterValue(HttpRequest request, String paramName, HttpParameterType type) {
+        String value = request.parameterValue(paramName, type);
+        if (value != null) return value;
+
+        if (type != HttpParameterType.BODY) return null;
+
+        // Strip Hackvertor tags then scan the raw body for name=value
+        String rawBody = request.bodyToString().replaceAll("</?@[^>]+>", "");
+        String marker = paramName + "=";
+        int idx = rawBody.indexOf(marker);
+        if (idx < 0) return null;
+        String val = rawBody.substring(idx + marker.length());
+        int amp = val.indexOf('&');
+        return amp >= 0 ? val.substring(0, amp) : val;
     }
 
     private SamlMessageAnalyzer() {

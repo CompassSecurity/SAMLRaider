@@ -15,6 +15,7 @@ import java.security.SecureRandom;
 import java.security.Security;
 import java.security.SignatureException;
 import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
 import java.text.ParseException;
@@ -29,25 +30,29 @@ import java.util.regex.Pattern;
 
 import javax.security.auth.x500.X500Principal;
 
-import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1EncodableVector;
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+import org.bouncycastle.asn1.ASN1OctetString;
+import org.bouncycastle.asn1.ASN1Primitive;
 import org.bouncycastle.asn1.DERSequence;
 import org.bouncycastle.asn1.x509.AuthorityKeyIdentifier;
 import org.bouncycastle.asn1.x509.BasicConstraints;
+import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.asn1.x509.GeneralNames;
 import org.bouncycastle.asn1.x509.KeyPurposeId;
 import org.bouncycastle.asn1.x509.KeyUsage;
 import org.bouncycastle.asn1.x509.SubjectKeyIdentifier;
-import org.bouncycastle.asn1.x509.X509Extensions;
+import org.bouncycastle.cert.X509v3CertificateBuilder;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
+import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.x509.X509V3CertificateGenerator;
-import org.bouncycastle.x509.extension.X509ExtensionUtil;
+import org.bouncycastle.operator.ContentSigner;
+import org.bouncycastle.operator.OperatorCreationException;
+import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 
-@SuppressWarnings("deprecation")
 public class BurpCertificateBuilder {
-	X509V3CertificateGenerator certificateGenerator;
 	BurpCertificate burpCertificate;
 	X509Certificate issuerCertificate;
 
@@ -88,7 +93,7 @@ public class BurpCertificateBuilder {
 		calendar.add(Calendar.DATE, 366);
 		notAfter = calendar.getTime();
 		this.subject = new X500Principal(subject);
-		signatureAlgorithm = "SHA1withRSA";
+		signatureAlgorithm = "SHA256withRSA";
 		keySize = 2048;
 		issuer = this.subject;
 		burpCertificateExtensions = new LinkedList<>();
@@ -105,7 +110,7 @@ public class BurpCertificateBuilder {
 	 * Generates a new certificate and sets the fields Private/Public Key and
 	 * Source of this object. The certificate is signed with the private key of
 	 * the given issuer.
-	 * 
+	 *
 	 * @param issuer
 	 *            The Private Key of this issuer is used for signing
 	 * @return New certificate object for our plugin
@@ -134,7 +139,7 @@ public class BurpCertificateBuilder {
 	 * Generates a new certificate and sets the fields Private/Public Key and
 	 * Source of this object. The certificate is signed with the private key of
 	 * "this" object.
-	 * 
+	 *
 	 * @return BurpCertificate which is self-signed.
 	 * @throws CertificateEncodingException
 	 * @throws InvalidKeyException
@@ -160,7 +165,7 @@ public class BurpCertificateBuilder {
 	/**
 	 * Creates a X.509v3 Certificate. The values of "this" object are used for
 	 * the building process.
-	 * 
+	 *
 	 * @param privateKey
 	 *            which signes the certificates
 	 * @return certificate object
@@ -174,29 +179,20 @@ public class BurpCertificateBuilder {
 	private X509Certificate generateX509Certificate(PrivateKey privateKey) throws CertificateEncodingException, InvalidKeyException, IllegalStateException, NoSuchAlgorithmException,
 			SignatureException, IOException {
 
-		// X.509v3 General
-
 		if (version != 3) {
 			throw new UnsupportedOperationException("Not implemented yet.");
 		}
-		certificateGenerator = new X509V3CertificateGenerator();
-		certificateGenerator.setSerialNumber(serial);
-		certificateGenerator.setIssuerDN(this.issuer);
-		certificateGenerator.setNotBefore(notBefore);
-		certificateGenerator.setNotAfter(notAfter);
-		certificateGenerator.setSubjectDN(subject);
-		certificateGenerator.setSignatureAlgorithm(signatureAlgorithm);
-		certificateGenerator.setPublicKey(publicKey);
 
-		// X.509v3 Extensions
+		X509v3CertificateBuilder builder = new JcaX509v3CertificateBuilder(
+				this.issuer, serial, notBefore, notAfter, subject, publicKey);
 
 		if (hasBasicConstraints) {
 			if (isCA && hasNoPathLimit) {
-				certificateGenerator.addExtension(X509Extensions.BasicConstraints, true, new BasicConstraints(true));
+				builder.addExtension(Extension.basicConstraints, true, new BasicConstraints(true));
 			} else if (isCA && !hasNoPathLimit) {
-				certificateGenerator.addExtension(X509Extensions.BasicConstraints, true, new BasicConstraints(pathLimit));
+				builder.addExtension(Extension.basicConstraints, true, new BasicConstraints(pathLimit));
 			} else {
-				certificateGenerator.addExtension(X509Extensions.BasicConstraints, true, new BasicConstraints(false));
+				builder.addExtension(Extension.basicConstraints, true, new BasicConstraints(false));
 			}
 		}
 
@@ -205,7 +201,7 @@ public class BurpCertificateBuilder {
 			for (int i : keyUsage) {
 				allKeyUsages |= i;
 			}
-			certificateGenerator.addExtension(X509Extensions.KeyUsage, true, new KeyUsage(allKeyUsages));
+			builder.addExtension(Extension.keyUsage, true, new KeyUsage(allKeyUsages));
 		}
 
 		if (extendedKeyUsage.size() > 0) {
@@ -213,54 +209,59 @@ public class BurpCertificateBuilder {
 			for (KeyPurposeId i : extendedKeyUsage) {
 				allExtendedKeyUsages.add(i);
 			}
-			certificateGenerator.addExtension(X509Extensions.ExtendedKeyUsage, false, new DERSequence(allExtendedKeyUsages));
+			builder.addExtension(Extension.extendedKeyUsage, false, new DERSequence(allExtendedKeyUsages));
 		}
 
 		if (subjectAlternativeName.size() > 0) {
-			GeneralNames generalNames = new GeneralNames(subjectAlternativeName.toArray(new GeneralName[subjectAlternativeName.size()]));
-			certificateGenerator.addExtension(X509Extensions.SubjectAlternativeName, true, generalNames);
+			GeneralNames generalNames = new GeneralNames(subjectAlternativeName.toArray(new GeneralName[0]));
+			builder.addExtension(Extension.subjectAlternativeName, true, generalNames);
 		}
 
-		if (setSubjectKeyIdentifier == true) {
+		if (setSubjectKeyIdentifier) {
 			JcaX509ExtensionUtils j = new JcaX509ExtensionUtils();
-			certificateGenerator.addExtension(X509Extensions.SubjectKeyIdentifier, false, j.createSubjectKeyIdentifier(publicKey));
+			builder.addExtension(Extension.subjectKeyIdentifier, false, j.createSubjectKeyIdentifier(publicKey));
 		}
 
-		if (!subjectKeyIdentifier.isEmpty() && setSubjectKeyIdentifier == false) {
+		if (!subjectKeyIdentifier.isEmpty() && !setSubjectKeyIdentifier) {
 			byte[] ski = CertificateHelper.hexStringToByteArray(subjectKeyIdentifier);
-			SubjectKeyIdentifier aKI = new SubjectKeyIdentifier(ski);
-			certificateGenerator.addExtension(X509Extensions.SubjectKeyIdentifier, true, aKI);
+			builder.addExtension(Extension.subjectKeyIdentifier, true, new SubjectKeyIdentifier(ski));
 		}
 
 		if (issuerAlternativeName.size() > 0) {
-			GeneralNames generalNames = new GeneralNames(issuerAlternativeName.toArray(new GeneralName[issuerAlternativeName.size()]));
-			certificateGenerator.addExtension(X509Extensions.IssuerAlternativeName, true, generalNames);
+			GeneralNames generalNames = new GeneralNames(issuerAlternativeName.toArray(new GeneralName[0]));
+			builder.addExtension(Extension.issuerAlternativeName, true, generalNames);
 		}
 
-		if (setAuthorityKeyIdentifier == true && issuerCertificate != null) {
+		if (setAuthorityKeyIdentifier && issuerCertificate != null) {
 			JcaX509ExtensionUtils j = new JcaX509ExtensionUtils();
-			certificateGenerator.addExtension(X509Extensions.AuthorityKeyIdentifier, true, j.createAuthorityKeyIdentifier(issuerCertificate));
+			builder.addExtension(Extension.authorityKeyIdentifier, true, j.createAuthorityKeyIdentifier(issuerCertificate));
 		}
 
-		if (!authorityKeyIdentifier.isEmpty() && setAuthorityKeyIdentifier == false) {
+		if (!authorityKeyIdentifier.isEmpty() && !setAuthorityKeyIdentifier) {
 			byte[] aki = CertificateHelper.hexStringToByteArray(authorityKeyIdentifier);
-			AuthorityKeyIdentifier aKI = new AuthorityKeyIdentifier(aki);
-			certificateGenerator.addExtension(X509Extensions.AuthorityKeyIdentifier, true, aKI);
+			builder.addExtension(Extension.authorityKeyIdentifier, true, new AuthorityKeyIdentifier(aki));
 		}
 
 		for (BurpCertificateExtension e : burpCertificateExtensions) {
-			// http://bouncycastle.sourcearchive.com/documentation/1.43/classorg_1_1bouncycastle_1_1x509_1_1X509V3CertificateGenerator_fd5118a4eaa4870e5fbf6efc02f10c00.html#fd5118a4eaa4870e5fbf6efc02f10c00
-			ASN1Encodable extension = X509ExtensionUtil.fromExtensionValue(e.getExtensionValue()); // Finally!!!
-			certificateGenerator.addExtension(e.getOid(), e.isCritical(), extension);
+			ASN1OctetString oct = (ASN1OctetString) ASN1Primitive.fromByteArray(e.getExtensionValue());
+			ASN1Primitive value = ASN1Primitive.fromByteArray(oct.getOctets());
+			builder.addExtension(new ASN1ObjectIdentifier(e.getOid()), e.isCritical(), value);
 		}
 
-		return certificateGenerator.generate(privateKey);
+		try {
+			ContentSigner signer = new JcaContentSignerBuilder(signatureAlgorithm).setProvider("BC").build(privateKey);
+			return new JcaX509CertificateConverter().setProvider("BC").getCertificate(builder.build(signer));
+		} catch (OperatorCreationException e) {
+			throw new SignatureException("Cannot build content signer: " + e.getMessage(), e);
+		} catch (CertificateException e) {
+			throw new CertificateEncodingException(e.getMessage());
+		}
 	}
 
 	/**
 	 * Generates a Public and Private Key with the minimum size of 512 Bytes and
 	 * set the variables of this object.
-	 * 
+	 *
 	 * @throws NoSuchAlgorithmException
 	 * @throws NoSuchProviderException
 	 * @throws InvalidKeySpecException

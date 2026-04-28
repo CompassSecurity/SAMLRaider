@@ -383,6 +383,20 @@ public class XMLHelpers {
     }
 
     /**
+     * Returns the first Subject/NameID text content in the given assertion.
+     *
+     * @param assertion Assertion with a Subject/NameID
+     * @return NameID text content if present, else empty string
+     */
+    public String getSubjectNameID(Node assertion) {
+        if (assertion == null || !assertion.getLocalName().equals("Assertion")) {
+            return "";
+        }
+        NodeList nl = ((Element) assertion).getElementsByTagNameNS("*", "NameID");
+        return nl.getLength() > 0 ? nl.item(0).getTextContent() : "";
+    }
+
+    /**
      * Returns Signature Algorithm of Node which is signed
      *
      * @param node node with Signature
@@ -423,6 +437,62 @@ public class XMLHelpers {
         Element encryptionMethod = (Element) ((Element) assertion).getElementsByTagNameNS("*", "EncryptionMethod")
                 .item(0);
         return getAttributeValueByName(encryptionMethod, "Algorithm");
+    }
+
+    public String getKeyTransportAlgorithm(Node encryptedAssertion) {
+        if (encryptedAssertion == null || !encryptedAssertion.getLocalName().equals("EncryptedAssertion")) {
+            return "";
+        }
+        Element encryptedKey = (Element) ((Element) encryptedAssertion).getElementsByTagNameNS("*", "EncryptedKey").item(0);
+        if (encryptedKey == null) return "";
+        Element method = (Element) encryptedKey.getElementsByTagNameNS("*", "EncryptionMethod").item(0);
+        return getAttributeValueByName(method, "Algorithm");
+    }
+
+    public String getEncryptionKeyIdentifier(Node encryptedAssertion) {
+        if (encryptedAssertion == null || !encryptedAssertion.getLocalName().equals("EncryptedAssertion")) {
+            return "";
+        }
+        Element encryptedKey = (Element) ((Element) encryptedAssertion).getElementsByTagNameNS("*", "EncryptedKey").item(0);
+        if (encryptedKey == null) return "";
+
+        NodeList certs = encryptedKey.getElementsByTagNameNS("*", "X509Certificate");
+        if (certs.getLength() > 0) {
+            String cert = certs.item(0).getTextContent().trim();
+            return cert.length() > 32 ? cert.substring(0, 32) + "…" : cert;
+        }
+
+        NodeList issuerSerials = encryptedKey.getElementsByTagNameNS("*", "X509IssuerSerial");
+        if (issuerSerials.getLength() > 0) {
+            Element is = (Element) issuerSerials.item(0);
+            NodeList names = is.getElementsByTagNameNS("*", "X509IssuerName");
+            NodeList serials = is.getElementsByTagNameNS("*", "X509SerialNumber");
+            String name = names.getLength() > 0 ? names.item(0).getTextContent().trim() : "";
+            String serial = serials.getLength() > 0 ? serials.item(0).getTextContent().trim() : "";
+            return name + "  |  Serial: " + serial;
+        }
+
+        NodeList subjects = encryptedKey.getElementsByTagNameNS("*", "X509SubjectName");
+        if (subjects.getLength() > 0) {
+            return subjects.item(0).getTextContent().trim();
+        }
+        return "";
+    }
+
+    public String getResponseAttribute(Document document, String attrName) {
+        NodeList responses = document.getElementsByTagNameNS("*", "Response");
+        if (responses.getLength() > 0) {
+            return getAttributeValueByName((Element) responses.item(0), attrName);
+        }
+        return "";
+    }
+
+    public String getStatusCode(Document document) {
+        NodeList codes = document.getElementsByTagNameNS("*", "StatusCode");
+        if (codes.getLength() == 0) return "";
+        String value = getAttributeValueByName((Element) codes.item(0), "Value");
+        int last = value.lastIndexOf(':');
+        return last >= 0 ? value.substring(last + 1) : value;
     }
 
     /**

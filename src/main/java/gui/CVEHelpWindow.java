@@ -1,6 +1,7 @@
 package gui;
 
 import helpers.CVE_2022_41912;
+import helpers.CVE_2024_45409;
 import helpers.CVE_2025_23369;
 import helpers.CVE_2025_25291;
 import helpers.CVE_2025_25292;
@@ -17,6 +18,29 @@ public class CVEHelpWindow extends JFrame {
 
     public CVEHelpWindow(String cve) {
         var description = switch (cve) {
+            case CVE_2024_45409.CVE -> """
+                    <ol>
+                        <li>
+                            You need a valid SAMLResponse containing a signed Assertion that is accepted by the target SP running ruby-saml &lt; 1.17.0.
+                        </li>
+                        <li>
+                            Apply the CVE-2024-45409 attack. A second, unsigned Assertion is <b>prepended</b> before the original signed Assertion inside the Response.
+                        </li>
+                        <li>
+                            <b>Modify the prepended (evil) Assertion</b> — change the NameID or Attributes to impersonate the target user.
+                            ruby-saml &lt; 1.17.0 evaluates assertions by XPath order and processes the <em>first</em> one it finds.
+                            It verifies that a valid signature exists somewhere in the document but does not check that the specific Assertion being consumed is covered by it.
+                        </li>
+                        <li>
+                            Forward the modified response. A vulnerable SP will authenticate as the identity in the prepended (unsigned) Assertion.
+                        </li>
+                    </ol>
+                    <p>
+                        References:
+                        <a href="https://github.com/advisories/GHSA-jw9c-mfg7-9rx2">GHSA-jw9c-mfg7-9rx2</a> &nbsp;|&nbsp;
+                        <a href="https://portswigger.net/research/saml-roulette-the-hacker-always-wins">PortSwigger SAML research</a>
+                    </p>
+                    """;
             case CVE_2022_41912.CVE -> """
                     <ol>
                         <li>

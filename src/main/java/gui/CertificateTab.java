@@ -97,8 +97,6 @@ public class CertificateTab extends JPanel {
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     File file = fc.getSelectedFile();
                     certificateTabController.importCertificate(file.getAbsolutePath());
-                } else {
-                    System.out.println("Cancelled by user");
                 }
             }
         });
@@ -110,8 +108,6 @@ public class CertificateTab extends JPanel {
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     File file = fc.getSelectedFile();
                     certificateTabController.importCertificateChain(file.getAbsolutePath());
-                } else {
-                    System.out.println("Cancelled by user");
                 }
             }
         });
@@ -123,8 +119,6 @@ public class CertificateTab extends JPanel {
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     File file = fc.getSelectedFile();
                     certificateTabController.exportCertificate(selectedBurpCertificate, file.getAbsolutePath());
-                } else {
-                    System.out.println("Cancelled by user");
                 }
             }
         });
@@ -217,8 +211,6 @@ public class CertificateTab extends JPanel {
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     File file = fc.getSelectedFile();
                     certificateTabController.importPrivateKeyPkcs8DerFormat(selectedBurpCertificate, file.getAbsolutePath());
-                } else {
-                    System.out.println("Cancelled by user");
                 }
             }
         });
@@ -230,8 +222,6 @@ public class CertificateTab extends JPanel {
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     File file = fc.getSelectedFile();
                     certificateTabController.importPrivateKeyPemFormat(selectedBurpCertificate, file.getAbsolutePath());
-                } else {
-                    System.out.println("Cancelled by user");
                 }
             }
         });
@@ -243,8 +233,6 @@ public class CertificateTab extends JPanel {
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     File file = fc.getSelectedFile();
                     certificateTabController.exportPrivateKeyPemFormat(selectedBurpCertificate, file.getAbsolutePath());
-                } else {
-                    System.out.println("Cancelled by user");
                 }
             }
         });
@@ -355,7 +343,6 @@ public class CertificateTab extends JPanel {
         JButton tbnAddSubjectAlternativeName = new JButton("Add");
         tbnAddSubjectAlternativeName.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                System.out.println(txtSubjectAlternativeNameName.getText());
                 addSubjectAlternativeNames(txtSubjectAlternativeNameName.getText() + " (" + cbbSubjectAlternativeNameType.getSelectedItem() + ")");
             }
         });

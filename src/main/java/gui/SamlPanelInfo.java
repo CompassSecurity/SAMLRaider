@@ -24,6 +24,13 @@ public class SamlPanelInfo extends JPanel {
 	private final JLabel subjectConfNotAfter = new JLabel("");
 
 	private final JLabel encryptedWith = new JLabel("");
+	private final JLabel keyTransport = new JLabel("");
+	private final JLabel keyIdentifier = new JLabel("");
+
+	private final JLabel responseDestination = new JLabel("");
+	private final JLabel responseIssueInstant = new JLabel("");
+	private final JLabel responseInResponseTo = new JLabel("");
+	private final JLabel responseStatus = new JLabel("");
 
 	public SamlPanelInfo() {
 		super();
@@ -68,6 +75,22 @@ public class SamlPanelInfo extends JPanel {
 		encryptionInformationPanel.setLayout(new MigLayout());
 		encryptionInformationPanel.add(new JLabel("Encrypted with:"), labelConstraints);
 		encryptionInformationPanel.add(encryptedWith, valueConstraints);
+		encryptionInformationPanel.add(new JLabel("Key Transport:"), labelConstraints);
+		encryptionInformationPanel.add(keyTransport, valueConstraints);
+		encryptionInformationPanel.add(new JLabel("Key Identifier:"), labelConstraints);
+		encryptionInformationPanel.add(keyIdentifier, "width 200::, wrap");
+
+		var responseInformationPanel = new JPanel();
+		responseInformationPanel.setBorder(BorderFactory.createTitledBorder("Response Information"));
+		responseInformationPanel.setLayout(new MigLayout());
+		responseInformationPanel.add(new JLabel("Status:"), labelConstraints);
+		responseInformationPanel.add(responseStatus, valueConstraints);
+		responseInformationPanel.add(new JLabel("Destination:"), labelConstraints);
+		responseInformationPanel.add(responseDestination, valueConstraints);
+		responseInformationPanel.add(new JLabel("IssueInstant:"), labelConstraints);
+		responseInformationPanel.add(responseIssueInstant, valueConstraints);
+		responseInformationPanel.add(new JLabel("InResponseTo:"), labelConstraints);
+		responseInformationPanel.add(responseInResponseTo, valueConstraints);
 
 		var informationPanelConstraints = "wrap";
 
@@ -77,6 +100,7 @@ public class SamlPanelInfo extends JPanel {
 		informationPanels.add(signatureInformationPanel, informationPanelConstraints);
 		informationPanels.add(subjectInformationPanel, informationPanelConstraints);
 		informationPanels.add(encryptionInformationPanel, informationPanelConstraints);
+		informationPanels.add(responseInformationPanel, informationPanelConstraints);
 
 		var scrollPane = new JScrollPane(informationPanels);
 		scrollPane.setBorder(new EmptyBorder(0, 0, 0, 0));
@@ -121,6 +145,30 @@ public class SamlPanelInfo extends JPanel {
 		encryptedWith.setText(string);
 	}
 
+	public void setKeyTransport(String string) {
+		keyTransport.setText(string);
+	}
+
+	public void setKeyIdentifier(String string) {
+		keyIdentifier.setText(string);
+	}
+
+	public void setResponseDestination(String string) {
+		responseDestination.setText(string);
+	}
+
+	public void setResponseIssueInstant(String string) {
+		responseIssueInstant.setText(string);
+	}
+
+	public void setResponseInResponseTo(String string) {
+		responseInResponseTo.setText(string);
+	}
+
+	public void setResponseStatus(String string) {
+		responseStatus.setText(string);
+	}
+
 	public void clearAll(){
 		setIssuer("");
 		setSubject("");
@@ -131,5 +179,11 @@ public class SamlPanelInfo extends JPanel {
 		setSignatureAlgorithm("");
 		setDigestAlgorithm("");
 		setEncryptionAlgorithm("");
+		setKeyTransport("");
+		setKeyIdentifier("");
+		setResponseDestination("");
+		setResponseIssueInstant("");
+		setResponseInResponseTo("");
+		setResponseStatus("");
 	}
 }

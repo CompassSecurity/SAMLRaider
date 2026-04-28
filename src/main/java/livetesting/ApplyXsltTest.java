@@ -75,10 +75,10 @@ public class ApplyXsltTest {
             var request = HttpRequest.httpRequest(rawRequest);
             var requestResponse = HttpRequestResponse.httpRequestResponse(request, null);
             samlTabController.setRequestResponse(requestResponse);
-            samlTabController.applyXSLT("https://example.com");
+            samlTabController.applyXSLT(helpers.XSLTPayloads.Flavor.SAXON_UNPARSED_TEXT, "https://example.com");
             var infoMessageText = samlTabController.getInfoMessageText();
 
-            var success = SamlTabController.XSLT_CONTENT_APPLIED.equals(infoMessageText);
+            var success = infoMessageText != null && infoMessageText.startsWith(SamlTabController.XSLT_CONTENT_APPLIED);
 
             if (!success) {
                 return new TestResult(false, infoMessageText, null);

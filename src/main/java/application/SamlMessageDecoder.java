@@ -26,7 +26,9 @@ public class SamlMessageDecoder {
         }
 
         String urlDecoded = BurpExtender.api.utilities().urlUtils().decode(message);
-        urlDecoded = urlDecoded.replaceAll("\\R", "");
+        urlDecoded = urlDecoded.replaceAll("\\R", "").replace(" ", "+");
+        // Strip Hackvertor tags (<@tag>...</@tag>) so the tab survives Hackvertor-wrapped requests
+        urlDecoded = urlDecoded.replaceAll("</?@[^>]+>", "").strip();
         byte[] base64Decoded = Base64.getDecoder().decode(urlDecoded);
 
         boolean isInflated = true;

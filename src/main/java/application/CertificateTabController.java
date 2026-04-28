@@ -703,6 +703,10 @@ public class CertificateTabController implements Observable {
         return burpCertificateStore.getBurpCertificatesWithPrivateKey();
     }
 
+    public List<BurpCertificate> getAllCertificates() {
+        return burpCertificateStore.getBurpCertificates();
+    }
+
     /*
      * Remove
      */

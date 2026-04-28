@@ -27,6 +27,8 @@ Features of the SAML Raider message editor:
 * Supported Profiles: SAML Webbrowser Single Sign-on Profile, Web Services
   Security SAML Token Profile
 * Supported Bindings: POST Binding, Redirect Binding, SOAP Binding, URI Binding
+* XML is pretty printed, syntax highlighted and editable live
+* Search field at the bottom to auto scroll & highlight searched text
 
 SAML Attacks:
 
